@@ -1,0 +1,7 @@
+CC = g++
+
+sfml-app: app.o
+	$(CC) app.o -o sfml-app -L/opt/homebrew/Cellar/sfml/2.5.1_1/lib -lsfml-graphics -lsfml-window -lsfml-system
+
+app.o: app.cpp
+	$(CC) -c app.cpp -I/opt/homebrew/Cellar/sfml/2.5.1_1/include/
