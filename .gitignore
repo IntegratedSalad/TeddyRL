@@ -32,5 +32,19 @@
 *.app
 sfml-app
 
+# XCode Project File
+*.xcodeproj
+
+# plist files
+*.plist
+
 # Misc
 notes.txt
+
+# SFML default things i'll delete later
+*.png
+*.ogg
+*/sansation.ttf
+
+TeddyRL/TeddyRL/TeddyRL-Info.plist
+*.plist

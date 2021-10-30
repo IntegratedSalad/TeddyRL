@@ -9,5 +9,5 @@ private:
 
 public:
     Engine();
-    void mainLoop(std::shared_ptr<sf::RenderWindow> window);
+    void mainLoop(sf::RenderWindow* window);
 };

@@ -1,5 +1,5 @@
 #include <SFML/Graphics.hpp>
-#include "engine/engine.hpp"
+#include "../engine/engine.hpp"
 #include <memory>
 
 class App
@@ -7,7 +7,7 @@ class App
     /* Handles all loading/setting up tasks as e.g. setting up windows, tileset, fonts, music etc. */
 
 private:
-    std::shared_ptr<sf::RenderWindow> window;
+    sf::RenderWindow* window;
 
 public:
     App();

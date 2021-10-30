@@ -1,30 +1,30 @@
 #include "engine.hpp"
-
+#include "ResourcePath.hpp"
 
 Engine::Engine()
 {
     isRunning = false;
 }
 
-void Engine::mainLoop(std::shared_ptr<sf::RenderWindow> window)
-{   
+void Engine::mainLoop(sf::RenderWindow* window)
+{
 
     sf::Font font;
     sf::Text text;
 
-    if (!font.loadFromFile("dos_vga_font.ttf"))
+    if (!font.loadFromFile(resourcePath() + "dos_vga_font.ttf"))
     {
         std::cout << "Couldn't load the font. Exiting" << std::endl;
         window->close();
 
     }
 
-    text.setString("Dupa");
+    text.setString("Dupadsdsds");
+    text.setFont(font);
 
-    text.setCharacterSize(10);
+    text.setCharacterSize(20);
 
-    text.setFillColor(sf::Color::Red);
-
+    text.setFillColor(sf::Color::White);
 
     while (window->isOpen())
     {
@@ -37,8 +37,8 @@ void Engine::mainLoop(std::shared_ptr<sf::RenderWindow> window)
                 window->close();
             }
         }
-    
-        window->clear(sf::Color::Black);
+
+        window->clear();
         window->draw(text);
         window->display();
     }
