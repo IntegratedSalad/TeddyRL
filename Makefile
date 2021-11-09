@@ -5,15 +5,15 @@ CXX = clang++
 CXXFLAGS = -std=c++17 -g -I/Users/dev/Documents/SFML/SFML-master/include/
 LIBS= -L/Users/dev/Documents/SFML/SFML-master/cmake/lib -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
 MACFLAGS = -target arm64-apple-macos10.7 -framework Cocoa -framework Foundation
-SRCS = src/app/app.cpp src/engine/engine.cpp src/main.cpp
-OBJS = src/app/app.o src/engine/engine.o src/main.o
+SRCS = TeddyRL/TeddyRL/app/app.cpp TeddyRL/TeddyRL/engine/engine.cpp TeddyRL/TeddyRL/src/main.cpp TeddyRL/TeddyRL/ResourcePath.mm
+OBJS = TeddyRL/TeddyRL/app/app.o TeddyRL/TeddyRL/engine/engine.o TeddyRL/TeddyRL/main.o
 LFLAGS = -L/Users/dev/Documents/SFML/SFML-master/cmake/lib 
 #LFLAGS = -L/opt/homebrew/Cellar/sfml/2.5.1_1/lib 
 
 all: sfml-app
 
 %.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@ -I src/
+	$(CXX) $(CXXFLAGS) -c $< -o $@ -I TeddyRL/TeddyRL/
 
 sfml-app: $(OBJS)
 	$(CXX) $(OBJS) -g -o sfml-app $(LFLAGS) -F/Library/Frameworks/ $(LIBS) $(MACFLAGS)

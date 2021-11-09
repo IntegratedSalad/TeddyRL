@@ -14,20 +14,32 @@
 // function `resourcePath()` from ResourcePath.hpp
 //
 
-#include <SFML/Audio.hpp>
-#include <SFML/Graphics.hpp>
-
-// Here is a small helper for you! Have a look.
-#include "ResourcePath.hpp"
-#include <SFML/Graphics.hpp>
 #include "app/app.hpp"
+
+void printResourcePath()
+{
+    std::cout << resourcePath() << std::endl;
+}
+
 
 int main(int, char const**)
 {
-//    std::cout<< resourcePath() << std::endl;
-//    exit(0);
+
     App app = App();
     app.run();
 
+    
+//    std::cout << resourcePath() + "tileset.png" << std::endl;
+
+//    sf::Texture tilesetImage;
+//    if (!tilesetImage.loadFromFile(resourcePath() + "tileset.png"))
+//    {
+//        std::cout << "Couldn't load tileset file " << std::endl;
+//        exit(-1);
+//    }
+
+//    printResourcePath();
+    
     return EXIT_SUCCESS;
 }
+

@@ -1,6 +1,18 @@
 #include <SFML/Graphics.hpp>
 #include <memory>
 #include <iostream>
+#ifdef __APPLE__
+#include "../ResourcePath.hpp"
+#endif
+
+enum class EngineState
+{
+    STATE_running = 0,
+    STATE_saving,
+    STATE_exiting,
+    STATE_menu
+    
+};
 
 class Engine
 {
@@ -9,5 +21,6 @@ private:
 
 public:
     Engine();
-    void mainLoop(sf::RenderWindow* window);
+    EngineState mainLoop(sf::RenderWindow* window, const std::vector<sf::Sprite> tilesetVector);
 };
+

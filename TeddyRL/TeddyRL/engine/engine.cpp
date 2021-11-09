@@ -1,12 +1,11 @@
 #include "engine.hpp"
-#include "ResourcePath.hpp"
 
 Engine::Engine()
 {
     isRunning = false;
 }
 
-void Engine::mainLoop(sf::RenderWindow* window)
+EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Sprite> tilesetVector)
 {
 
     sf::Font font;
@@ -15,10 +14,11 @@ void Engine::mainLoop(sf::RenderWindow* window)
     if (!font.loadFromFile(resourcePath() + "dos_vga_font.ttf"))
     {
         std::cout << "Couldn't load the font. Exiting" << std::endl;
-        window->close();
+        
+        return EngineState::STATE_exiting;
 
     }
-
+    
     text.setString("Dupadsdsds");
     text.setFont(font);
 
@@ -26,7 +26,7 @@ void Engine::mainLoop(sf::RenderWindow* window)
 
     text.setFillColor(sf::Color::White);
 
-    while (window->isOpen())
+    while (window->isOpen()) // isRunning
     {
 
         sf::Event event;
@@ -38,8 +38,40 @@ void Engine::mainLoop(sf::RenderWindow* window)
             }
         }
 
+        
         window->clear();
-        window->draw(text);
+
+        
+        int x = 0;
+        int y = 0;
+        for (int i = 0; i < tilesetVector.size(); i++)
+        {
+            sf::Sprite currentSprite;
+            currentSprite = tilesetVector.at(i);
+            
+            currentSprite.move(sf::Vector2f(x, y));
+            
+            x += 16;
+            
+            if (x >= 16 * 10)
+            {
+                y += 16;
+                x = 0;
+            }
+            
+            window->draw(currentSprite);
+        }
+    
+//
+//        sf::Sprite sprite = tilesetVector.at(7);
+//        sf::Sprite second_sprite = tilesetVector.at(9);
+//        second_sprite.move(16, 16);
+//
+//        window->draw(sprite);
+//        window->draw(second_sprite);
+//
+        
+//        window->draw(text);
         window->display();
     }
     
