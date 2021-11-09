@@ -26,7 +26,7 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
 
     text.setFillColor(sf::Color::White);
 
-    while (window->isOpen()) // isRunning
+    while (window->isOpen()) // isRunning -> we want to get to the main menu
     {
 
         sf::Event event;
@@ -38,7 +38,6 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
             }
         }
 
-        
         window->clear();
 
         

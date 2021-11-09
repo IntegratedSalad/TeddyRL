@@ -5,6 +5,8 @@
 #include "../ResourcePath.hpp"
 #endif
 
+
+/* TODO: all caps */
 enum class EngineState
 {
     STATE_running = 0,

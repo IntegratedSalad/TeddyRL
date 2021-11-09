@@ -59,6 +59,8 @@ public:
         return spriteVector;
     }
     
+    void removeBackgroundFromTilesetImage(sf::Image& img, const sf::Color color);
+    
     
 };
 

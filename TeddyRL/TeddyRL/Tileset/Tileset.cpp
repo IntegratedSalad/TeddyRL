@@ -15,25 +15,32 @@ Tileset::Tileset()
 
 Tileset::~Tileset()
 {
-    
+    for (int i = 0; i < spriteVector.size(); i++)
+    {
+        delete spriteVector[i].getTexture();
+    }
 }
 
 Tileset::Tileset(const std::string _fileName, const int _tileSize)
 {
     std::cout << _fileName << std::endl;
-
+    
+    const sf::Color backgroundColor = sf::Color(17, 17, 51);
+    const sf::Color dotBackgroundColor = sf::Color(51, 51, 85);
+    
     if (!tilesetImage.loadFromFile(resourcePath() + _fileName))
     {
         std::cout << "Couldn't load tileset file " << _fileName << std::endl;
         exit(-1);
     }
 
+    removeBackgroundFromTilesetImage(tilesetImage, backgroundColor);
+    removeBackgroundFromTilesetImage(tilesetImage, dotBackgroundColor);
     
     tileSize = _tileSize;
     fileName = _fileName;
     
     getSpritesFromTilesetImage(&spriteVector, _tileSize);
-    
     
 }
 
@@ -48,25 +55,19 @@ Tileset::Tileset(const std::string _fileName, const int _tileSize)
 
 void Tileset::getSpritesFromTilesetImage(std::vector<sf::Sprite>* vec, const int tileSize)
 {
+
     
     std::cout << "Tileset image dimensions:" << std::endl;
     std::cout << tilesetImage.getSize().x << tilesetImage.getSize().y << std::endl;
-//    exit(0);
-    
+
     const sf::Vector2u IMAGESIZE = this->tilesetImage.getSize();
-    
-//    std::cout << IMAGESIZE.x << std::endl;
-    std::cout << IMAGESIZE.y / tileSize << std::endl;
-    
+
     for (int _y = 0; _y < IMAGESIZE.y; _y += tileSize)
     {
         for (int _x = 0; _x < IMAGESIZE.x; _x += tileSize)
         {
             sf::Texture* texture = new sf::Texture();
-            if (!texture->loadFromFile(resourcePath() + fileName, sf::IntRect(_x, _y, tileSize, tileSize)))
-            {
-            }
-            
+            texture->loadFromImage(tilesetImage, sf::IntRect(_x, _y, tileSize, tileSize));
             sf::Sprite sprite;
             
             sprite.setTexture(*texture);
@@ -74,6 +75,9 @@ void Tileset::getSpritesFromTilesetImage(std::vector<sf::Sprite>* vec, const int
             vec->push_back(sprite);
         }
     }
-    // REMEMBER TO DELETE TEXTURES AFTER PROGRAM EXITS!
 }
 
+void Tileset::removeBackgroundFromTilesetImage(sf::Image& img, const sf::Color color)
+{
+    img.createMaskFromColor(color);
+}
