@@ -22,7 +22,8 @@ private:
     int tileSize;
     
     std::vector<sf::Sprite> spriteVector;
-
+    
+    /* Image to load the tileset from */
     sf::Image tilesetImage;
     
     void getSpritesFromTilesetImage(std::vector<sf::Sprite>* vec, const int tileSize);
@@ -54,7 +55,7 @@ public:
         fileName = fN;
     }
     
-    const std::vector<sf::Sprite> getTiles(void)
+    const std::vector<sf::Sprite> getSprites(void)
     {
         return spriteVector;
     }

@@ -5,24 +5,43 @@
 #include "../ResourcePath.hpp"
 #endif
 
+#include "entity.hpp"
+#include "map.hpp"
+#include "constants.hpp"
+
 
 /* TODO: all caps */
 enum class EngineState
 {
-    STATE_running = 0,
-    STATE_saving,
-    STATE_exiting,
-    STATE_menu
+    STATE_RUNNING = 0,
+    STATE_SAVING,
+    STATE_EXITING,
+    STATE_MENU
     
 };
 
+/* TODO: Think about making this an abstract class. */
 class Engine
 {
 private:
-    bool isRunning;
+    EngineState isRunning;
+    Entity* player;
+    Map* gameMap;
 
 public:
     Engine();
     EngineState mainLoop(sf::RenderWindow* window, const std::vector<sf::Sprite> tilesetVector);
+    
+    EngineState getEngineIsRunning(void)
+    {
+        return this->isRunning;
+    }
+
+    void renderAll();
+    
+    int getCordObjToDraw(int i)
+    {
+        return i * C_TILE_SIZE;
+    }
 };
 

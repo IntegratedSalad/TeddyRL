@@ -1,6 +1,6 @@
 #include <SFML/Graphics.hpp>
-#include "../engine/engine.hpp"
-#include "Tileset.hpp"
+#include "engine.hpp"
+#include "tileset.hpp"
 
 class App
 {

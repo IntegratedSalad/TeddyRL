@@ -6,7 +6,7 @@
 //  Copyright © 2021 Dev. All rights reserved.
 //
 
-#include "Tileset.hpp"
+#include "tileset.hpp"
 
 Tileset::Tileset()
 {
@@ -51,6 +51,8 @@ Tileset::Tileset(const std::string _fileName, const int _tileSize)
  TO MODIFY THIS VECTOR.
  
  */
+
+/* We should probably make copies if we want to customize the sprites. */
 
 
 void Tileset::getSpritesFromTilesetImage(std::vector<sf::Sprite>* vec, const int tileSize)
