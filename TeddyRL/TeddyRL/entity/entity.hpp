@@ -15,11 +15,13 @@
 #include "actor.hpp"
 #include "constants.hpp"
 
+/* Entity is a single object on game map, that isn't a free space.
+   Entity has a pointer to Tile object, that is its graphical representation.
+ */
+
 class Entity
 {
 private:
-    
-    Tile* tile;
     
     Actor* actorComponent;
     
@@ -28,15 +30,17 @@ private:
     
 public:
     
+    Tile* tile;
+    
     Entity();
-    Entity(Tile* _tile, int _x, int _y, bool);
-    Entity(Tile* _tile, int _x, int _y, bool, Actor*);
+    Entity(Tile* _tile, int _x, int _y);
+    Entity(Tile* _tile, int _x, int _y, Actor*);
     
     ~Entity();
-    
+
     void move(int moveX, int moveY);
     
-    void draw();
+//    void draw();
     
     bool isEntityBlocking(void)
     {

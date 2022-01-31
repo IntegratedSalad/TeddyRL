@@ -12,6 +12,8 @@
 #include <memory>
 #include <SFML/Graphics.hpp>
 
+/* Actor is a component that relies on AI that it's given */
+
 class Actor
 {
 private:

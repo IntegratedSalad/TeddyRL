@@ -11,10 +11,14 @@
 
 #include <iostream>
 #include <SFML/Graphics.hpp>
+#include "constants.hpp"
 
-/* Tile is a structure that has a colored sprite. */
+/* Tile is a structure that has a colored sprite.
+   It inherits from sf::Drawable, to make it easier to draw.
+ 
+ */
 
-typedef struct Tile
+typedef struct Tile : public sf::RectangleShape
 {
     
     bool canBlock;
@@ -30,14 +34,14 @@ typedef struct Tile
     void makeVisible();
     void makeHidden();
 
-    
 private:
     
-    sf::Sprite sprite; // should be a copy
+    sf::Sprite sprite;
     sf::Color tileColor;
     
-    void setTile(sf::Sprite sprite, sf::Color color);
-    
+    void setTile(sf::Sprite& sprite, sf::Color color);
+
+
     
 } Tile;
 

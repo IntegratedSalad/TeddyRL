@@ -16,11 +16,13 @@ class Map
 {
 private:
     std::vector<std::vector<Entity* >> entityMapVector;
+    int levelNum;
     
 public:
     
     Map();
     ~Map();
+    
     
     
 };

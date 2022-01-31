@@ -13,12 +13,18 @@ Entity::Entity() : x(0), y(0), actorComponent(nullptr)
     
 }
 
-Entity::Entity(Tile* _tile, int _x, int _y, bool blocks) : x(_x), y(_y), tile(_tile), actorComponent(nullptr)
+Entity::Entity(Tile* _tile, int _x, int _y) : x(_x), y(_y), tile(_tile), actorComponent(nullptr)
 {
     
 }
 
-Entity::Entity(Tile* _tile, int _x, int _y, bool blocks, Actor* comp) : x(_x), y(_y), tile(_tile), actorComponent(comp)
+Entity::Entity(Tile* _tile, int _x, int _y, Actor* comp) : x(_x), y(_y), tile(_tile), actorComponent(comp)
 {
 
+}
+
+void Entity::move(int moveX, int moveY) // later add entity vector
+{
+    
+    this->tile->move(moveX, moveY);
 }

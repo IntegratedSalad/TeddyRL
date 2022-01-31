@@ -19,6 +19,8 @@ Tile::Tile(bool isInvisible, bool blocks, sf::Sprite sprite, sf::Color color)
      : isInvisible(isInvisible), canBlock(blocks)
 {
     this->setTile(sprite, color);
+    this->setSize(sf::Vector2f(C_TILE_SIZE, C_TILE_SIZE));
+    
 }
 
 Tile::Tile(bool blocks) : sprite(), isInvisible(true)
@@ -28,12 +30,11 @@ Tile::Tile(bool blocks) : sprite(), isInvisible(true)
 
 Tile::~Tile()
 {
-    
 }
 
 /* setTile sets a colored sprite to the tile and sets the alpha mask of it */
 
-void Tile::setTile(sf::Sprite _sprite, sf::Color color)
+void Tile::setTile(sf::Sprite& _sprite, sf::Color color)
 {
     
     if (this->isInvisible)
@@ -46,9 +47,11 @@ void Tile::setTile(sf::Sprite _sprite, sf::Color color)
         
     }
     
-    this->tileColor = color; // if the tile has a potential to become visible
-    this->sprite = _sprite;
-
+    const sf::Texture* t = new sf::Texture();
+    t = _sprite.getTexture();
+    
+    this->setTexture(t);
+    this->setFillColor(color);
 }
 
 

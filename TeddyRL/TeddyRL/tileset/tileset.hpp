@@ -31,9 +31,9 @@ private:
 public:
 
     Tileset();
-    ~Tileset();
-    
     Tileset(const std::string _fileName, const int _tileSize);
+    
+    ~Tileset();
     
     const int getTileSize(void)
     {

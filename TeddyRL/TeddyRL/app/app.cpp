@@ -8,11 +8,19 @@ App::App()
     
     window->setFramerateLimit(60);
     
+    if (!font.loadFromFile(resourcePath() + "dos_vga_font.ttf"))
+    {
+        std::cout << "Couldn't load the font. Exiting" << std::endl;
+        
+        return EngineState::STATE_EXITING;
+
+    }
+    
 }
 
 App::~App()
 {
-    delete window;
+    delete this->window;
 }
 
 void App::run()
