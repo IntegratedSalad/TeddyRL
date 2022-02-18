@@ -1,6 +1,7 @@
 #include "engine.hpp"
 #include "entity.hpp"
 #include "constants.hpp"
+#include "handleKeys.hpp"
 
 Engine::Engine()
 {
@@ -50,12 +51,13 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
 //    std::cout << gameMapView.getViewport().height << std::endl;
     
     /*               */
-
-
+    
+    std::map<std::string, Action> bindings = in_game_bindings;
+    
     while (Engine::getEngineIsRunning() == EngineState::STATE_RUNNING)
     {
-
         sf::Event event;
+        Action player_action;
         while (window->pollEvent(event))
         {
             if (event.type == sf::Event::Closed)
@@ -63,9 +65,17 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
                 delete playerTile;
                 window->close();
                 return EngineState::STATE_EXITING;
+            } else if (event.type == sf::Event::KeyPressed)
+            {
+                /* TODO: We have to use event keys, not real-time input. */
+                player_action = returnActionFromInput(bindings);
             }
         }
-
+        if (player_action == Action::ACTION_MOVE_S)
+        {
+            std::cout << "dupa" << std::endl;
+        }
+        
         window->clear();
 
         /* DRAW */

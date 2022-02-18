@@ -14,7 +14,7 @@
 #include "constants.hpp"
 
 /* Tile is a structure that has a colored sprite.
-   It inherits from sf::Drawable, to make it easier to draw.
+   It inherits from sf::Rectangle Shape that allows it to be drawn and transformed.
  
  */
 
@@ -40,8 +40,6 @@ private:
     sf::Color tileColor;
     
     void setTile(sf::Sprite& sprite, sf::Color color);
-
-
     
 } Tile;
 

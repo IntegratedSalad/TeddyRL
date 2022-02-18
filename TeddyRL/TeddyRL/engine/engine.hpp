@@ -9,7 +9,6 @@
 #include "map.hpp"
 #include "constants.hpp"
 
-
 /* TODO: all caps */
 enum class EngineState
 {
