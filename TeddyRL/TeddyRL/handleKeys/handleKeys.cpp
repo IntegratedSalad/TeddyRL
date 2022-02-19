@@ -7,56 +7,21 @@
 //
 
 #include "handleKeys.hpp"
+#include <iostream>
 
 /* KEY_PRESSED:ACTION_ENUM */
 
-
 /* Always return an action accessed by a key being a lowercase string. */
-Action returnActionFromInput(const std::map<std::string, Action> bindingsMap)
+Action returnActionFromInput(const std::map<sf::Keyboard::Key, Action> bindingsMap, sf::Keyboard::Key key_code)
 {
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) || sf::Keyboard::isKeyPressed(sf::Keyboard::H))
+    Action action;
+    try
     {
-        return bindingsMap.at("h");
-    }
-    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) ||
-             sf::Keyboard::isKeyPressed(sf::Keyboard::L))
+        action = bindingsMap.at(key_code);
+    } catch (std::out_of_range)
     {
-        return bindingsMap.at("l");
+      action = Action::ACTION_IDLE;
     }
-    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) ||
-             sf::Keyboard::isKeyPressed(sf::Keyboard::K))
-    {
-        return bindingsMap.at("k");
-    }
-    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down) ||
-             sf::Keyboard::isKeyPressed(sf::Keyboard::J))
-    {
-        return bindingsMap.at("j");
-    }
-    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::U))
-    {
-        return bindingsMap.at("u");
-    }
-    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Y))
-    {
-        return bindingsMap.at("y");
-    }
-    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::N))
-    {
-        return bindingsMap.at("n");
-    }
-    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::B))
-    {
-        return bindingsMap.at("b");
-    }
-    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
-    {
-        return bindingsMap.at("esc");
-    }
-
-}
-
-std::string getPlayerAction()
-{
     
+    return action;
 }

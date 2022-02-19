@@ -52,37 +52,45 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
     
     /*               */
     
-    std::map<std::string, Action> bindings = in_game_bindings;
+    std::map<sf::Keyboard::Key, Action> bindings = in_game_bindings;
     
     while (Engine::getEngineIsRunning() == EngineState::STATE_RUNNING)
     {
         sf::Event event;
-        Action player_action;
+        Action player_action = Action::ACTION_IDLE;
         while (window->pollEvent(event))
         {
-            if (event.type == sf::Event::Closed)
+            switch(event.type)
             {
-                delete playerTile;
-                window->close();
-                return EngineState::STATE_EXITING;
-            } else if (event.type == sf::Event::KeyPressed)
-            {
-                /* TODO: We have to use event keys, not real-time input. */
-                player_action = returnActionFromInput(bindings);
+                case sf::Event::Closed:
+                {
+                    delete playerTile;
+                    window->close();
+                    return EngineState::STATE_EXITING;
+                }
+                case sf::Event::KeyPressed:
+                {
+                    player_action = returnActionFromInput(bindings, event.key.code);
+//                    std::cout << static_cast<int>(player_action) << std::endl;
+                }
+                default:
+                {
+                }
             }
         }
-        if (player_action == Action::ACTION_MOVE_S)
-        {
-            std::cout << "dupa" << std::endl;
-        }
-        
+
         window->clear();
+        
+        if (player_action == Action::ACTION_MOVE_E)
+        {
+            player->tile->move(C_TILE_SIZE, 0);
+        }
 
         /* DRAW */
         
 //        this->renderAll();
         
-        window->draw(*(player->tile)); // tile should be a const reference, not a pointer
+        window->draw(*(player->tile)); // tile should be a reference, not a pointer
         window->display();
     }
     

@@ -21,7 +21,8 @@ enum class Action
     ACTION_MOVE_S,
     ACTION_MOVE_SW,
     ACTION_MOVE_W,
-    ACTION_MOVE_NW
+    ACTION_MOVE_NW,
+    ACTION_IDLE
 };
 
 #endif /* Actions_h */

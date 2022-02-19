@@ -7,6 +7,7 @@ App::App()
     window = new sf::RenderWindow(videoMode, "TeddyRL");
     
     window->setFramerateLimit(60);
+    window->setKeyRepeatEnabled(false);
     
     if (!font.loadFromFile(resourcePath() + "dos_vga_font.ttf"))
     {
