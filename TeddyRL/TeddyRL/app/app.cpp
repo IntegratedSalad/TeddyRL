@@ -26,7 +26,7 @@ App::~App()
 
 void App::run()
 {
-    Tileset tileset("tileset.png", C_TILE_SIZE);
+    Tileset tileset("tileset.png", C_TILE_TILESET_SIZE);
     
     const std::vector<sf::Sprite> spritesVector = tileset.getSprites();
     

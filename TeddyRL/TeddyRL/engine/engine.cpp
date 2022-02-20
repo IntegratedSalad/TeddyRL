@@ -2,20 +2,31 @@
 #include "entity.hpp"
 #include "constants.hpp"
 #include "handleKeys.hpp"
+#include "map.hpp"
 
 Engine::Engine()
 {
     isRunning = EngineState::STATE_RUNNING;
 }
 
+
+/* Maybe declare sprites needed and make them static? we wouldn't need to include spritesVector */
 EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Sprite> spritesVector)
 {
     
-    sf::Sprite playerSprite = spritesVector[0];
+    Map game_map{};
+    EntityMapVector2D entityVector = game_map.entityMapVector;
+    
+    /* We need to set tile position of the player to his actual position in game_map */
+    /* TODO: We need to design a map system, so that entities are drawn correctly, using only position in our MapVector2D - moving them and positioning them (according to the actual dimensions of the screen) has to be abstracted, so that any manipulation doesn't involve calculating the actual position on the screen. */
+    
+    sf::Sprite playerSprite = spritesVector[128];
     
     Tile* playerTile = new Tile{false, true, playerSprite, sf::Color::White};
     
-    Entity* player = new Entity{playerTile, C_SCREEN_WIDTH / 2, C_SCREEN_HEIGHT / 2};
+    Entity* player = new Entity{playerTile, 4, 4};
+    
+    
     
     /* TODO: Move this outside mainLoop()  */
     sf::Font font;
@@ -52,7 +63,7 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
     
     /*               */
     
-    std::map<sf::Keyboard::Key, Action> bindings = in_game_bindings;
+    KeyActionMap bindings = in_game_bindings;
     
     while (Engine::getEngineIsRunning() == EngineState::STATE_RUNNING)
     {
@@ -83,7 +94,7 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
         
         if (player_action == Action::ACTION_MOVE_E)
         {
-            player->tile->move(C_TILE_SIZE, 0);
+            player->move(C_TILE_IN_GAME_SIZE, 0);
         }
 
         /* DRAW */

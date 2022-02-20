@@ -43,4 +43,16 @@ private:
     
 } Tile;
 
+enum class TileSprite
+{
+    EMPTY_SPACE = 15,
+    MAN = 0,
+    TEDDY = 73,
+    
+    BRICK_WALL_1 = 128,
+    STAIRS_DOWN = 138,
+    STAIRS_UP = 139
+    
+};
+
 #endif /* tile_hpp */

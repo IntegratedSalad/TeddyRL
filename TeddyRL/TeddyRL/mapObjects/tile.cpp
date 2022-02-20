@@ -19,11 +19,16 @@ Tile::Tile(bool isInvisible, bool blocks, sf::Sprite sprite, sf::Color color)
      : isInvisible(isInvisible), canBlock(blocks)
 {
     this->setTile(sprite, color);
-    this->setSize(sf::Vector2f(C_TILE_SIZE, C_TILE_SIZE));
+    this->setSize(sf::Vector2f(C_TILE_IN_GAME_SIZE, C_TILE_IN_GAME_SIZE));
     
 }
 
 Tile::Tile(bool blocks) : sprite(), isInvisible(true)
+{
+    
+}
+
+Tile::Tile(bool isInvisible, bool blocks) : isInvisible(isInvisible), canBlock(blocks)
 {
     
 }

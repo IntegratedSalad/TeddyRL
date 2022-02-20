@@ -14,22 +14,25 @@
 
 #include "Actions.h"
 
-static const std::map<sf::Keyboard::Key, Action> in_game_bindings =
+using namespace sf;
+typedef std::map<Keyboard::Key, Action> KeyActionMap;
+static const KeyActionMap in_game_bindings =
 {
-    {sf::Keyboard::Key::K, Action::ACTION_MOVE_N},
-    {sf::Keyboard::Key::Up, Action::ACTION_MOVE_N},
-    {sf::Keyboard::Key::J, Action::ACTION_MOVE_S},
-    {sf::Keyboard::Key::Down, Action::ACTION_MOVE_S},
-    {sf::Keyboard::Key::Y, Action::ACTION_MOVE_NW},
-    {sf::Keyboard::Key::U, Action::ACTION_MOVE_NE},
-    {sf::Keyboard::Key::L, Action::ACTION_MOVE_E},
-    {sf::Keyboard::Key::Right, Action::ACTION_MOVE_E},
-    {sf::Keyboard::Key::H, Action::ACTION_MOVE_W},
-    {sf::Keyboard::Key::Left, Action::ACTION_MOVE_W},
-    {sf::Keyboard::Key::N, Action::ACTION_MOVE_SE},
-    {sf::Keyboard::Key::B, Action::ACTION_MOVE_SW}
+
+    {Keyboard::Key::K, Action::ACTION_MOVE_N},
+    {Keyboard::Key::Up, Action::ACTION_MOVE_N},
+    {Keyboard::Key::J, Action::ACTION_MOVE_S},
+    {Keyboard::Key::Down, Action::ACTION_MOVE_S},
+    {Keyboard::Key::Y, Action::ACTION_MOVE_NW},
+    {Keyboard::Key::U, Action::ACTION_MOVE_NE},
+    {Keyboard::Key::L, Action::ACTION_MOVE_E},
+    {Keyboard::Key::Right, Action::ACTION_MOVE_E},
+    {Keyboard::Key::H, Action::ACTION_MOVE_W},
+    {Keyboard::Key::Left, Action::ACTION_MOVE_W},
+    {Keyboard::Key::N, Action::ACTION_MOVE_SE},
+    {Keyboard::Key::B, Action::ACTION_MOVE_SW}
 };
 
-Action returnActionFromInput(const std::map<sf::Keyboard::Key, Action> bindingsMap, sf::Keyboard::Key key_code);
+Action returnActionFromInput(const KeyActionMap bindingsMap, Keyboard::Key key_code);
 
 #endif /* handleKeys_hpp */

@@ -47,6 +47,10 @@ public:
         return tile->canBlock;
     }
     
+    void setPosition(int _x, int _y);
+    void setX(int);
+    void setY(int);
+    
 };
 
 #endif /* entity_hpp */

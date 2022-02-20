@@ -39,9 +39,11 @@ public:
     void renderAll();
     
     /* Scale map coordinates to screen coordinates */
-    int getCordObjToDraw(int i)
-    {
-        return i * C_TILE_SIZE;
-    }
+//    int getCordObjToDraw(int i)
+//    {
+//        return i * C_TILE_SIZE;
+//    }
+//    
+    
 };
 

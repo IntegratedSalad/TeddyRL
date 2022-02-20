@@ -65,9 +65,6 @@ public:
     
 };
 
-enum class TileSprite
-{
-    
-};
+
 
 #endif /* Tileset_hpp */
