@@ -7,29 +7,75 @@
 //
 
 #include "entity.hpp"
+#include <iostream>
 
-Entity::Entity() : x(0), y(0), actorComponent(nullptr)
+Entity::Entity() : x(0), y(0), actorComponent(nullptr), mapVectorPos(0)
 {
-    
+    this->setPosition(x, y);
 }
 
-Entity::Entity(Tile* _tile, int _x, int _y) : x(_x), y(_y), tile(_tile), actorComponent(nullptr)
+Entity::Entity(Tile* _tile, int _x, int _y) : x(_x), y(_y), tile(_tile), actorComponent(nullptr), mapVectorPos(0)
 {
-    
+    this->setPosition(x, y);
 }
 
-Entity::Entity(Tile* _tile, int _x, int _y, Actor* comp) : x(_x), y(_y), tile(_tile), actorComponent(comp)
+Entity::Entity(Tile* _tile, int _x, int _y, Actor* comp) : x(_x), y(_y), tile(_tile), actorComponent(comp), mapVectorPos(0)
 {
-
+    this->setPosition(x, y);
 }
 
-/* TODO: While moving we will be erasing air entities (free space). We should update this somehow. Swap entities? */
-void Entity::move(int moveX, int moveY) // later add entity vector
+void Entity::move(int moveX, int moveY, int entityIntArr[C_MAP_SIZE][C_MAP_SIZE], std::vector<Entity* > entityVector)
 {
-    
-    this->tile->move(moveX, moveY);
-    this->x = this->tile->getPosition().x;
-    this->y = this->tile->getPosition().y;
+    int spaceArrayIndex = entityIntArr[this->x + moveX][this->y + moveY];
+
+    if (spaceArrayIndex < 0)
+    {
+        entityIntArr[this->x][this->y] = -1;
+        
+        /* Tile transformation */
+        moveX *= C_TILE_IN_GAME_SIZE;
+        moveY *= C_TILE_IN_GAME_SIZE;
+            
+        this->tile->move(moveX, moveY);
+        /*                     */
+        
+        this->x = this->tile->getPosition().x / C_TILE_IN_GAME_SIZE;
+        this->y = this->tile->getPosition().y / C_TILE_IN_GAME_SIZE;
+        
+        entityIntArr[this->x][this->y] = this->entityVectorPos;
+    }
+    else
+    {
+#warning        Now we have to add a entityVector, and access it by the value in the entityIntArr and check if it is an enemy etc. Shouldn't this be handled by something other than the Entity itself? Possible Turn Executor.
+        /* There is an entity */
+        
+        Entity* ep = entityVector.at(spaceArrayIndex);
+        
+        if (ep->actorComponent != nullptr)
+        {
+            // entity not being an actor
+            if (ep->tile->canBlock)
+            {
+                // do nothing
+                
+            } else
+            {
+                // move
+                entityIntArr[this->x][this->y] = -1;
+                
+                moveX *= C_TILE_IN_GAME_SIZE;
+                moveY *= C_TILE_IN_GAME_SIZE;
+                    
+                this->tile->move(moveX, moveY);
+                this->x = this->tile->getPosition().x / C_TILE_IN_GAME_SIZE;
+                this->y = this->tile->getPosition().y / C_TILE_IN_GAME_SIZE;
+                
+                entityIntArr[this->x][this->y] = this->entityVectorPos;
+                
+            }
+        }
+    }
+
 }
 
 void Entity::setPosition(int _x, int _y)
@@ -37,17 +83,7 @@ void Entity::setPosition(int _x, int _y)
     this->x = _x;
     this->y = _y;
     
-    this->tile->setPosition(_x * C_TILE_TILESET_SIZE, _y * C_TILE_TILESET_SIZE);
-}
-
-void Entity::setX(int _x)
-{
-    this->x = _x;
-}
-
-void Entity::setY(int _y)
-{
-    this->y = _y;
+    this->tile->setPosition(_x * C_TILE_IN_GAME_SIZE, _y * C_TILE_IN_GAME_SIZE);
 }
 
 Entity::~Entity()

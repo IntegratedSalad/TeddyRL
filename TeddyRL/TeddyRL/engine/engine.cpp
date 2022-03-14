@@ -11,23 +11,48 @@ Engine::Engine()
 
 
 /* Maybe declare sprites needed and make them static? we wouldn't need to include spritesVector */
+
+/* IDEA: Maybe something like an Turn Executor?
+
+   Entity wants to move, so we apply the transformation to it + we update the map.
+   Every function that is a turn result must return map or a type of some kind, that would hold any information is needed to execute.
+ 
+ */
+
 EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Sprite> spritesVector)
 {
     
-    Map game_map{};
-    EntityMapVector2D entityVector = game_map.entityMapVector;
+    Map gameMapObj{};
+//    EntityMapVector2D entityVector = game_map.entityMapVector;
     
     /* We need to set tile position of the player to his actual position in game_map */
     /* TODO: We need to design a map system, so that entities are drawn correctly, using only position in our MapVector2D - moving them and positioning them (according to the actual dimensions of the screen) has to be abstracted, so that any manipulation doesn't involve calculating the actual position on the screen. */
     
-    sf::Sprite playerSprite = spritesVector[128];
+    sf::Sprite playerSprite = spritesVector[73];
     
     Tile* playerTile = new Tile{false, true, playerSprite, sf::Color::White};
     
     Entity* player = new Entity{playerTile, 4, 4};
+    /* player is manually added before every entity */
+    gameMapObj.entityVector.push_back(player);
+    player->entityVectorPos = 0;
+    gameMapObj.entityIntArr[player->getX()][player->getY()] = player->entityVectorPos;
+    /*                                              */
     
+    /* TODO: Add mock walls */
     
+    sf::Sprite wallSprite = spritesVector[128];
     
+    Tile* wallTile = new Tile{false, true, wallSprite, sf::Color::White};
+    
+    Entity* wall = new Entity{wallTile, 9, 4};
+
+    gameMapObj.entityVector.push_back(wall);
+    wall->entityVectorPos = 1;
+    gameMapObj.entityIntArr[wall->getX()][wall->getY()] = wall->entityVectorPos;
+    /*                      */
+    
+    std::cout << gameMapObj.entityVector.size() << std::endl;
     /* TODO: Move this outside mainLoop()  */
     sf::Font font;
     
@@ -63,7 +88,7 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
     
     /*               */
     
-    KeyActionMap bindings = in_game_bindings;
+    KeyActionMap bindings = inGameBindings;
     
     while (Engine::getEngineIsRunning() == EngineState::STATE_RUNNING)
     {
@@ -82,7 +107,6 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
                 case sf::Event::KeyPressed:
                 {
                     player_action = returnActionFromInput(bindings, event.key.code);
-//                    std::cout << static_cast<int>(player_action) << std::endl;
                 }
                 default:
                 {
@@ -94,24 +118,36 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
         
         if (player_action == Action::ACTION_MOVE_E)
         {
-            player->move(C_TILE_IN_GAME_SIZE, 0);
+            player->move(1, 0, gameMapObj.entityIntArr, gameMapObj.entityVector);
+            
+            
         }
 
         /* DRAW */
         
-//        this->renderAll();
+        this->renderAll(gameMapObj.entityIntArr, gameMapObj.entityVector, window);
         
-        window->draw(*(player->tile)); // tile should be a reference, not a pointer
+//        window->draw(*(player->tile)); // tile should be a reference, not a pointer
         window->display();
     }
     
 
 }
 
-void Engine::renderAll()
+void Engine::renderAll(int entityIntArr[C_MAP_SIZE][C_MAP_SIZE], std::vector<Entity* > entityVector, sf::RenderWindow* window)
 {
     /* Render Game Map */
     
+    for (int i = 0; i < C_MAP_SIZE; i++)
+    {
+        for (int j = 0; j < C_MAP_SIZE; j++)
+        {
+            if (entityIntArr[i][j] > -1)
+            {
+                window->draw(*(entityVector[entityIntArr[i][j]]->tile));
+            }
+        }
+    }
     
     /* Render Windows */
     

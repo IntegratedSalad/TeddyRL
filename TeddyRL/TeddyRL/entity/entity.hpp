@@ -31,6 +31,7 @@ private:
 public:
     
     Tile* tile;
+    unsigned int mapVectorPos;
     
     Entity();
     Entity(Tile* _tile, int _x, int _y);
@@ -38,7 +39,7 @@ public:
     
     ~Entity();
 
-    void move(int moveX, int moveY);
+    void move(int moveX, int moveY, int entityIntArr[C_MAP_SIZE][C_MAP_SIZE], std::vector<Entity* > entityVector);
     
 //    void draw();
     
@@ -48,8 +49,14 @@ public:
     }
     
     void setPosition(int _x, int _y);
-    void setX(int);
-    void setY(int);
+    
+    void setX(int _x) { this->x = _x; }
+    void setY(int _y) { this->y = _y; }
+    
+    int getX(void) { return this->x; }
+    int getY(void) { return this->y; }
+    
+    unsigned int entityVectorPos;
     
 };
 

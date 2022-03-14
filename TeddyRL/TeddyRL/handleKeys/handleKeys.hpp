@@ -16,7 +16,7 @@
 
 using namespace sf;
 typedef std::map<Keyboard::Key, Action> KeyActionMap;
-static const KeyActionMap in_game_bindings =
+static const KeyActionMap inGameBindings    /* Item vector */ =
 {
 
     {Keyboard::Key::K, Action::ACTION_MOVE_N},

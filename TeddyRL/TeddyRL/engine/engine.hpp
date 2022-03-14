@@ -36,7 +36,7 @@ public:
         return this->isRunning;
     }
 
-    void renderAll();
+    void renderAll(int entityIntArr[C_MAP_SIZE][C_MAP_SIZE], std::vector<Entity* > entityVector, sf::RenderWindow* window);
     
     /* Scale map coordinates to screen coordinates */
 //    int getCordObjToDraw(int i)

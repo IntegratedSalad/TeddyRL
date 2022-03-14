@@ -9,41 +9,42 @@
 #include "map.hpp"
 #include "tile.hpp"
 
+
 Map::Map()
 {
-    /* Initialize vector - push air entities */
-    
     for (int i = 0; i < C_MAP_SIZE; i++)
     {
-        std::vector<Entity* > empty_vector;
         for (int j = 0; j < C_MAP_SIZE; j++)
         {
-            Tile* air_tile = new Tile(true, false);
-            Entity* air_entity = new Entity(air_tile, i, j);
-            empty_vector.push_back(air_entity);
+            entityIntArr[i][j] = -1;
         }
-        
-        entityMapVector.push_back(empty_vector);
     }
-    
 }
 
 Map::~Map()
 {
-    for (int i = 0; i < C_MAP_SIZE; i++)
-    {
-        for (int j = 0; j < C_MAP_SIZE; j++)
-        {
-            delete entityMapVector[i][j];
-        }
-    }
+    /* Every Entity will delete itself. */
+//    for (int i = 0; i < entityVector.size(); i++)
+//    {
+//        delete entityVector[i];
+//    }
     
 }
 
-/* TODO: Here, we erase the air entity - what happens if the entity moves? */
-void Map::insertEntityAtPos(Entity* e, int x, int y)
+void Map::pushEntityToEntityVector(Entity* e)
 {
-    delete this->entityMapVector[x][y]; // delete the air entity.
-    this->entityMapVector[x][y] = e;
-    e->setPosition(x, y);
+    // assuming player is at 0
+    
+    
+    
+    
 }
+
+
+///* TODO: Here, we erase the air entity - what happens if the entity moves? */
+//void Map::insertEntityAtPos(Entity* e, int x, int y)
+//{
+//    delete this->entityMapVector[x][y]; // delete the air entity.
+//    this->entityMapVector[x][y] = e;
+//    e->setPosition(x, y);
+//}
