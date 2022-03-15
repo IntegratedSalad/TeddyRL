@@ -24,6 +24,8 @@ Entity::Entity(Tile* _tile, int _x, int _y, Actor* comp) : x(_x), y(_y), tile(_t
     this->setPosition(x, y);
 }
 
+
+/* TODO: Later it should return something telling us about attacking etc. */
 void Entity::move(int moveX, int moveY, int entityIntArr[C_MAP_SIZE][C_MAP_SIZE], std::vector<Entity* > entityVector)
 {
     int spaceArrayIndex = entityIntArr[this->x + moveX][this->y + moveY];

@@ -22,12 +22,8 @@ Engine::Engine()
 EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Sprite> spritesVector)
 {
     
-    Map gameMapObj{};
-//    EntityMapVector2D entityVector = game_map.entityMapVector;
-    
-    /* We need to set tile position of the player to his actual position in game_map */
-    /* TODO: We need to design a map system, so that entities are drawn correctly, using only position in our MapVector2D - moving them and positioning them (according to the actual dimensions of the screen) has to be abstracted, so that any manipulation doesn't involve calculating the actual position on the screen. */
-    
+    Map gameMapObj{}; /* TODO: Think about map and its fields being a private field of the Engine class. */
+
     sf::Sprite playerSprite = spritesVector[73];
     
     Tile* playerTile = new Tile{false, true, playerSprite, sf::Color::White};
@@ -39,18 +35,18 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
     gameMapObj.entityIntArr[player->getX()][player->getY()] = player->entityVectorPos;
     /*                                              */
     
-    /* TODO: Add mock walls */
+    /* Mock walls */
     
     sf::Sprite wallSprite = spritesVector[128];
     
     Tile* wallTile = new Tile{false, true, wallSprite, sf::Color::White};
     
-    Entity* wall = new Entity{wallTile, 9, 4};
+    Entity* wall = new Entity{wallTile, 0, 0};
 
     gameMapObj.entityVector.push_back(wall);
     wall->entityVectorPos = 1;
     gameMapObj.entityIntArr[wall->getX()][wall->getY()] = wall->entityVectorPos;
-    /*                      */
+    /*            */
     
     std::cout << gameMapObj.entityVector.size() << std::endl;
     /* TODO: Move this outside mainLoop()  */
@@ -93,7 +89,7 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
     while (Engine::getEngineIsRunning() == EngineState::STATE_RUNNING)
     {
         sf::Event event;
-        Action player_action = Action::ACTION_IDLE;
+        Action playerAction = Action::ACTION_IDLE;
         while (window->pollEvent(event))
         {
             switch(event.type)
@@ -106,7 +102,7 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
                 }
                 case sf::Event::KeyPressed:
                 {
-                    player_action = returnActionFromInput(bindings, event.key.code);
+                    playerAction = returnActionFromInput(bindings, event.key.code);
                 }
                 default:
                 {
@@ -116,12 +112,7 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
 
         window->clear();
         
-        if (player_action == Action::ACTION_MOVE_E)
-        {
-            player->move(1, 0, gameMapObj.entityIntArr, gameMapObj.entityVector);
-            
-            
-        }
+        handlePlayerAction(player, playerAction, gameMapObj.entityIntArr, gameMapObj.entityVector);
 
         /* DRAW */
         
@@ -152,4 +143,46 @@ void Engine::renderAll(int entityIntArr[C_MAP_SIZE][C_MAP_SIZE], std::vector<Ent
     /* Render Windows */
     
     
+}
+
+/* It should return something */
+void Engine::handlePlayerAction(Entity* player, Action playerAction, int entityIntArr[C_MAP_SIZE][C_MAP_SIZE], std::vector<Entity* > entityVector)
+{
+    switch (playerAction)
+    {
+        case Action::ACTION_MOVE_N:
+            player->move(0, -1, entityIntArr, entityVector);
+            break;
+            
+        case Action::ACTION_MOVE_NE:
+            player->move(1, -1, entityIntArr, entityVector);
+            break;
+        
+        case Action::ACTION_MOVE_E:
+            player->move(1, 0, entityIntArr, entityVector);
+            break;
+            
+        case Action::ACTION_MOVE_SE:
+            player->move(1, 1, entityIntArr, entityVector);
+            break;
+            
+        case Action::ACTION_MOVE_S:
+            player->move(0, 1, entityIntArr, entityVector);
+            break;
+            
+        case Action::ACTION_MOVE_SW:
+            player->move(-1, 1, entityIntArr, entityVector);
+            break;
+            
+        case Action::ACTION_MOVE_W:
+            player->move(-1, 0, entityIntArr, entityVector);
+            break;
+            
+        case Action::ACTION_MOVE_NW:
+            player->move(-1, -1, entityIntArr, entityVector);
+            break;
+            
+        case Action::ACTION_IDLE:
+            break;
+    }
 }

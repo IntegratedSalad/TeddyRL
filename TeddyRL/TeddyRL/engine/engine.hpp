@@ -9,6 +9,8 @@
 #include "map.hpp"
 #include "constants.hpp"
 
+#include "Actions.h"
+
 /* TODO: all caps */
 enum class EngineState
 {
@@ -44,6 +46,8 @@ public:
 //        return i * C_TILE_SIZE;
 //    }
 //    
+    
+    void handlePlayerAction(Entity* player, Action playerAction, int entityIntArr[C_MAP_SIZE][C_MAP_SIZE], std::vector<Entity* > entityVector);
     
 };
 

@@ -23,6 +23,10 @@ enum class Action
     ACTION_MOVE_W,
     ACTION_MOVE_NW,
     ACTION_IDLE
+    /*          */
+    
+    
+    
 };
 
 #endif /* Actions_h */
