@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <memory>
+#include <vector>
 #include "tile.hpp"
 #include "actor.hpp"
 #include "constants.hpp"
@@ -18,7 +19,7 @@
 /* Entity is a single object on game map, that isn't a free space.
    Entity has a pointer to Tile object, that is its graphical representation.
  */
-
+typedef std::vector<std::vector<int>> Int2DVec;
 class Entity
 {
 private:
@@ -39,7 +40,7 @@ public:
     
     ~Entity();
 
-    void move(int moveX, int moveY, int entityIntArr[C_MAP_SIZE][C_MAP_SIZE], std::vector<Entity* > entityVector);
+    void move(int moveX, int moveY, Int2DVec&, std::vector<Entity* > entityVector);
     
 //    void draw();
     

@@ -26,13 +26,15 @@ Entity::Entity(Tile* _tile, int _x, int _y, Actor* comp) : x(_x), y(_y), tile(_t
 
 
 /* TODO: Later it should return something telling us about attacking etc. */
-void Entity::move(int moveX, int moveY, int entityIntArr[C_MAP_SIZE][C_MAP_SIZE], std::vector<Entity* > entityVector)
+void Entity::move(int moveX, int moveY, Int2DVec& intVec, std::vector<Entity* > entityVector)
 {
-    int spaceArrayIndex = entityIntArr[this->x + moveX][this->y + moveY];
+    int spaceArrayIndex = intVec[this->x + moveX][this->y + moveY];
 
     if (spaceArrayIndex < 0)
     {
-        entityIntArr[this->x][this->y] = -1;
+        intVec[this->x][this->y] = -1;
+        
+        std::cout << this->x << " " << this->y << std::endl;
         
         /* Tile transformation */
         moveX *= C_TILE_IN_GAME_SIZE;
@@ -44,7 +46,11 @@ void Entity::move(int moveX, int moveY, int entityIntArr[C_MAP_SIZE][C_MAP_SIZE]
         this->x = this->tile->getPosition().x / C_TILE_IN_GAME_SIZE;
         this->y = this->tile->getPosition().y / C_TILE_IN_GAME_SIZE;
         
-        entityIntArr[this->x][this->y] = this->entityVectorPos;
+        std::cout << this->x << " " << this->y << std::endl;
+
+        
+        intVec[this->x][this->y] = this->entityVectorPos;
+        std::cout << intVec[this->x][this->y] << std::endl;
     }
     else
     {
@@ -63,7 +69,7 @@ void Entity::move(int moveX, int moveY, int entityIntArr[C_MAP_SIZE][C_MAP_SIZE]
             } else
             {
                 // move
-                entityIntArr[this->x][this->y] = -1;
+                intVec[this->x][this->y] = -1;
                 
                 moveX *= C_TILE_IN_GAME_SIZE;
                 moveY *= C_TILE_IN_GAME_SIZE;
@@ -72,7 +78,7 @@ void Entity::move(int moveX, int moveY, int entityIntArr[C_MAP_SIZE][C_MAP_SIZE]
                 this->x = this->tile->getPosition().x / C_TILE_IN_GAME_SIZE;
                 this->y = this->tile->getPosition().y / C_TILE_IN_GAME_SIZE;
                 
-                entityIntArr[this->x][this->y] = this->entityVectorPos;
+                intVec[this->x][this->y] = this->entityVectorPos;
                 
             }
         }

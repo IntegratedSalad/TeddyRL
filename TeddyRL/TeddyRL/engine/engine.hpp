@@ -25,7 +25,7 @@ enum class EngineState
 class Engine
 {
 private:
-    EngineState isRunning;
+    EngineState engineState;
     Entity* player;
     Map* gameMap;
 
@@ -33,12 +33,12 @@ public:
     Engine();
     EngineState mainLoop(sf::RenderWindow* window, const std::vector<sf::Sprite> tilesetVector);
     
-    EngineState getEngineIsRunning(void)
+    EngineState getEngineState(void)
     {
-        return this->isRunning;
+        return this->engineState;
     }
 
-    void renderAll(int entityIntArr[C_MAP_SIZE][C_MAP_SIZE], std::vector<Entity* > entityVector, sf::RenderWindow* window);
+    void renderAll(Int2DVec, std::vector<Entity* > entityVector, sf::RenderWindow* window);
     
     /* Scale map coordinates to screen coordinates */
 //    int getCordObjToDraw(int i)
@@ -47,7 +47,7 @@ public:
 //    }
 //    
     
-    void handlePlayerAction(Entity* player, Action playerAction, int entityIntArr[C_MAP_SIZE][C_MAP_SIZE], std::vector<Entity* > entityVector);
+    void handlePlayerAction(Entity* player, Action playerAction, Int2DVec&, std::vector<Entity* > entityVector);
     
 };
 

@@ -11,7 +11,6 @@
 
 /* KEY_PRESSED:ACTION_ENUM */
 
-/* Always return an action accessed by a key being a lowercase string. */
 Action returnActionFromInput(const std::map<sf::Keyboard::Key, Action> bindingsMap, sf::Keyboard::Key key_code)
 {
     Action action;

@@ -36,7 +36,7 @@
  
  */
 
-typedef std::vector<std::vector<Entity* >> EntityMapVector2D;
+typedef std::vector<std::vector<int>> Int2DVec;
 struct Map
 {
 
@@ -47,7 +47,9 @@ public:
     /* Item vector */
 //    EntityMapVector2D itemMapVector; // the same length.
     
-    int entityIntArr[C_MAP_SIZE][C_MAP_SIZE];
+    Int2DVec entityIntVec; // TODO: use this instead of entityIntArr, because we cannot have vector of arrays.
+    
+//    int entityIntArr[C_MAP_SIZE][C_MAP_SIZE];
     std::vector<Entity* > entityVector;
     
     int levelNum;
@@ -60,7 +62,8 @@ public:
 
     void pushEntityToEntityVector(Entity*);
     
-//    void insertEntityAtPos(Entity* e, int x, int y);
+    void placeEntityOnMap(Entity*, int x, int y);
+    
     
 
 };
