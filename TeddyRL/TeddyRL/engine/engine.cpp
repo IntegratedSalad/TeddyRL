@@ -31,23 +31,24 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
     
     Entity* player = new Entity{playerTile, 4, 4};
     /* player is manually added before every entity */
-    gameMapObj.entityVector.push_back(player);
-    player->entityVectorPos = 0;
-    gameMapObj.entityIntVec[player->getX()][player->getY()] = player->entityVectorPos;
+
+    gameMapObj.placeEntityOnMap(player, player->getX(), player->getY());
     /*                                              */
     
     /* Mock walls */
     
-    sf::Sprite wallSprite = spritesVector[128];
-    
-    Tile* wallTile = new Tile{false, true, wallSprite, sf::Color::White};
-    
-    Entity* wall = new Entity{wallTile, 0, 0};
-
-    gameMapObj.entityVector.push_back(wall);
-    wall->entityVectorPos = 1;
-    gameMapObj.entityIntVec[wall->getX()][wall->getY()] = wall->entityVectorPos;
+//    sf::Sprite wallSprite = spritesVector[128];
+//    
+//    Tile* wallTile = new Tile{false, true, wallSprite, sf::Color::White};
+//
+//    Entity* wall = new Entity{wallTile, 0, 0};
+//
+//    gameMapObj.placeEntityOnMap(wall, wall->getX(), wall->getY());
     /*            */
+    
+    // generate level
+    
+    gameMapObj.generateLevel(spritesVector);
     
     std::cout << gameMapObj.entityVector.size() << std::endl;
     /* TODO: Move this outside mainLoop()  */

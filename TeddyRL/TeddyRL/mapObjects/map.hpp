@@ -37,33 +37,41 @@
  */
 
 typedef std::vector<std::vector<int>> Int2DVec;
-struct Map
+typedef std::vector<Int2DVec> LevelsVector;
+class Map
 {
 
-public:
+private:
     
-//    EntityMapVector2D entityMapVector; /* This shouldn't really be implemented like that. It means that we have a 2D vector of pointers to the Entity with all the sprites etc. But, because it will be a simple roguelike, I'm not going to do anything that would differ from a sample, tutorial roguelike. */
+    unsigned int roomsNum;
+    int currentLevelNum;
+    
+    void drawEnclosingSquare(sf::Sprite);
+    
+    
+public:
     
     /* Item vector */
 //    EntityMapVector2D itemMapVector; // the same length.
     
     Int2DVec entityIntVec; // TODO: use this instead of entityIntArr, because we cannot have vector of arrays.
     
+    LevelsVector levelsVector;
+    
 //    int entityIntArr[C_MAP_SIZE][C_MAP_SIZE];
     std::vector<Entity* > entityVector;
-    
-    int levelNum;
+
     
     Map();
     ~Map();
     
     void removeEntityFromMap();
-    void generateLevel();
 
     void pushEntityToEntityVector(Entity*);
     
     void placeEntityOnMap(Entity*, int x, int y);
     
+    void generateLevel(const std::vector<sf::Sprite> spritesVector);
     
 
 };

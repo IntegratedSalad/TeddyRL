@@ -10,7 +10,7 @@
 #define constants_h
 
 const int C_SCREEN_WIDTH  = 1600;
-const int C_SCREEN_HEIGHT = 1200;
+const int C_SCREEN_HEIGHT = 1400;
 const int C_TILE_TILESET_SIZE = 16;
 const int C_TILE_IN_GAME_SIZE = 32;
 
