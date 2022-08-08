@@ -21,7 +21,6 @@ enum class EngineState
     
 };
 
-/* TODO: Think about making this an abstract class. */
 class Engine
 {
 private:

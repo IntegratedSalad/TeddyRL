@@ -4,14 +4,12 @@
 #include "handleKeys.hpp"
 #include "map.hpp"
 #include "utils.hpp"
+#include <random>
 
 Engine::Engine()
 {
     engineState = EngineState::STATE_RUNNING;
 }
-
-
-/* Maybe declare sprites needed and make them static? we wouldn't need to include spritesVector */
 
 /* IDEA: Maybe something like a Turn Executor?
 
@@ -23,6 +21,9 @@ Engine::Engine()
 EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Sprite> spritesVector)
 {
     
+    std::random_device rnd;
+    std::mt19937 rng(rnd());
+    
     Map gameMapObj{}; /* TODO: Think about map and its fields being a private field of the Engine class. */
 
     sf::Sprite playerSprite = spritesVector[73];
@@ -33,25 +34,10 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
     /* player is manually added before every entity */
 
     gameMapObj.placeEntityOnMap(player, player->getX(), player->getY());
-    /*                                              */
     
-    /* Mock walls */
-    
-//    sf::Sprite wallSprite = spritesVector[128];
-//    
-//    Tile* wallTile = new Tile{false, true, wallSprite, sf::Color::White};
-//
-//    Entity* wall = new Entity{wallTile, 0, 0};
-//
-//    gameMapObj.placeEntityOnMap(wall, wall->getX(), wall->getY());
-    /*            */
-    
-    // generate level
-    
-    gameMapObj.generateLevel(spritesVector);
+    gameMapObj.generateLevel(spritesVector, rng);
     
     std::cout << gameMapObj.entityVector.size() << std::endl;
-    /* TODO: Move this outside mainLoop()  */
     sf::Font font;
     
     if (!font.loadFromFile(resourcePath() + "dos_vga_font.ttf"))
@@ -65,29 +51,15 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
     /* Game Map View */
     
     /* TODO:
-     1. Find a way to nicely draw Tiles (maybe inherit from RectangleShape?) DONE
-     2. Try to do a gameMapView -> portion of the screen rendered as it would be normally, but scaled and positioned at (16, 16). Make tiles scaled as well.
+     1. Try to do a gameMapView -> portion of the screen rendered as it would be normally, but scaled and positioned at (16, 16). Make tiles scaled as well.
      */
 //
-//    sf::IntRect gameMapViewRect(C_TILE_SIZE, C_TILE_SIZE, C_SCREEN_WIDTH / 2, C_SCREEN_HEIGHT / 2);
-//
-//
-//
-//    sf::View gameMapView(sf::FloatRect(C_TILE_SIZE * C_TILE_SIZE, C_TILE_SIZE * C_TILE_SIZE, C_SCREEN_WIDTH / 2, C_SCREEN_HEIGHT / 2));
-//
-
-//    sf::Vector2<int> translationVector(-16, -16);
-//    gameMapView.reset(sf::FloatRect(translationVector.x, translationVector.y, 16*C_TILE_SIZE, 16*C_TILE_SIZE));
-
     std::cout << player->tile->getPosition().x << player->tile->getPosition().y << std::endl;
-
-//    window->setView(gameMapView);
-//    std::cout << gameMapView.getViewport().height << std::endl;
     
     /*               */
     
     KeyActionMap bindings = inGameBindings;
-    
+
     while (Engine::getEngineState() == EngineState::STATE_RUNNING)
     {
         sf::Event event;
@@ -105,6 +77,8 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
                 case sf::Event::KeyPressed:
                 {
                     playerAction = returnActionFromInput(bindings, event.key.code);
+//                    debugPrintInt2dVector(gameMapObj.entityIntVec, "map");
+                    std::cout << player->getX() << player->getY() << std::endl;
                 }
                 default:
                 {
@@ -118,11 +92,8 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
 
         /* DRAW */
         
-        
         this->renderAll(gameMapObj.entityIntVec, gameMapObj.entityVector, window);
         
-        
-//        window->draw(*(player->tile)); // tile should be a reference, not a pointer
         window->display();
     }
     
@@ -146,7 +117,6 @@ void Engine::renderAll(Int2DVec intVec, std::vector<Entity* > entityVector, sf::
     
     /* Render Panels */
     /* Panel will be a section of the Window e.g. GUI */
-    
     
 }
 

@@ -9,6 +9,17 @@
 #ifndef ai_hpp
 #define ai_hpp
 
-#include <stdio.h>
+#include "map.hpp"
+
+class AI
+{
+private:
+    
+public:
+    
+    AI();
+    ~AI();
+    virtual void make_turn() = 0;
+};
 
 #endif /* ai_hpp */

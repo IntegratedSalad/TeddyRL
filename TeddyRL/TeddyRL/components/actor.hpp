@@ -18,7 +18,17 @@ class Actor
 {
 private:
     
+    int hp;
+    int mana;
+    
+    
+    
 public:
+    
+    Actor();
+    ~Actor();
+    
+    void make_turn();
     
 };
 

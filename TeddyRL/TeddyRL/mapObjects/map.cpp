@@ -10,7 +10,6 @@
 #include "tile.hpp"
 #include "entity.hpp"
 
-
 Map::Map()
 {
     
@@ -31,14 +30,14 @@ Map::~Map()
     /* ! Every Entity will delete itself so we don't delete anything in entityVector */
 
 }
-
-void Map::pushEntityToEntityVector(Entity* e)
-{
-    /* Assuming player is at 0 */
-    
-
-    
-}
+//
+//void Map::pushEntityToEntityVector(Entity* e)
+//{
+//    /* Assuming player is at 0 */
+//
+//
+//
+//}
 
 // TODO: Make this return a boolean, depending if there is something at entityIntVec[x][y].
 void Map::placeEntityOnMap(Entity* entity, int x, int y)
@@ -47,6 +46,12 @@ void Map::placeEntityOnMap(Entity* entity, int x, int y)
     entity->entityVectorPos = entityVector.size() - 1;
     this->entityIntVec[entity->getX()][entity->getY()] = entity->entityVectorPos;
     entity->setPosition(x, y);
+}
+
+void Map::removeEntityFromMap(Entity* entity)
+{
+    delete this->entityVector[entity->entityVectorPos];
+    this->entityIntVec[entity->getY()][entity->getY()] = -1;
 }
 
 void Map::drawEnclosingSquare(sf::Sprite wallSprite)
@@ -66,15 +71,30 @@ void Map::drawEnclosingSquare(sf::Sprite wallSprite)
     }
 }
 
-void Map::generateLevel(const std::vector<sf::Sprite> spritesVector)
+void Map::generateLevel(const std::vector<sf::Sprite> spritesVector, std::mt19937& rng)
 {
     // Each wall can have the same pointer to the tile. It won't get destructed, so why have different pointers?
     
     // Each wall should have a reference to sprite and tile?
+    
 #warning if memory gets bloated by any of this, we will have to redesign tile memory management.
+    
+    std::uniform_int_distribution<std::mt19937::result_type> rand_pos(1, 38);
+    std::uniform_int_distribution<std::mt19937::result_type> rand_num(1, 5);
+    
+    const int randNumOfMonsters = rand_num(rng);
+    
+    sf::Sprite enemySprite = spritesVector[70]; // 5 is a placeholder
     
     sf::Sprite wallSprite = spritesVector[128];
 
     drawEnclosingSquare(wallSprite);
+    
+    for (int i = 0; i < randNumOfMonsters; i++)
+    {
+       Entity* e = Entity::createNewEntityFromSprite(enemySprite, false, true, sf::Color::White, rand_pos(rng), rand_pos(rng));
+        placeEntityOnMap(e, e->getX(), e->getY());
+        
+    }
     
 }

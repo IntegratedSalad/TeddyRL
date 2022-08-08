@@ -48,6 +48,7 @@ enum class TileSprite
     EMPTY_SPACE = 15,
     MAN = 0,
     TEDDY = 73,
+    SNAKE = 70,
     
     BRICK_WALL_1 = 128,
     STAIRS_DOWN = 138,

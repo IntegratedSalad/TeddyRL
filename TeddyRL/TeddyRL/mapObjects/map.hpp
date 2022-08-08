@@ -12,6 +12,8 @@
 #include <iostream>
 #include "entity.hpp"
 #include "constants.hpp"
+#include <random>
+
 
 /* Because you will be able to go back to the previous levels, every level map will be initialized, and kept in a list. */
 
@@ -65,13 +67,13 @@ public:
     Map();
     ~Map();
     
-    void removeEntityFromMap();
+    void removeEntityFromMap(Entity* entity);
 
-    void pushEntityToEntityVector(Entity*);
+//    void pushEntityToEntityVector(Entity*);
     
     void placeEntityOnMap(Entity*, int x, int y);
     
-    void generateLevel(const std::vector<sf::Sprite> spritesVector);
+    void generateLevel(const std::vector<sf::Sprite> spritesVector, std::mt19937&);
     
 
 };

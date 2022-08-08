@@ -26,6 +26,7 @@ Entity::Entity(Tile* _tile, int _x, int _y, Actor* comp) : x(_x), y(_y), tile(_t
 
 
 /* TODO: Later it should return something telling us about attacking etc. */
+// we have to pass map instance, not intVec and entity Vec
 void Entity::move(int moveX, int moveY, Int2DVec& intVec, std::vector<Entity* > entityVector)
 {
     int spaceArrayIndex = intVec[this->x + moveX][this->y + moveY];
@@ -47,7 +48,6 @@ void Entity::move(int moveX, int moveY, Int2DVec& intVec, std::vector<Entity* > 
         this->y = this->tile->getPosition().y / C_TILE_IN_GAME_SIZE;
         
         std::cout << this->x << " " << this->y << std::endl;
-
         
         intVec[this->x][this->y] = this->entityVectorPos;
         std::cout << intVec[this->x][this->y] << std::endl;
@@ -81,6 +81,12 @@ void Entity::move(int moveX, int moveY, Int2DVec& intVec, std::vector<Entity* > 
                 intVec[this->x][this->y] = this->entityVectorPos;
                 
             }
+        } else // combat
+        {
+            std::cout << "Entity at x: " << ep->getX() << " and at y: " << ep->getY() << " dies." << std::endl;
+            
+            
+            
         }
     }
 
@@ -94,7 +100,19 @@ void Entity::setPosition(int _x, int _y)
     this->tile->setPosition(_x * C_TILE_IN_GAME_SIZE, _y * C_TILE_IN_GAME_SIZE);
 }
 
+void Entity::die(void)
+{
+    delete this;
+}
+
 Entity::~Entity()
 {
     delete this->tile;
+}
+
+Entity* Entity::createNewEntityFromSprite(sf::Sprite entitySprite, bool isInvisible, bool blocks, sf::Color entityColor, int x, int y)
+{
+    Tile* entityTile = new Tile{isInvisible, blocks, entitySprite, entityColor};
+    Entity* entity = new Entity{entityTile, x, y};
+    return entity;
 }
