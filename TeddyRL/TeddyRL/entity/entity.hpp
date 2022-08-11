@@ -20,7 +20,7 @@
    Entity has a pointer to Tile object, that is its graphical representation.
  */
 typedef std::vector<std::vector<int>> Int2DVec;
-
+class Actor;
 class Entity
 {
 private:
@@ -58,6 +58,10 @@ public:
     
     int getX(void) { return this->x; }
     int getY(void) { return this->y; }
+    
+    Actor* getActorComponent(void) { return this->actorComponent; }
+    
+    void setActorComponent(Actor* acp);
     
     static Entity* createNewEntityFromSprite(sf::Sprite entitySprite, bool isInvisible, bool blocks, sf::Color entityColor, int x, int y);
     

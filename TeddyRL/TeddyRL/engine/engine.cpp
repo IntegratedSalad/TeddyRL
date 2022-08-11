@@ -88,7 +88,23 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
 
         window->clear();
         
+        /* Player & friends turn */
+        
         handlePlayerAction(player, playerAction, gameMapObj.entityIntVec, gameMapObj.entityVector);
+        
+        
+        /* Enemies turn */
+        
+        for (int i = 1; i < gameMapObj.entityVector.size(); i++) // use iterator
+        {
+            Actor* ap = gameMapObj.entityVector[i]->getActorComponent();
+            if (ap != nullptr)
+            {
+                ap->make_turn(gameMapObj.entityIntVec, gameMapObj.entityVector, gameMapObj, rng, player);
+            }
+        }
+        
+
 
         /* DRAW */
         
@@ -100,6 +116,7 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
 
 }
 #warning entityVector should be a const reference.
+#warning remember about pixel array.
 void Engine::renderAll(Int2DVec intVec, std::vector<Entity* > entityVector, sf::RenderWindow* window)
 {
     /* Render Game Map */

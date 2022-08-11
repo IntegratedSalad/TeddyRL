@@ -40,6 +40,8 @@
 
 typedef std::vector<std::vector<int>> Int2DVec;
 typedef std::vector<Int2DVec> LevelsVector;
+class Entity;
+
 class Map
 {
 

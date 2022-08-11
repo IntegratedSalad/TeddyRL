@@ -9,6 +9,7 @@
 #include "map.hpp"
 #include "tile.hpp"
 #include "entity.hpp"
+#include "actor.hpp"
 
 Map::Map()
 {
@@ -28,6 +29,7 @@ Map::Map()
 Map::~Map()
 {
     /* ! Every Entity will delete itself so we don't delete anything in entityVector */
+#warning how and when are entities deleted?
 
 }
 //
@@ -84,7 +86,7 @@ void Map::generateLevel(const std::vector<sf::Sprite> spritesVector, std::mt1993
     
     const int randNumOfMonsters = rand_num(rng);
     
-    sf::Sprite enemySprite = spritesVector[70]; // 5 is a placeholder
+    sf::Sprite enemySprite = spritesVector[static_cast<int>(TileSprite::SNAKE)];
     
     sf::Sprite wallSprite = spritesVector[128];
 
@@ -94,6 +96,12 @@ void Map::generateLevel(const std::vector<sf::Sprite> spritesVector, std::mt1993
     {
        Entity* e = Entity::createNewEntityFromSprite(enemySprite, false, true, sf::Color::White, rand_pos(rng), rand_pos(rng));
         placeEntityOnMap(e, e->getX(), e->getY());
+        
+        Actor* acp = new Actor(e);
+        RandomAI* raip = new RandomAI(acp);
+        acp->setAI(raip);
+        
+        e->setActorComponent(acp);
         
     }
     

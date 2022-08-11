@@ -27,9 +27,11 @@ Entity::Entity(Tile* _tile, int _x, int _y, Actor* comp) : x(_x), y(_y), tile(_t
 
 /* TODO: Later it should return something telling us about attacking etc. */
 // we have to pass map instance, not intVec and entity Vec
+#warning Maybe we shouldn't use map structures to perform logic on entities but built in methods for distance etc.
 void Entity::move(int moveX, int moveY, Int2DVec& intVec, std::vector<Entity* > entityVector)
 {
     int spaceArrayIndex = intVec[this->x + moveX][this->y + moveY];
+    Entity* playerPointer = entityVector[0];
 
     if (spaceArrayIndex < 0)
     {
@@ -108,6 +110,11 @@ void Entity::die(void)
 Entity::~Entity()
 {
     delete this->tile;
+    
+    if (this->actorComponent != nullptr)
+    {
+        delete this->actorComponent;
+    }
 }
 
 Entity* Entity::createNewEntityFromSprite(sf::Sprite entitySprite, bool isInvisible, bool blocks, sf::Color entityColor, int x, int y)
@@ -115,4 +122,9 @@ Entity* Entity::createNewEntityFromSprite(sf::Sprite entitySprite, bool isInvisi
     Tile* entityTile = new Tile{isInvisible, blocks, entitySprite, entityColor};
     Entity* entity = new Entity{entityTile, x, y};
     return entity;
+}
+
+void Entity::setActorComponent(Actor* acp)
+{
+    this->actorComponent = acp;
 }
