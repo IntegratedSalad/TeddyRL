@@ -26,7 +26,6 @@ enum class Action
     /*          */
     
     
-    
 };
 
 #endif /* Actions_h */

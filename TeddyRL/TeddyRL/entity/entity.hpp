@@ -56,8 +56,8 @@ public:
     void setX(int _x) { this->x = _x; }
     void setY(int _y) { this->y = _y; }
     
-    int getX(void) { return this->x; }
-    int getY(void) { return this->y; }
+    int getX(void) const { return this->x; }
+    int getY(void) const { return this->y; }
     
     Actor* getActorComponent(void) { return this->actorComponent; }
     

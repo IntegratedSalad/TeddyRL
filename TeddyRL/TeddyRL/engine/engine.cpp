@@ -6,9 +6,24 @@
 #include "utils.hpp"
 #include <random>
 
+#define DEBUG 1
+
+bool debugMode = false;
+
 Engine::Engine()
 {
     engineState = EngineState::STATE_RUNNING;
+    
+    sf::Font* _font = new sf::Font;
+    
+    if (!_font->loadFromFile(resourcePath() + "dos_vga_font.ttf"))
+    {
+        std::cout << "Couldn't load the font. Exiting" << std::endl;
+        
+        return EngineState::STATE_EXITING;
+
+    }
+    this->gameFont = _font;
 }
 
 /* IDEA: Maybe something like a Turn Executor?
@@ -18,11 +33,18 @@ Engine::Engine()
  
  */
 
+Engine::~Engine()
+{
+    delete this->gameFont;
+}
+
 EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Sprite> spritesVector)
 {
     
     std::random_device rnd;
     std::mt19937 rng(rnd());
+    
+    bool mouseActivated = false;
     
     Map gameMapObj{}; /* TODO: Think about map and its fields being a private field of the Engine class. */
 
@@ -34,19 +56,22 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
     /* player is manually added before every entity */
 
     gameMapObj.placeEntityOnMap(player, player->getX(), player->getY());
+    this->player = player;
     
     gameMapObj.generateLevel(spritesVector, rng);
     
     std::cout << gameMapObj.entityVector.size() << std::endl;
-    sf::Font font;
+//    sf::Font font;
     
-    if (!font.loadFromFile(resourcePath() + "dos_vga_font.ttf"))
-    {
-        std::cout << "Couldn't load the font. Exiting" << std::endl;
-        
-        return EngineState::STATE_EXITING;
-
-    }
+    GameState turn = GameState::PLAYER_AND_FRIENDS_TURN;
+//
+//    if (!font.loadFromFile(resourcePath() + "dos_vga_font.ttf"))
+//    {
+//        std::cout << "Couldn't load the font. Exiting" << std::endl;
+//
+//        return EngineState::STATE_EXITING;
+//
+//    }
     
     /* Game Map View */
     
@@ -54,7 +79,7 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
      1. Try to do a gameMapView -> portion of the screen rendered as it would be normally, but scaled and positioned at (16, 16). Make tiles scaled as well.
      */
 //
-    std::cout << player->tile->getPosition().x << player->tile->getPosition().y << std::endl;
+//    std::cout << player->tile->getPosition().x << player->tile->getPosition().y << std::endl;
     
     /*               */
     
@@ -77,8 +102,6 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
                 case sf::Event::KeyPressed:
                 {
                     playerAction = returnActionFromInput(bindings, event.key.code);
-//                    debugPrintInt2dVector(gameMapObj.entityIntVec, "map");
-                    std::cout << player->getX() << player->getY() << std::endl;
                 }
                 default:
                 {
@@ -90,21 +113,26 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
         
         /* Player & friends turn */
         
-        handlePlayerAction(player, playerAction, gameMapObj.entityIntVec, gameMapObj.entityVector);
+        if (turn == GameState::PLAYER_AND_FRIENDS_TURN)
+        {
+            turn = handlePlayerAction(player, playerAction, gameMapObj.entityIntVec, gameMapObj.entityVector);
         
-        
+        }
         /* Enemies turn */
         
-        for (int i = 1; i < gameMapObj.entityVector.size(); i++) // use iterator
+        if (turn == GameState::ENEMY_TURN)
         {
-            Actor* ap = gameMapObj.entityVector[i]->getActorComponent();
-            if (ap != nullptr)
-            {
-                ap->make_turn(gameMapObj.entityIntVec, gameMapObj.entityVector, gameMapObj, rng, player);
-            }
-        }
         
-
+            for (int i = 1; i < gameMapObj.entityVector.size(); i++) // use iterator
+            {
+                Actor* ap = gameMapObj.entityVector[i]->getActorComponent();
+                if (ap != nullptr)
+                {
+                    ap->make_turn(gameMapObj.entityIntVec, gameMapObj.entityVector, gameMapObj, rng, player);
+                }
+            }
+            turn = GameState::PLAYER_AND_FRIENDS_TURN;
+        }
 
         /* DRAW */
         
@@ -117,7 +145,7 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
 }
 #warning entityVector should be a const reference.
 #warning remember about pixel array.
-void Engine::renderAll(Int2DVec intVec, std::vector<Entity* > entityVector, sf::RenderWindow* window)
+void Engine::renderAll(Int2DVec intVec, std::vector<Entity* > entityVector, sf::RenderWindow* window) const
 {
     /* Render Game Map */
     
@@ -132,49 +160,82 @@ void Engine::renderAll(Int2DVec intVec, std::vector<Entity* > entityVector, sf::
         }
     }
     
+    if (debugMode)
+        renderDebugInfo(intVec, this->player, window);
+    
     /* Render Panels */
     /* Panel will be a section of the Window e.g. GUI */
     
 }
 
 /* It should return something */
-void Engine::handlePlayerAction(Entity* player, Action playerAction, Int2DVec& intVec, std::vector<Entity* > entityVector)
+GameState Engine::handlePlayerAction(Entity* player, Action playerAction, Int2DVec& intVec, std::vector<Entity* > entityVector)
 {
     switch (playerAction)
     {
         case Action::ACTION_MOVE_N:
             player->move(0, -1, intVec, entityVector);
-            break;
+            return GameState::ENEMY_TURN;
             
         case Action::ACTION_MOVE_NE:
             player->move(1, -1, intVec, entityVector);
-            break;
+            return GameState::ENEMY_TURN;
         
         case Action::ACTION_MOVE_E:
             player->move(1, 0, intVec, entityVector);
-            break;
+            return GameState::ENEMY_TURN;
             
         case Action::ACTION_MOVE_SE:
             player->move(1, 1, intVec, entityVector);
-            break;
+            return GameState::ENEMY_TURN;
             
         case Action::ACTION_MOVE_S:
             player->move(0, 1, intVec, entityVector);
-            break;
+            return GameState::ENEMY_TURN;
             
         case Action::ACTION_MOVE_SW:
             player->move(-1, 1, intVec, entityVector);
-            break;
+            return GameState::ENEMY_TURN;
             
         case Action::ACTION_MOVE_W:
             player->move(-1, 0, intVec, entityVector);
-            break;
+            return GameState::ENEMY_TURN;
             
         case Action::ACTION_MOVE_NW:
             player->move(-1, -1, intVec, entityVector);
-            break;
+            return GameState::ENEMY_TURN;
+        
+            // case Action::PASS_TURN -> ENEMY TURN
+#if DEBUG
+        case static_cast<Action>(404):
             
+            if (debugMode)
+            {
+                debugMode = false;
+                std::cout << "Debug mode off." << std::endl;
+            } else
+            {
+                debugMode = true;
+                std::cout << "Debug mode on." << std::endl;
+            }
+            
+            return GameState::PLAYER_AND_FRIENDS_TURN;
+#endif
         case Action::ACTION_IDLE:
-            break;
+            return GameState::PLAYER_AND_FRIENDS_TURN;
     }
+}
+
+void Engine::renderDebugInfo(const Int2DVec&, const Entity* player, sf::RenderWindow* window) const
+{
+
+    sf::Text debugModeText;
+    debugModeText.setFont(*this->gameFont);
+    
+    debugModeText.setString("DEBUG");
+    debugModeText.setCharacterSize(32);
+    debugModeText.setFillColor(sf::Color::White);
+    debugModeText.setPosition(0, 0);
+    
+    window->draw(debugModeText);
 }

@@ -82,7 +82,7 @@ void Map::generateLevel(const std::vector<sf::Sprite> spritesVector, std::mt1993
 #warning if memory gets bloated by any of this, we will have to redesign tile memory management.
     
     std::uniform_int_distribution<std::mt19937::result_type> rand_pos(1, 38);
-    std::uniform_int_distribution<std::mt19937::result_type> rand_num(1, 5);
+    std::uniform_int_distribution<std::mt19937::result_type> rand_num(1, 1);
     
     const int randNumOfMonsters = rand_num(rng);
     

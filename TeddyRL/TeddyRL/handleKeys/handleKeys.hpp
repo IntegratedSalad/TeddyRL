@@ -30,7 +30,10 @@ static const KeyActionMap inGameBindings =
     {Keyboard::Key::H, Action::ACTION_MOVE_W},
     {Keyboard::Key::Left, Action::ACTION_MOVE_W},
     {Keyboard::Key::N, Action::ACTION_MOVE_SE},
-    {Keyboard::Key::B, Action::ACTION_MOVE_SW}
+    {Keyboard::Key::B, Action::ACTION_MOVE_SW},
+#if 1
+    {Keyboard::Key::F1, static_cast<Action>(404)}
+#endif
 };
 
 Action returnActionFromInput(const KeyActionMap bindingsMap, Keyboard::Key key_code);

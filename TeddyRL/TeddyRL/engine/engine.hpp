@@ -21,6 +21,12 @@ enum class EngineState
     
 };
 
+enum class GameState
+{
+    PLAYER_AND_FRIENDS_TURN = 0,
+    ENEMY_TURN,
+};
+
 class Engine
 {
 private:
@@ -29,7 +35,10 @@ private:
     Map* gameMap;
 
 public:
+    sf::Font* gameFont;
+    
     Engine();
+    ~Engine();
     EngineState mainLoop(sf::RenderWindow* window, const std::vector<sf::Sprite> tilesetVector);
     
     EngineState getEngineState(void)
@@ -37,7 +46,7 @@ public:
         return this->engineState;
     }
 
-    void renderAll(Int2DVec, std::vector<Entity* > entityVector, sf::RenderWindow* window);
+    void renderAll(Int2DVec, std::vector<Entity* > entityVector, sf::RenderWindow* window) const;
     
     /* Scale map coordinates to screen coordinates */
 //    int getCordObjToDraw(int i)
@@ -46,7 +55,10 @@ public:
 //    }
 //    
     
-    void handlePlayerAction(Entity* player, Action playerAction, Int2DVec&, std::vector<Entity* > entityVector);
+    GameState handlePlayerAction(Entity* player, Action playerAction, Int2DVec&, std::vector<Entity* > entityVector);
+    
+    void renderDebugInfo(const Int2DVec&, const Entity* player, sf::RenderWindow* window) const;
+    
     
 };
 

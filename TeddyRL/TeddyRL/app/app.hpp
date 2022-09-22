@@ -8,7 +8,7 @@ class App
 
 private:
     sf::RenderWindow* window;
-    sf::Font font;
+    sf::Font* font;
     
     const std::vector<sf::Sprite> tilesetVector;
     const std::vector<sf::Sprite> setTileSetVector(Tileset tileset);

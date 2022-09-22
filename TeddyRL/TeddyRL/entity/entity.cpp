@@ -32,12 +32,14 @@ void Entity::move(int moveX, int moveY, Int2DVec& intVec, std::vector<Entity* > 
 {
     int spaceArrayIndex = intVec[this->x + moveX][this->y + moveY];
     Entity* playerPointer = entityVector[0];
+    
+    std::cout << "SPI: " << spaceArrayIndex << std::endl;
 
     if (spaceArrayIndex < 0)
     {
         intVec[this->x][this->y] = -1;
         
-        std::cout << this->x << " " << this->y << std::endl;
+//        std::cout << this->x << " " << this->y << std::endl;
         
         /* Tile transformation */
         moveX *= C_TILE_IN_GAME_SIZE;
@@ -49,24 +51,27 @@ void Entity::move(int moveX, int moveY, Int2DVec& intVec, std::vector<Entity* > 
         this->x = this->tile->getPosition().x / C_TILE_IN_GAME_SIZE;
         this->y = this->tile->getPosition().y / C_TILE_IN_GAME_SIZE;
         
-        std::cout << this->x << " " << this->y << std::endl;
+//        std::cout << this->x << " " << this->y << std::endl;
         
         intVec[this->x][this->y] = this->entityVectorPos;
-        std::cout << intVec[this->x][this->y] << std::endl;
+//        std::cout << intVec[this->x][this->y] << std::endl;
     }
-    else
+    else // return entity and decide what to do with it.
     {
 #warning        Now we have to add a entityVector, and access it by the value in the entityIntArr and check if it is an enemy etc. Shouldn't this be handled by something other than the Entity itself? Possible Turn Executor.
         /* There is an entity */
         
         Entity* ep = entityVector.at(spaceArrayIndex);
         
+        std::cout << "CAN BLOCK?: " << ep->tile->canBlock << std::endl;
+        
         if (ep->actorComponent != nullptr)
         {
-            // entity not being an actor
+            // entity being an actor
             if (ep->tile->canBlock)
             {
-                // do nothing
+                // combat
+                std::cout << "Entity at x: " << ep->getX() << " and at y: " << ep->getY() << " dies." << std::endl;
                 
             } else
             {
@@ -83,11 +88,9 @@ void Entity::move(int moveX, int moveY, Int2DVec& intVec, std::vector<Entity* > 
                 intVec[this->x][this->y] = this->entityVectorPos;
                 
             }
-        } else // combat
+        } else
         {
-            std::cout << "Entity at x: " << ep->getX() << " and at y: " << ep->getY() << " dies." << std::endl;
-            
-            
+
             
         }
     }
