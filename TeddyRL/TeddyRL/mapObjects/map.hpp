@@ -76,7 +76,8 @@ public:
     
     void generateLevel(const std::vector<sf::Sprite> spritesVector, std::mt19937&);
     
-    Entity* getEntityPointerFromLocation(int x, int y) const;
+    Entity* getEntityPointerFromLocation(int, int) const;
+    int getEntityIndexFromLocation(int, int) const;
     
 
 };

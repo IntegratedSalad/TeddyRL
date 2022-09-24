@@ -117,3 +117,8 @@ Entity* Map::getEntityPointerFromLocation(int x, int y) const
         return nullptr;
     }
 }
+
+int Map::getEntityIndexFromLocation(int x, int y) const
+{
+    return entityIntVec[x][y];
+}

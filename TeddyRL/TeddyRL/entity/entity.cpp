@@ -69,7 +69,7 @@ void Entity::move(int moveX, int moveY, Int2DVec& intVec, std::vector<Entity* > 
             // entity being an actor
             if (ep->tile->canBlock)
             {
-                // combat
+                // combat should return entity pointer.
                 std::cout << "Entity at x: " << ep->getX() << " and at y: " << ep->getY() << " dies." << std::endl;
                 
             } else

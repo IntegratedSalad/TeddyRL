@@ -10,7 +10,7 @@
 
 #define DEBUG 1
 
-bool debugMode = false;
+bool debugModeOn = false;
 
 Engine::Engine()
 {
@@ -45,6 +45,11 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
     
     std::random_device rnd;
     std::mt19937 rng(rnd());
+    
+    float fps;
+    sf::Clock clock;
+    sf::Time previousTime;
+    sf::Time currentTime;
     
     bool mouseActivated = false;
     
@@ -81,6 +86,9 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
     while (Engine::getEngineState() == EngineState::STATE_RUNNING)
     {
         sf::Event event;
+        previousTime = clock.getElapsedTime();
+        clock.restart();
+
         Action playerAction = Action::ACTION_IDLE;
         while (window->pollEvent(event))
         {
@@ -108,7 +116,7 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
         
         if (turn == GameState::PLAYER_AND_FRIENDS_TURN)
         {
-            turn = handlePlayerAction(player, playerAction, gameMapObj.entityIntVec, gameMapObj.entityVector);
+            turn = handlePlayerAction(player, playerAction, gameMapObj.entityIntVec, gameMapObj.entityVector); // return turn results.
         
         }
         /* Enemies turn */
@@ -121,7 +129,7 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
                 Actor* ap = gameMapObj.entityVector[i]->getActorComponent();
                 if (ap != nullptr)
                 {
-                    ap->make_turn(gameMapObj.entityIntVec, gameMapObj.entityVector, gameMapObj, rng, player);
+                    ap->make_turn(gameMapObj.entityIntVec, gameMapObj.entityVector, gameMapObj, rng, player); // return turn results
                 }
             }
             turn = GameState::PLAYER_AND_FRIENDS_TURN;
@@ -130,6 +138,16 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
         /* DRAW */
         
         this->renderAll(gameMapObj.entityIntVec, gameMapObj.entityVector, window, gameMapObj);
+
+        currentTime = clock.getElapsedTime();
+        fps = 1.0f / previousTime.asSeconds() - currentTime.asSeconds();
+        
+        std::string fpsString = std::to_string(floor(fps));
+        
+        if (debugModeOn)
+        {
+            drawTextOnRectangle(window, sf::Color::Black, sf::Color::White, 32, fpsString, 0, (C_MAP_SIZE - 1) * C_TILE_IN_GAME_SIZE, *gameFont);
+        }
         
         window->display();
     }
@@ -153,7 +171,7 @@ void Engine::renderAll(Int2DVec intVec, std::vector<Entity* > entityVector, sf::
         }
     }
     
-    if (debugMode)
+    if (debugModeOn)
         renderDebugInfo(map, this->player, window);
     
     /* Render Panels */
@@ -204,13 +222,13 @@ GameState Engine::handlePlayerAction(Entity* player, Action playerAction, Int2DV
 #if DEBUG
         case static_cast<Action>(404):
             
-            if (debugMode)
+            if (debugModeOn)
             {
-                debugMode = false;
+                debugModeOn = false;
                 std::cout << "Debug mode off." << std::endl;
             } else
             {
-                debugMode = true;
+                debugModeOn = true;
                 std::cout << "Debug mode on." << std::endl;
             }
             
@@ -224,7 +242,7 @@ GameState Engine::handlePlayerAction(Entity* player, Action playerAction, Int2DV
 void Engine::renderDebugInfo(const Map& map, const Entity* player, sf::RenderWindow* window) const
 {
 
-    drawTextOnRectangle(window, sf::Color::Black, sf::Color::White, "DEBUG", 0, -8, *this->gameFont);
+    drawTextOnRectangle(window, sf::Color::Black, sf::Color::White, 32, "DEBUG", 0, -8, *this->gameFont);
     
     // TODO:
     /*
@@ -243,17 +261,21 @@ void Engine::renderDebugInfo(const Map& map, const Entity* player, sf::RenderWin
         
         if (mouseXPositionScaled < C_MAP_SIZE && mouseYPositionScaled < C_MAP_SIZE)
         {
-            int debugTextPosX = mouseXPositionScaled;
-            int debugTextPosY = mouseYPositionScaled;
+            int debugTextPosX = mouseXPositionRelative;
+            int debugTextPosY = mouseYPositionRelative;
             
             Entity* ep = map.getEntityPointerFromLocation(mouseXPositionScaled, mouseYPositionScaled);
             
             if (ep != nullptr)
             {
+                drawTextOnRectangle(window, sf::Color::Black, sf::Color::White, 16, std::to_string(map.getEntityIndexFromLocation(mouseXPositionScaled, mouseYPositionScaled)), debugTextPosX, debugTextPosY + 32, *gameFont);
                 
                 
+                debugTextPosY += 64;
+                const std::string positionText = "x: " + std::to_string(ep->getX()) + " y: " + std::to_string(ep->getY());
                 
-                std::cout << "EPX: " << ep->getX() << std::endl;
+                drawTextOnRectangle(window, sf::Color::Black, sf::Color::White, 16, positionText, debugTextPosX, debugTextPosY, *gameFont);
+                
             }
         }
         
@@ -262,7 +284,8 @@ void Engine::renderDebugInfo(const Map& map, const Entity* player, sf::RenderWin
 //        std::cout << "px: " << player->getX() << "\npy: " << player->getY() << "\n";
     }
     
-
+    
+    // FPS
     
     
 }

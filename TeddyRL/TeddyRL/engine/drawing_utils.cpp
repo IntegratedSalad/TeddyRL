@@ -9,12 +9,12 @@
 #include "drawing_utils.hpp"
 
 
-void drawTextOnRectangle(sf::RenderWindow* window, sf::Color rectColor, sf::Color TextColor, const std::string& text, int x, int y, sf::Font& fontr)
+void drawTextOnRectangle(sf::RenderWindow* window, sf::Color rectColor, sf::Color TextColor, const unsigned int textSize, const std::string& text, int x, int y, sf::Font& fontr)
 {
     sf::Text textToDraw;
     textToDraw.setFont(fontr);
     textToDraw.setString(text);
-    textToDraw.setCharacterSize(32);
+    textToDraw.setCharacterSize(textSize);
     textToDraw.setFillColor(TextColor);
     textToDraw.setPosition(x, y);
     

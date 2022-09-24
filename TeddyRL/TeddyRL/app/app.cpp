@@ -21,21 +21,9 @@ void App::run()
     Tileset tileset("tileset.png", C_TILE_TILESET_SIZE);
     
     const std::vector<sf::Sprite> spritesVector = tileset.getSprites();
-//
-//    if (!font->loadFromFile(resourcePath() + "dos_vga_font.ttf"))
-//    {
-//        std::cout << "Couldn't load the font. Exiting" << std::endl;
-//
-//        return EngineState::STATE_EXITING;
-//
-//    }
     
     Engine engine = Engine();
     EngineState state = engine.mainLoop(window, spritesVector);
-//    engine.gameFont = this->font;
-//    engine.gameFont = sf::Font(font);
-    
-    
 
     switch (state)
     {
