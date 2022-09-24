@@ -7,3 +7,27 @@
 //
 
 #include "drawing_utils.hpp"
+
+
+void drawTextOnRectangle(sf::RenderWindow* window, sf::Color rectColor, sf::Color TextColor, const std::string& text, int x, int y, sf::Font& fontr)
+{
+    sf::Text textToDraw;
+    textToDraw.setFont(fontr);
+    textToDraw.setString(text);
+    textToDraw.setCharacterSize(32);
+    textToDraw.setFillColor(TextColor);
+    textToDraw.setPosition(x, y);
+    
+    sf::FloatRect textRect;
+    textRect = textToDraw.getGlobalBounds();
+    
+    sf::RectangleShape rectToDraw;
+    sf::Vector2f vSize{textRect.width, textRect.height + 10};
+    rectToDraw.setSize(vSize);
+    rectToDraw.setFillColor(sf::Color::Black);
+    rectToDraw.setPosition(x, y + 8);
+    
+    window->draw(rectToDraw);
+    window->draw(textToDraw);
+    
+}

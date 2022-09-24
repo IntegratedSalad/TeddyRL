@@ -4,6 +4,7 @@
 #include "handleKeys.hpp"
 #include "map.hpp"
 #include "utils.hpp"
+#include "drawing_utils.hpp"
 #include <random>
 
 #define DEBUG 1
@@ -229,13 +230,9 @@ GameState Engine::handlePlayerAction(Entity* player, Action playerAction, Int2DV
 void Engine::renderDebugInfo(const Int2DVec&, const Entity* player, sf::RenderWindow* window) const
 {
 
-    sf::Text debugModeText;
-    debugModeText.setFont(*this->gameFont);
+    drawTextOnRectangle(window, sf::Color::Black, sf::Color::White, "DEBUG", 0, -8, *this->gameFont);
     
-    debugModeText.setString("DEBUG");
-    debugModeText.setCharacterSize(32);
-    debugModeText.setFillColor(sf::Color::White);
-    debugModeText.setPosition(0, 0);
+    // TODO:
     
-    window->draw(debugModeText);
+    
 }

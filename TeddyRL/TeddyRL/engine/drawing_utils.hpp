@@ -11,6 +11,6 @@
 
 #include <SFML/Graphics.hpp>
 
-void drawTextOnRectangle(sf::RenderWindow*, sf::Color rectColor, sf::Color TextColor, const std::string& text, int x, int y, unsigned int w, unsigned int h); // if w & h = 0 rectangle is matched to the text.
+void drawTextOnRectangle(sf::RenderWindow*, sf::Color rectColor, sf::Color TextColor, const std::string& text, int x, int y, sf::Font& fontr); // if w & h = 0 rectangle is matched to the text.
 
 #endif /* drawing_utils_hpp */
