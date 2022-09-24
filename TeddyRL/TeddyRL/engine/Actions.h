@@ -22,7 +22,8 @@ enum class Action
     ACTION_MOVE_SW,
     ACTION_MOVE_W,
     ACTION_MOVE_NW,
-    ACTION_IDLE
+    ACTION_IDLE,
+    ACTION_PASS_TURN
     /*          */
     
     

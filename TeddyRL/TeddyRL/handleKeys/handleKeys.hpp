@@ -31,6 +31,7 @@ static const KeyActionMap inGameBindings =
     {Keyboard::Key::Left, Action::ACTION_MOVE_W},
     {Keyboard::Key::N, Action::ACTION_MOVE_SE},
     {Keyboard::Key::B, Action::ACTION_MOVE_SW},
+    {Keyboard::Key::Period, Action::ACTION_PASS_TURN},
 #if 1
     {Keyboard::Key::F1, static_cast<Action>(404)}
 #endif

@@ -62,7 +62,6 @@ public:
     
     LevelsVector levelsVector;
     
-//    int entityIntArr[C_MAP_SIZE][C_MAP_SIZE];
     std::vector<Entity* > entityVector;
 
     
@@ -76,6 +75,8 @@ public:
     void placeEntityOnMap(Entity*, int x, int y);
     
     void generateLevel(const std::vector<sf::Sprite> spritesVector, std::mt19937&);
+    
+    Entity* getEntityPointerFromLocation(int x, int y) const;
     
 
 };

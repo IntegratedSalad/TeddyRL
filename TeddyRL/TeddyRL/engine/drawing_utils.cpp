@@ -29,5 +29,4 @@ void drawTextOnRectangle(sf::RenderWindow* window, sf::Color rectColor, sf::Colo
     
     window->draw(rectToDraw);
     window->draw(textToDraw);
-    
 }

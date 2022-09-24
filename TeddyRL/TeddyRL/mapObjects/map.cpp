@@ -104,5 +104,16 @@ void Map::generateLevel(const std::vector<sf::Sprite> spritesVector, std::mt1993
         e->setActorComponent(acp);
         
     }
-    
+}
+
+Entity* Map::getEntityPointerFromLocation(int x, int y) const
+{
+    int index = entityIntVec[x][y];
+    if (index >= 0)
+    {
+        return entityVector[index];
+    } else
+    {
+        return nullptr;
+    }
 }

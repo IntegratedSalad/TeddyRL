@@ -27,7 +27,7 @@ Entity::Entity(Tile* _tile, int _x, int _y, Actor* comp) : x(_x), y(_y), tile(_t
 
 /* TODO: Later it should return something telling us about attacking etc. */
 // we have to pass map instance, not intVec and entity Vec
-#warning Maybe we shouldn't use map structures to perform logic on entities but built in methods for distance etc.
+#warning Maybe we shouldn't use map structures to perform logic on entities but built in methods for distance etc. We should use rects for collision.
 void Entity::move(int moveX, int moveY, Int2DVec& intVec, std::vector<Entity* > entityVector)
 {
     int spaceArrayIndex = intVec[this->x + moveX][this->y + moveY];
@@ -35,12 +35,14 @@ void Entity::move(int moveX, int moveY, Int2DVec& intVec, std::vector<Entity* > 
     
     std::cout << "SPI: " << spaceArrayIndex << std::endl;
 
-    if (spaceArrayIndex < 0)
+    
+    /* Use rect to detect collision then get entity at position of collision. What index is in intVec, it's an index to the entity in entityVector.
+     
+     */
+    
+    if (spaceArrayIndex < 0) // shouldn't be used to detect collision
     {
         intVec[this->x][this->y] = -1;
-        
-//        std::cout << this->x << " " << this->y << std::endl;
-        
         /* Tile transformation */
         moveX *= C_TILE_IN_GAME_SIZE;
         moveY *= C_TILE_IN_GAME_SIZE;
@@ -51,21 +53,18 @@ void Entity::move(int moveX, int moveY, Int2DVec& intVec, std::vector<Entity* > 
         this->x = this->tile->getPosition().x / C_TILE_IN_GAME_SIZE;
         this->y = this->tile->getPosition().y / C_TILE_IN_GAME_SIZE;
         
-//        std::cout << this->x << " " << this->y << std::endl;
-        
         intVec[this->x][this->y] = this->entityVectorPos;
-//        std::cout << intVec[this->x][this->y] << std::endl;
     }
     else // return entity and decide what to do with it.
     {
 #warning        Now we have to add a entityVector, and access it by the value in the entityIntArr and check if it is an enemy etc. Shouldn't this be handled by something other than the Entity itself? Possible Turn Executor.
         /* There is an entity */
-        
+//        intVec[this->x][this->y] = -1;
         Entity* ep = entityVector.at(spaceArrayIndex);
         
         std::cout << "CAN BLOCK?: " << ep->tile->canBlock << std::endl;
         
-        if (ep->actorComponent != nullptr)
+        if (ep->actorComponent != nullptr && (moveX != 0 || moveY != 0))
         {
             // entity being an actor
             if (ep->tile->canBlock)

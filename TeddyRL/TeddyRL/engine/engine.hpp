@@ -46,7 +46,7 @@ public:
         return this->engineState;
     }
 
-    void renderAll(Int2DVec, std::vector<Entity* > entityVector, sf::RenderWindow* window) const;
+    void renderAll(Int2DVec, std::vector<Entity* > entityVector, sf::RenderWindow* window, const Map&) const;
     
     /* Scale map coordinates to screen coordinates */
 //    int getCordObjToDraw(int i)
@@ -57,7 +57,7 @@ public:
     
     GameState handlePlayerAction(Entity* player, Action playerAction, Int2DVec&, std::vector<Entity* > entityVector);
     
-    void renderDebugInfo(const Int2DVec&, const Entity* player, sf::RenderWindow* window) const;
+    void renderDebugInfo(const Map&, const Entity* player, sf::RenderWindow* window) const;
     
     
 };

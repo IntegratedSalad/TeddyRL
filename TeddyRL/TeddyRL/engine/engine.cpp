@@ -4,6 +4,7 @@
 #include "handleKeys.hpp"
 #include "map.hpp"
 #include "utils.hpp"
+
 #include "drawing_utils.hpp"
 #include <random>
 
@@ -62,18 +63,9 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
     gameMapObj.generateLevel(spritesVector, rng);
     
     std::cout << gameMapObj.entityVector.size() << std::endl;
-//    sf::Font font;
     
     GameState turn = GameState::PLAYER_AND_FRIENDS_TURN;
-//
-//    if (!font.loadFromFile(resourcePath() + "dos_vga_font.ttf"))
-//    {
-//        std::cout << "Couldn't load the font. Exiting" << std::endl;
-//
-//        return EngineState::STATE_EXITING;
-//
-//    }
-    
+
     /* Game Map View */
     
     /* TODO:
@@ -137,7 +129,7 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
 
         /* DRAW */
         
-        this->renderAll(gameMapObj.entityIntVec, gameMapObj.entityVector, window);
+        this->renderAll(gameMapObj.entityIntVec, gameMapObj.entityVector, window, gameMapObj);
         
         window->display();
     }
@@ -146,7 +138,7 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
 }
 #warning entityVector should be a const reference.
 #warning remember about pixel array.
-void Engine::renderAll(Int2DVec intVec, std::vector<Entity* > entityVector, sf::RenderWindow* window) const
+void Engine::renderAll(Int2DVec intVec, std::vector<Entity* > entityVector, sf::RenderWindow* window, const Map& map) const
 {
     /* Render Game Map */
     
@@ -162,7 +154,7 @@ void Engine::renderAll(Int2DVec intVec, std::vector<Entity* > entityVector, sf::
     }
     
     if (debugMode)
-        renderDebugInfo(intVec, this->player, window);
+        renderDebugInfo(map, this->player, window);
     
     /* Render Panels */
     /* Panel will be a section of the Window e.g. GUI */
@@ -205,6 +197,8 @@ GameState Engine::handlePlayerAction(Entity* player, Action playerAction, Int2DV
         case Action::ACTION_MOVE_NW:
             player->move(-1, -1, intVec, entityVector);
             return GameState::ENEMY_TURN;
+        case Action::ACTION_PASS_TURN:
+            return GameState::ENEMY_TURN;
         
             // case Action::PASS_TURN -> ENEMY TURN
 #if DEBUG
@@ -227,12 +221,48 @@ GameState Engine::handlePlayerAction(Entity* player, Action playerAction, Int2DV
     }
 }
 
-void Engine::renderDebugInfo(const Int2DVec&, const Entity* player, sf::RenderWindow* window) const
+void Engine::renderDebugInfo(const Map& map, const Entity* player, sf::RenderWindow* window) const
 {
 
     drawTextOnRectangle(window, sf::Color::Black, sf::Color::White, "DEBUG", 0, -8, *this->gameFont);
     
     // TODO:
+    /*
+     1. show x y at mouse position.
+     2. show entity int vector contents at that position
+     3. show fps
+     */
+    
+    int mouseXPositionRelative = sf::Mouse::getPosition(*window).x;
+    int mouseYPositionRelative = sf::Mouse::getPosition(*window).y;
+    
+    if ((mouseXPositionRelative && mouseYPositionRelative >= 0))
+    {
+        int mouseXPositionScaled = (int)floor(mouseXPositionRelative / C_TILE_IN_GAME_SIZE);
+        int mouseYPositionScaled = (int)floor(mouseYPositionRelative/ C_TILE_IN_GAME_SIZE);
+        
+        if (mouseXPositionScaled < C_MAP_SIZE && mouseYPositionScaled < C_MAP_SIZE)
+        {
+            int debugTextPosX = mouseXPositionScaled;
+            int debugTextPosY = mouseYPositionScaled;
+            
+            Entity* ep = map.getEntityPointerFromLocation(mouseXPositionScaled, mouseYPositionScaled);
+            
+            if (ep != nullptr)
+            {
+                
+                
+                
+                std::cout << "EPX: " << ep->getX() << std::endl;
+            }
+        }
+        
+
+//        std::cout << "x: " << mouseXPositionScaled << "\ny: " << mouseYPositionScaled << "\n";
+//        std::cout << "px: " << player->getX() << "\npy: " << player->getY() << "\n";
+    }
+    
+
     
     
 }
