@@ -35,6 +35,8 @@ void RandomAI::make_turn(Map& m, Entity* player, std::mt19937& rd)
     
 //    this->ap->ownEntity->move(randPosX(rd), randPosY(rd), m.entityIntVec, m.entityVector);
 //    // ai should access actor, and actor an entity.
-    this->ap->ownEntity->move(randPosX(rd), randPosY(rd), m.entityIntVec, m.entityVector);
+    this->ap->ownEntity->moveOrPerformAction(randPosX(rd), randPosY(rd), m.entityIntVec, m.entityVector);
+    
+    // return turn result
     
 }

@@ -15,11 +15,14 @@
 #include "tile.hpp"
 #include "actor.hpp"
 #include "constants.hpp"
+#include "turnAction.hpp"
 
 /* Entity is a single object on game map, that isn't a free space.
    Entity has a pointer to Tile object, that is its graphical representation.
  */
 typedef std::vector<std::vector<int>> Int2DVec;
+/* Action result can have up to three values */
+//typedef std::map<std::string, std::tuple<std::string, std::string, std::string>> ActionResultMap;
 class Actor;
 class Entity
 {
@@ -30,21 +33,24 @@ private:
     int x;
     int y;
     
+    std::string name;
+    
 public:
     
     Tile* tile;
-    unsigned int mapVectorPos;
+    unsigned int mapVectorPos; // TODO: unused, delete
     
     Entity();
-    Entity(Tile* _tile, int _x, int _y);
-    Entity(Tile* _tile, int _x, int _y, Actor*);
+    Entity(Tile* _tile, std::string name, int _x, int _y);
+    Entity(Tile* _tile, std::string name, int _x, int _y, Actor*);
     
     ~Entity();
 
-    void move(int moveX, int moveY, Int2DVec&, std::vector<Entity* > entityVector);
-    void die(void);
+    TurnAction moveOrPerformAction(int moveX, int moveY, Int2DVec&, std::vector<Entity* > entityVector);
+    TurnAction pickUp(Int2DVec&, std::vector<Entity* >);
+    TurnAction openDoor(Int2DVec&, std::vector<Entity* >);
     
-//    void draw();
+    void die(void);
     
     bool isEntityBlocking(void)
     {
@@ -58,12 +64,12 @@ public:
     
     int getX(void) const { return this->x; }
     int getY(void) const { return this->y; }
-    
-    Actor* getActorComponent(void) { return this->actorComponent; }
+    const std::string& getName(void) const { return this->name; }
+    Actor* getActorComponent(void) const { return this->actorComponent; }
     
     void setActorComponent(Actor* acp);
     
-    static Entity* createNewEntityFromSprite(sf::Sprite entitySprite, bool isInvisible, bool blocks, sf::Color entityColor, int x, int y);
+    static Entity* createNewEntityFromSprite(sf::Sprite entitySprite, std::string name, bool isInvisible, bool blocks, sf::Color entityColor, int x, int y);
     
     unsigned int entityVectorPos;
     

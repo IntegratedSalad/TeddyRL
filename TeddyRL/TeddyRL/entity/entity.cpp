@@ -9,32 +9,38 @@
 #include "entity.hpp"
 #include <iostream>
 
-Entity::Entity() : x(0), y(0), actorComponent(nullptr), mapVectorPos(0)
+Entity::Entity() : x(0), y(0), actorComponent(nullptr), entityVectorPos(0)
 {
     this->setPosition(x, y);
 }
 
-Entity::Entity(Tile* _tile, int _x, int _y) : x(_x), y(_y), tile(_tile), actorComponent(nullptr), mapVectorPos(0)
+Entity::Entity(Tile* _tile, std::string name, int _x, int _y) : x(_x), y(_y), tile(_tile), actorComponent(nullptr), entityVectorPos(0), name(name)
 {
     this->setPosition(x, y);
 }
 
-Entity::Entity(Tile* _tile, int _x, int _y, Actor* comp) : x(_x), y(_y), tile(_tile), actorComponent(comp), mapVectorPos(0)
+Entity::Entity(Tile* _tile, std::string name, int _x, int _y, Actor* comp) : x(_x), y(_y), tile(_tile), actorComponent(comp), entityVectorPos(0), name(name)
 {
     this->setPosition(x, y);
 }
 
 
 /* TODO: Later it should return something telling us about attacking etc. */
-// we have to pass map instance, not intVec and entity Vec
 #warning Maybe we shouldn't use map structures to perform logic on entities but built in methods for distance etc. We should use rects for collision.
-void Entity::move(int moveX, int moveY, Int2DVec& intVec, std::vector<Entity* > entityVector)
+// TODO: This method really is making a decision whether to move or not. It should return a turn result.
+// TODO: Make an GameAction Map, that binds e.g. 'attack' with an entity or entityVectorPosition.
+// TODO: TurnExecutor class.
+
+/* Bumping into something counts as performing action. */
+TurnAction Entity::moveOrPerformAction(int moveX, int moveY, Int2DVec& intVec, std::vector<Entity* > entityVector)
 {
-    int spaceArrayIndex = intVec[this->x + moveX][this->y + moveY];
+    int spaceArrayIndex = intVec[this->x + moveX][this->y + moveY]; // TODO: change the name of that variable.
+    
     Entity* playerPointer = entityVector[0];
     
-    std::cout << "SPI: " << spaceArrayIndex << std::endl;
-
+    TurnAction actionResult; // TODO: maybe struct is better?
+    actionResult.name = "move";
+    actionResult.entityPerformingActionVectorPos = this->entityVectorPos;
     
     /* Use rect to detect collision then get entity at position of collision. What index is in intVec, it's an index to the entity in entityVector.
      
@@ -50,50 +56,91 @@ void Entity::move(int moveX, int moveY, Int2DVec& intVec, std::vector<Entity* > 
         this->tile->move(moveX, moveY);
         /*                     */
         
+        /* Setting x and y. */
         this->x = this->tile->getPosition().x / C_TILE_IN_GAME_SIZE;
         this->y = this->tile->getPosition().y / C_TILE_IN_GAME_SIZE;
         
         intVec[this->x][this->y] = this->entityVectorPos;
+
+        // empty action
+        return actionResult;
+        
     }
     else // return entity and decide what to do with it.
     {
 #warning        Now we have to add a entityVector, and access it by the value in the entityIntArr and check if it is an enemy etc. Shouldn't this be handled by something other than the Entity itself? Possible Turn Executor.
         /* There is an entity */
-//        intVec[this->x][this->y] = -1;
         Entity* ep = entityVector.at(spaceArrayIndex);
-        
-        std::cout << "CAN BLOCK?: " << ep->tile->canBlock << std::endl;
-        
-        if (ep->actorComponent != nullptr && (moveX != 0 || moveY != 0))
+
+        if (ep->tile->canBlock)
         {
-            // entity being an actor
-            if (ep->tile->canBlock)
+            if (ep->actorComponent != nullptr && (moveX != 0 || moveY != 0)) // player attacks entity or entity attacks hostile entity to it.
             {
-                // combat should return entity pointer.
-                std::cout << "Entity at x: " << ep->getX() << " and at y: " << ep->getY() << " dies." << std::endl;
+
+                actionResult.name = "attack";
+                actionResult.entityPerformingActionVectorPos = this->entityVectorPos;
+                actionResult.entityTargetOfActionVectorPos = ep->entityVectorPos;
+                return actionResult;
                 
             } else
             {
-                // move
-                intVec[this->x][this->y] = -1;
-                
-                moveX *= C_TILE_IN_GAME_SIZE;
-                moveY *= C_TILE_IN_GAME_SIZE;
+                if (ep == playerPointer) // entity attacks player (if entity is not player)
+                {
+                    std::cout << "MOVEX" << moveX << std::endl;
+                    std::cout << "MOVEY" << moveY << std::endl;
+                    std::cout << ep << std::endl;
+                    std::cout << this << std::endl;
+                    std::cout << "SAI: " << spaceArrayIndex << std::endl;
                     
-                this->tile->move(moveX, moveY);
-                this->x = this->tile->getPosition().x / C_TILE_IN_GAME_SIZE;
-                this->y = this->tile->getPosition().y / C_TILE_IN_GAME_SIZE;
+                    bool thisIsPlayer = (this == playerPointer);
+                    
+                    actionResult.name = "attack";
+                    actionResult.entityPerformingActionVectorPos = this->entityVectorPos;
+                    actionResult.entityTargetOfActionVectorPos = ep->entityVectorPos;
+                    
+                    /* Maybe an issue with pointers - some address is being overwritten? */
+                    /* BUG: Bumping into wall returns "Teddy attacks Teddy" */
+                    
+                    return actionResult;
+                }
                 
-                intVec[this->x][this->y] = this->entityVectorPos;
+                if (ep->actorComponent == nullptr) // door or something else that is bumpable.
+                {
+                    
+                }
                 
             }
-        } else
-        {
-
-            
         }
-    }
 
+//        if (ep->actorComponent != nullptr && (moveX != 0 || moveY != 0))
+//        {
+//            // entity being an actor
+//            if (ep->tile->canBlock)
+//            {
+//                // combat should return entity pointer.
+//                std::cout << "Entity at x: " << ep->getX() << " and at y: " << ep->getY() << " dies." << std::endl;
+//
+//            } else // entity being an actor and being passable.
+//            {
+//                // move
+//                intVec[this->x][this->y] = -1;
+//
+//                moveX *= C_TILE_IN_GAME_SIZE;
+//                moveY *= C_TILE_IN_GAME_SIZE;
+//
+//                this->tile->move(moveX, moveY);
+//                this->x = this->tile->getPosition().x / C_TILE_IN_GAME_SIZE;
+//                this->y = this->tile->getPosition().y / C_TILE_IN_GAME_SIZE;
+//
+//                intVec[this->x][this->y] = this->entityVectorPos;
+//
+//            }
+//
+//        } else // passable entity
+//        {
+//
+//        }
+    }
 }
 
 void Entity::setPosition(int _x, int _y)
@@ -106,6 +153,7 @@ void Entity::setPosition(int _x, int _y)
 
 void Entity::die(void)
 {
+    // TODO: perform cleanup tasks - call removeEntityFromMap
     delete this;
 }
 
@@ -119,10 +167,10 @@ Entity::~Entity()
     }
 }
 
-Entity* Entity::createNewEntityFromSprite(sf::Sprite entitySprite, bool isInvisible, bool blocks, sf::Color entityColor, int x, int y)
+Entity* Entity::createNewEntityFromSprite(sf::Sprite entitySprite, std::string name, bool isInvisible, bool blocks, sf::Color entityColor, int x, int y)
 {
     Tile* entityTile = new Tile{isInvisible, blocks, entitySprite, entityColor};
-    Entity* entity = new Entity{entityTile, x, y};
+    Entity* entity = new Entity{entityTile, name, x, y};
     return entity;
 }
 

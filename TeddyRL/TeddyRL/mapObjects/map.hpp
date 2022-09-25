@@ -58,12 +58,12 @@ public:
     /* Item vector */
 //    EntityMapVector2D itemMapVector; // the same length.
     
-    Int2DVec entityIntVec; // TODO: use this instead of entityIntArr, because we cannot have vector of arrays.
+    /*  */
+    Int2DVec entityIntVec;
     
     LevelsVector levelsVector;
-    
-    std::vector<Entity* > entityVector;
-
+#warning should entityVector be private?
+    std::vector<Entity* > entityVector; // TODO: should be private?
     
     Map();
     ~Map();
@@ -77,6 +77,8 @@ public:
     void generateLevel(const std::vector<sf::Sprite> spritesVector, std::mt19937&);
     
     Entity* getEntityPointerFromLocation(int, int) const;
+    Entity* getEntityPointerFromEntityVectorPos(int) const;
+    
     int getEntityIndexFromLocation(int, int) const;
     
 

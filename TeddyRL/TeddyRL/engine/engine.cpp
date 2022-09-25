@@ -59,8 +59,8 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
     
     Tile* playerTile = new Tile{false, true, playerSprite, sf::Color::White};
     
-    Entity* player = new Entity{playerTile, 4, 4};
-    /* player is manually added before every entity */
+    Entity* player = new Entity{playerTile, "Teddy", 4, 4};
+    /* player is manually added before every entity, its entityVectorPos is 0. */
 
     gameMapObj.placeEntityOnMap(player, player->getX(), player->getY());
     this->player = player;
@@ -71,7 +71,7 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
     
     GameState turn = GameState::PLAYER_AND_FRIENDS_TURN;
 
-    /* Game Map View */
+    /* Game Map View, Camera system */
     
     /* TODO:
      1. Try to do a gameMapView -> portion of the screen rendered as it would be normally, but scaled and positioned at (16, 16). Make tiles scaled as well.
@@ -114,11 +114,22 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
         
         /* Player & friends turn */
         
+        TurnAction playerTurnResults;
         if (turn == GameState::PLAYER_AND_FRIENDS_TURN)
         {
-            turn = handlePlayerAction(player, playerAction, gameMapObj.entityIntVec, gameMapObj.entityVector); // return turn results.
-        
+            turn = handlePlayerAction(player, playerAction, gameMapObj.entityIntVec, gameMapObj.entityVector, playerTurnResults); // return turn results.
+                
+            if (playerTurnResults.name == "attack") // placeholder
+            {
+                Entity* attackerEntityPointer = gameMapObj.getEntityPointerFromEntityVectorPos(playerTurnResults.entityPerformingActionVectorPos);
+                Entity* targetEntityPointer = gameMapObj.getEntityPointerFromEntityVectorPos(playerTurnResults.entityTargetOfActionVectorPos);
+                
+                std::cout << attackerEntityPointer->getName() + "attacks " << targetEntityPointer->getName() << std::endl;
+                
+            }
         }
+        
+        // TODO: Execute player turn
         /* Enemies turn */
         
         if (turn == GameState::ENEMY_TURN)
@@ -130,11 +141,12 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
                 if (ap != nullptr)
                 {
                     ap->make_turn(gameMapObj.entityIntVec, gameMapObj.entityVector, gameMapObj, rng, player); // return turn results
+                    // TODO: Execute enemy turn
                 }
             }
             turn = GameState::PLAYER_AND_FRIENDS_TURN;
         }
-
+        
         /* DRAW */
         
         this->renderAll(gameMapObj.entityIntVec, gameMapObj.entityVector, window, gameMapObj);
@@ -151,8 +163,6 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
         
         window->display();
     }
-    
-
 }
 #warning entityVector should be a const reference.
 #warning remember about pixel array.
@@ -180,45 +190,45 @@ void Engine::renderAll(Int2DVec intVec, std::vector<Entity* > entityVector, sf::
 }
 
 /* It should return something */
-GameState Engine::handlePlayerAction(Entity* player, Action playerAction, Int2DVec& intVec, std::vector<Entity* > entityVector)
+GameState Engine::handlePlayerAction(Entity* player, Action playerAction, Int2DVec& intVec, std::vector<Entity* > entityVector, TurnAction& turnAction)
 {
     switch (playerAction)
     {
         case Action::ACTION_MOVE_N:
-            player->move(0, -1, intVec, entityVector);
+            turnAction = player->moveOrPerformAction(0, -1, intVec, entityVector);
             return GameState::ENEMY_TURN;
             
         case Action::ACTION_MOVE_NE:
-            player->move(1, -1, intVec, entityVector);
+            turnAction = player->moveOrPerformAction(1, -1, intVec, entityVector);
             return GameState::ENEMY_TURN;
         
         case Action::ACTION_MOVE_E:
-            player->move(1, 0, intVec, entityVector);
+            turnAction = player->moveOrPerformAction(1, 0, intVec, entityVector);
             return GameState::ENEMY_TURN;
             
         case Action::ACTION_MOVE_SE:
-            player->move(1, 1, intVec, entityVector);
+            turnAction = player->moveOrPerformAction(1, 1, intVec, entityVector);
             return GameState::ENEMY_TURN;
             
         case Action::ACTION_MOVE_S:
-            player->move(0, 1, intVec, entityVector);
+            turnAction = player->moveOrPerformAction(0, 1, intVec, entityVector);
             return GameState::ENEMY_TURN;
             
         case Action::ACTION_MOVE_SW:
-            player->move(-1, 1, intVec, entityVector);
+            turnAction = player->moveOrPerformAction(-1, 1, intVec, entityVector);
             return GameState::ENEMY_TURN;
             
         case Action::ACTION_MOVE_W:
-            player->move(-1, 0, intVec, entityVector);
+            turnAction = player->moveOrPerformAction(-1, 0, intVec, entityVector);
             return GameState::ENEMY_TURN;
             
         case Action::ACTION_MOVE_NW:
-            player->move(-1, -1, intVec, entityVector);
+            turnAction = player->moveOrPerformAction(-1, -1, intVec, entityVector);
             return GameState::ENEMY_TURN;
+            
         case Action::ACTION_PASS_TURN:
             return GameState::ENEMY_TURN;
         
-            // case Action::PASS_TURN -> ENEMY TURN
 #if DEBUG
         case static_cast<Action>(404):
             
@@ -241,16 +251,8 @@ GameState Engine::handlePlayerAction(Entity* player, Action playerAction, Int2DV
 
 void Engine::renderDebugInfo(const Map& map, const Entity* player, sf::RenderWindow* window) const
 {
-
     drawTextOnRectangle(window, sf::Color::Black, sf::Color::White, 32, "DEBUG", 0, -8, *this->gameFont);
-    
-    // TODO:
-    /*
-     1. show x y at mouse position.
-     2. show entity int vector contents at that position
-     3. show fps
-     */
-    
+
     int mouseXPositionRelative = sf::Mouse::getPosition(*window).x;
     int mouseYPositionRelative = sf::Mouse::getPosition(*window).y;
     
@@ -270,22 +272,17 @@ void Engine::renderDebugInfo(const Map& map, const Entity* player, sf::RenderWin
             {
                 drawTextOnRectangle(window, sf::Color::Black, sf::Color::White, 16, std::to_string(map.getEntityIndexFromLocation(mouseXPositionScaled, mouseYPositionScaled)), debugTextPosX, debugTextPosY + 32, *gameFont);
                 
-                
                 debugTextPosY += 64;
                 const std::string positionText = "x: " + std::to_string(ep->getX()) + " y: " + std::to_string(ep->getY());
                 
                 drawTextOnRectangle(window, sf::Color::Black, sf::Color::White, 16, positionText, debugTextPosX, debugTextPosY, *gameFont);
                 
+                debugTextPosY += 32;
+                const std::string nameText = "Name: " + ep->getName();
+                
+                drawTextOnRectangle(window, sf::Color::Black, sf::Color::White, 16, nameText, debugTextPosX, debugTextPosY, *gameFont);
+                
             }
         }
-        
-
-//        std::cout << "x: " << mouseXPositionScaled << "\ny: " << mouseYPositionScaled << "\n";
-//        std::cout << "px: " << player->getX() << "\npy: " << player->getY() << "\n";
     }
-    
-    
-    // FPS
-    
-    
 }

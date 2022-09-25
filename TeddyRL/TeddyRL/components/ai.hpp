@@ -46,7 +46,7 @@ public:
     RandomAI(Actor* e);
     ~RandomAI();
     
-    void make_turn(Map& m, Entity* player, std::mt19937& rd);
+    void make_turn(Map&, Entity* player, std::mt19937& rd);
     
 };
 

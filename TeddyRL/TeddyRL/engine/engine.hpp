@@ -10,6 +10,7 @@
 #include "constants.hpp"
 
 #include "Actions.h"
+#include "turnAction.hpp"
 
 /* TODO: all caps */
 enum class EngineState
@@ -26,6 +27,8 @@ enum class GameState
     PLAYER_AND_FRIENDS_TURN = 0,
     ENEMY_TURN,
 };
+
+//typedef std::map<std::string, std::tuple<std::string, std::string, std::string>> ActionResultMap;
 
 class Engine
 {
@@ -55,10 +58,13 @@ public:
 //    }
 //    
     
-    GameState handlePlayerAction(Entity* player, Action playerAction, Int2DVec&, std::vector<Entity* > entityVector);
+    GameState handlePlayerAction(Entity* player, Action playerAction, Int2DVec&, std::vector<Entity* > entityVector, TurnAction&);
     
     void renderDebugInfo(const Map&, const Entity* player, sf::RenderWindow* window) const;
     
-    
 };
 
+class TurnExecutor
+{
+    
+};

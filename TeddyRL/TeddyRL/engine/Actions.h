@@ -12,7 +12,6 @@
 /* All possible actions across the entire game */
 enum class Action
 {
-    
     /*  Moving  */
     ACTION_MOVE_N,
     ACTION_MOVE_NE,
@@ -25,7 +24,6 @@ enum class Action
     ACTION_IDLE,
     ACTION_PASS_TURN
     /*          */
-    
     
 };
 

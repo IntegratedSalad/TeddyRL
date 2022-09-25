@@ -65,7 +65,7 @@ void Map::drawEnclosingSquare(sf::Sprite wallSprite)
             if (j == 0 || i == 0 || j == C_MAP_SIZE - 1 || i == C_MAP_SIZE - 1)
             {
                 Tile* wallTile = new Tile{false, true, wallSprite, sf::Color::White};
-                Entity* wall = new Entity{wallTile, i, j};
+                Entity* wall = new Entity{wallTile, "Wall", i, j};
                 placeEntityOnMap(wall, i, j);
                 
             }
@@ -94,7 +94,7 @@ void Map::generateLevel(const std::vector<sf::Sprite> spritesVector, std::mt1993
     
     for (int i = 0; i < randNumOfMonsters; i++)
     {
-       Entity* e = Entity::createNewEntityFromSprite(enemySprite, false, true, sf::Color::White, rand_pos(rng), rand_pos(rng));
+       Entity* e = Entity::createNewEntityFromSprite(enemySprite, "Worm", false, true, sf::Color::White, rand_pos(rng), rand_pos(rng));
         placeEntityOnMap(e, e->getX(), e->getY());
         
         Actor* acp = new Actor(e);
@@ -118,7 +118,13 @@ Entity* Map::getEntityPointerFromLocation(int x, int y) const
     }
 }
 
+Entity* Map::getEntityPointerFromEntityVectorPos(int vectorPos) const
+{
+    return entityVector[vectorPos];
+}
+
 int Map::getEntityIndexFromLocation(int x, int y) const
 {
     return entityIntVec[x][y];
 }
+
