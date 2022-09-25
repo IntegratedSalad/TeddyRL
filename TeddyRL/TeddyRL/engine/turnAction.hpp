@@ -14,7 +14,7 @@
 /* Simple struct holding information about an action being performed. */
 typedef struct TurnAction
 {
-    std::string name;
+    std::string name; // TODO: make an enum, not string.
     int entityPerformingActionVectorPos;
     int entityTargetOfActionVectorPos;
     

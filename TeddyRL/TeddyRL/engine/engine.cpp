@@ -127,6 +127,15 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
                 std::cout << attackerEntityPointer->getName() + "attacks " << targetEntityPointer->getName() << std::endl;
                 
             }
+            
+            if (playerTurnResults.name == "bump") // placeholder
+            {
+                Entity* bumperEntityPointer = gameMapObj.getEntityPointerFromEntityVectorPos(playerTurnResults.entityPerformingActionVectorPos);
+                Entity* targetEntityPointer = gameMapObj.getEntityPointerFromEntityVectorPos(playerTurnResults.entityTargetOfActionVectorPos);
+                
+                std::cout << bumperEntityPointer->getName() + "bumps into " << targetEntityPointer->getName() << std::endl;
+                
+            }
         }
         
         // TODO: Execute player turn
@@ -141,6 +150,7 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
                 if (ap != nullptr)
                 {
                     ap->make_turn(gameMapObj.entityIntVec, gameMapObj.entityVector, gameMapObj, rng, player); // return turn results
+                    
                     // TODO: Execute enemy turn
                 }
             }
