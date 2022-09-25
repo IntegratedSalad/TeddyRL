@@ -28,13 +28,6 @@ Engine::Engine()
     this->gameFont = _font;
 }
 
-/* IDEA: Maybe something like a Turn Executor?
-
-   Entity wants to move, so we apply the transformation to it + we update the map.
-   Every function that is a turn result must return map or a type of some kind, that would hold any information is needed to execute.
- 
- */
-
 Engine::~Engine()
 {
     delete this->gameFont;
@@ -117,7 +110,7 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
         TurnAction playerTurnResults;
         if (turn == GameState::PLAYER_AND_FRIENDS_TURN)
         {
-            turn = handlePlayerAction(player, playerAction, gameMapObj.entityIntVec, gameMapObj.entityVector, playerTurnResults); // return turn results.
+            turn = handlePlayerAction(player, playerAction, gameMapObj.entityIntVec, gameMapObj.entityVector, playerTurnResults); // turn results are written in function, in a variable passed by reference.
                 
             if (playerTurnResults.name == "attack") // placeholder
             {
@@ -141,6 +134,7 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
         // TODO: Execute player turn
         /* Enemies turn */
         
+        TurnAction aiTurnResults;
         if (turn == GameState::ENEMY_TURN)
         {
         
@@ -149,9 +143,10 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
                 Actor* ap = gameMapObj.entityVector[i]->getActorComponent();
                 if (ap != nullptr)
                 {
-                    ap->make_turn(gameMapObj.entityIntVec, gameMapObj.entityVector, gameMapObj, rng, player); // return turn results
+                  aiTurnResults = ap->make_turn(gameMapObj.entityIntVec, gameMapObj.entityVector, gameMapObj, rng, player);
                     
                     // TODO: Execute enemy turn
+                    // TODO: What if we'll design time system, and monster will deplete its energy, making player have two actions?
                 }
             }
             turn = GameState::PLAYER_AND_FRIENDS_TURN;

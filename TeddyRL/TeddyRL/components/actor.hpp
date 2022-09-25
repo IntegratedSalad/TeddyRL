@@ -14,6 +14,7 @@
 #include <SFML/Graphics.hpp>
 #include "ai.hpp"
 #include "entity.hpp"
+#include "turnAction.hpp"
 #include <random>
 
 /* Actor is a component that relies on AI that it's given */
@@ -38,7 +39,7 @@ public:
     ~Actor();
     Entity* ownEntity;
 #warning we should think about what component has what
-    void make_turn(Int2DVec& intVec, std::vector<Entity* > entityVector, Map& m, std::mt19937 &rd, Entity* player);
+    TurnAction make_turn(Int2DVec& intVec, std::vector<Entity* > entityVector, Map& m, std::mt19937 &rd, Entity* player);
     
     void setAI(AI* aip) {this->ai = aip;}
 

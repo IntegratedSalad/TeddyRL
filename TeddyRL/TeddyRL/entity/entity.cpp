@@ -24,11 +24,7 @@ Entity::Entity(Tile* _tile, std::string name, int _x, int _y, Actor* comp) : x(_
     this->setPosition(x, y);
 }
 
-
-/* TODO: Later it should return something telling us about attacking etc. */
 #warning Maybe we shouldn't use map structures to perform logic on entities but built in methods for distance etc. We should use rects for collision.
-// TODO: This method really is making a decision whether to move or not. It should return a turn result.
-// TODO: Make an GameAction Map, that binds e.g. 'attack' with an entity or entityVectorPosition.
 // TODO: TurnExecutor class.
 
 /* Bumping into something counts as performing action. */
@@ -38,7 +34,7 @@ TurnAction Entity::moveOrPerformAction(int moveX, int moveY, Int2DVec& intVec, s
     
     Entity* playerPointer = entityVector[0];
     
-    TurnAction turnResult; // TODO: maybe struct is better?
+    TurnAction turnResult;
     turnResult.name = "move";
     turnResult.entityPerformingActionVectorPos = this->entityVectorPos;
     
@@ -62,13 +58,11 @@ TurnAction Entity::moveOrPerformAction(int moveX, int moveY, Int2DVec& intVec, s
         
         intVec[this->x][this->y] = this->entityVectorPos;
 
-        // empty action
-        return turnResult;
+        return turnResult; // empty action
         
     }
     else // return entity and decide what to do with it.
     {
-#warning        Now we have to add a entityVector, and access it by the value in the entityIntArr and check if it is an enemy etc. Shouldn't this be handled by something other than the Entity itself? Possible Turn Executor.
         /* There is an entity */
         Entity* ep = entityVector.at(spaceArrayIndex);
         

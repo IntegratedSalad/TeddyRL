@@ -20,9 +20,9 @@
 /* Entity is a single object on game map, that isn't a free space.
    Entity has a pointer to Tile object, that is its graphical representation.
  */
+
 typedef std::vector<std::vector<int>> Int2DVec;
-/* Action result can have up to three values */
-//typedef std::map<std::string, std::tuple<std::string, std::string, std::string>> ActionResultMap;
+
 class Actor;
 class Entity
 {

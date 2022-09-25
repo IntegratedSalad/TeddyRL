@@ -18,7 +18,8 @@ Actor::~Actor()
     delete this->ai;
 }
 
-void Actor::make_turn(Int2DVec& intVec, std::vector<Entity* > entityVector, Map& m, std::mt19937 &rd, Entity* player)
+TurnAction Actor::make_turn(Int2DVec& intVec, std::vector<Entity* > entityVector, Map& m, std::mt19937 &rd, Entity* player)
 {
-    this->ai->make_turn(m, player, rd);
+    TurnAction turnResult = this->ai->make_turn(m, player, rd);
+    return turnResult;
 }
