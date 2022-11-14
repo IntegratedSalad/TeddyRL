@@ -17,29 +17,8 @@
 
 /* Because you will be able to go back to the previous levels, every level map will be initialized, and kept in a list. */
 
-
-/* TODO: Maybe we should simplify this?
- 
-    Instead of having a 2D vector, we should have a 1D vector.
-    Then, if we want to move on the (x,y) location, we simply iterate through all entities, and check their position. If on our desired position there isn't anything, we can move. If there is a wall, we stop.
-    But what if there are many, many entities and we want to implement AOE?
-    Current entityMapVector has the advantage of an instant access at location we want to move.
- */
-
-
-#warning good idea - implement this.
-/*
-    TODO: Or another idea: Instead of an actual entity, let us have a 2D vector of ints.
-    Each integer is an index, that corresponds with the place of entity in that array.
-    Then we simply check, if the location of our desired place to move our entity is greater than -1 (0 being the first index i.e. a possible entity (or even better - a player)).
-    If it is, we can then access simply the 1D vector of entities.
- 
-    Then, when creating an entity, we will take care of assigning him an index in the EntityMapVector2D. Instead of having a 2D array of type Entity, it is an array of ints!
- 
- */
-
 typedef std::vector<std::vector<int>> Int2DVec;
-typedef std::vector<Int2DVec> LevelsVector;
+typedef std::vector<Int2DVec> LevelsVector; // maybe vector of Map's
 class Entity;
 
 class Map
@@ -55,32 +34,35 @@ private:
     
 public:
     
-    /* Item vector */
-//    EntityMapVector2D itemMapVector; // the same length.
-    
     /*  */
-    Int2DVec entityIntVec;
+    Int2DVec blockingEntities2DVector; // Contains blocking entities' position in entityVector (walls, monsters etc).
+    // There can be only one entity actor at each place. But there can be multiple items at each place.
+    // Used to caclculate paths for AI.
+    
+    // Items will be in a seperate vector, never blocking sight or movement.
+    // If entity dies, its corpse is an item. Can be eaten, can be thrown, can be picked up.
+    // If player (or friend) enters this map position, a function is called - 'check for items' that iterates over
+    // itemsVector and returns another vector (resized and allocated only to fit the amount of items at that place)
+    // So getting items is always iterative - because there can be multiple items on the ground.
+    // Large, 2D vecor will be used to alculate paths by getting the 'is blocking' property.
+    // There can be Int2DVec for every type of Entity there.
     
     LevelsVector levelsVector;
-#warning should entityVector be private?
-    std::vector<Entity* > entityVector; // TODO: should be private?
+    std::vector<Entity* > blockingEntities; // contains player
     
     Map();
     ~Map();
     
     void removeEntityFromMap(Entity* entity);
 
-//    void pushEntityToEntityVector(Entity*);
-    
-    void placeEntityOnMap(Entity*, int x, int y);
+    void placeBlockingEntityOnMap(Entity*, int x, int y);
     
     void generateLevel(const std::vector<sf::Sprite> spritesVector, std::mt19937&);
     
-    Entity* getEntityPointerFromLocation(int, int) const;
-    Entity* getEntityPointerFromEntityVectorPos(int) const;
+    Entity* getBlockingEntityPointerFromLocation(int, int) const;
+    Entity* getBlockingEntityPointerFromEntityVectorPos(int) const;
     
-    int getEntityIndexFromLocation(int, int) const;
-    
+    int getBlockingEntityIndexFromLocation(int, int) const;
 
 };
 

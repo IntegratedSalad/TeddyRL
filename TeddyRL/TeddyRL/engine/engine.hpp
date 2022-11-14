@@ -11,6 +11,7 @@
 
 #include "Actions.h"
 #include "turnAction.hpp"
+#include "tile.hpp"
 
 /* TODO: all caps */
 enum class EngineState
@@ -18,7 +19,8 @@ enum class EngineState
     STATE_RUNNING = 0,
     STATE_SAVING,
     STATE_EXITING,
-    STATE_MENU
+    STATE_MENU,
+    STATE_GAME_OVER
     
 };
 
@@ -48,8 +50,14 @@ public:
     {
         return this->engineState;
     }
+    
+    void setEngineState(EngineState s)
+    {
+        this->engineState = s;
+    }
 
     void renderAll(Int2DVec, std::vector<Entity* > entityVector, sf::RenderWindow* window, const Map&) const;
+    EngineState RenderGameOver(sf::RenderWindow* window) const;
     
     /* Scale map coordinates to screen coordinates */
 //    int getCordObjToDraw(int i)

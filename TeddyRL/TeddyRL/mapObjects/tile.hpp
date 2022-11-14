@@ -33,13 +33,14 @@ typedef struct Tile : public sf::RectangleShape
     
     void makeVisible();
     void makeHidden();
+    
+    void setSprite(sf::Sprite sprite) { this->sprite = sprite; };
+    void setTile(sf::Sprite& sprite, sf::Color color);
 
 private:
     
     sf::Sprite sprite;
     sf::Color tileColor;
-    
-    void setTile(sf::Sprite& sprite, sf::Color color);
     
 } Tile;
 
@@ -52,7 +53,9 @@ enum class TileSprite
     
     BRICK_WALL_1 = 128,
     STAIRS_DOWN = 138,
-    STAIRS_UP = 139
+    STAIRS_UP = 139,
+    
+    CORPSE = 225,
     
 };
 

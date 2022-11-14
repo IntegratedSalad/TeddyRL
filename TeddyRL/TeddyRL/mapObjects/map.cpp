@@ -13,47 +13,36 @@
 
 Map::Map()
 {
-    
     for (int i = 0; i < C_MAP_SIZE; i++)
     {
         std::vector<int> vec;
-        
         for (int j = 0; j < C_MAP_SIZE; j++)
         {
             vec.push_back(-1);
         }
-        entityIntVec.push_back(vec);
+        blockingEntities2DVector.push_back(vec);
     }
 }
 
 Map::~Map()
 {
-    /* ! Every Entity will delete itself so we don't delete anything in entityVector */
 #warning how and when are entities deleted?
 
 }
-//
-//void Map::pushEntityToEntityVector(Entity* e)
-//{
-//    /* Assuming player is at 0 */
-//
-//
-//
-//}
 
 // TODO: Make this return a boolean, depending if there is something at entityIntVec[x][y].
-void Map::placeEntityOnMap(Entity* entity, int x, int y)
+void Map::placeBlockingEntityOnMap(Entity* entity, int x, int y)
 {
-    this->entityVector.push_back(entity);
-    entity->entityVectorPos = entityVector.size() - 1;
-    this->entityIntVec[entity->getX()][entity->getY()] = entity->entityVectorPos;
+    this->blockingEntities.push_back(entity);
+    entity->actorsVectorPos = blockingEntities.size() - 1;
+    this->blockingEntities2DVector[entity->getX()][entity->getY()] = entity->actorsVectorPos;
     entity->setPosition(x, y);
 }
 
 void Map::removeEntityFromMap(Entity* entity)
 {
-    delete this->entityVector[entity->entityVectorPos];
-    this->entityIntVec[entity->getY()][entity->getY()] = -1;
+    //delete this->blockingEntities[entity->actorsVectorPos];
+    this->blockingEntities2DVector[entity->getY()][entity->getY()] = -1;
 }
 
 void Map::drawEnclosingSquare(sf::Sprite wallSprite)
@@ -66,8 +55,7 @@ void Map::drawEnclosingSquare(sf::Sprite wallSprite)
             {
                 Tile* wallTile = new Tile{false, true, wallSprite, sf::Color::White};
                 Entity* wall = new Entity{wallTile, "Wall", i, j};
-                placeEntityOnMap(wall, i, j);
-                
+                placeBlockingEntityOnMap(wall, i, j);
             }
         }
     }
@@ -95,36 +83,35 @@ void Map::generateLevel(const std::vector<sf::Sprite> spritesVector, std::mt1993
     for (int i = 0; i < randNumOfMonsters; i++)
     {
        Entity* e = Entity::createNewEntityFromSprite(enemySprite, "Worm", false, true, sf::Color::White, rand_pos(rng), rand_pos(rng));
-        placeEntityOnMap(e, e->getX(), e->getY());
+        placeBlockingEntityOnMap(e, e->getX(), e->getY());
         
         Actor* acp = new Actor(e);
         RandomAI* raip = new RandomAI(acp);
         acp->setAI(raip);
         
         e->setActorComponent(acp);
-        
     }
 }
 
-Entity* Map::getEntityPointerFromLocation(int x, int y) const
+Entity* Map::getBlockingEntityPointerFromLocation(int x, int y) const
 {
-    int index = entityIntVec[x][y];
+    int index = blockingEntities2DVector[x][y];
     if (index >= 0)
     {
-        return entityVector[index];
+        return blockingEntities[index];
     } else
     {
         return nullptr;
     }
 }
 
-Entity* Map::getEntityPointerFromEntityVectorPos(int vectorPos) const
+Entity* Map::getBlockingEntityPointerFromEntityVectorPos(int vectorPos) const
 {
-    return entityVector[vectorPos];
+    return blockingEntities[vectorPos];
 }
 
-int Map::getEntityIndexFromLocation(int x, int y) const
+int Map::getBlockingEntityIndexFromLocation(int x, int y) const
 {
-    return entityIntVec[x][y];
+    return blockingEntities2DVector[x][y];
 }
 

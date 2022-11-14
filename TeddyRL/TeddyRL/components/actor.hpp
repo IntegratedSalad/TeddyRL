@@ -37,9 +37,9 @@ public:
     
     Actor(Entity*);
     ~Actor();
-    Entity* ownEntity;
+    Entity* ownEntity; // TODO: cannot have their own entity.
 #warning we should think about what component has what
-    TurnAction make_turn(Int2DVec& intVec, std::vector<Entity* > entityVector, Map& m, std::mt19937 &rd, Entity* player);
+    TurnAction make_turn(Int2DVec& intVec, std::vector<Entity* > entityVector, Map& m, std::mt19937 &rd, Entity* player); // pass entity
     
     void setAI(AI* aip) {this->ai = aip;}
 

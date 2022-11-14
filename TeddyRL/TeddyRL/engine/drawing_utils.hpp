@@ -13,4 +13,6 @@
 
 void drawTextOnRectangle(sf::RenderWindow* window, sf::Color rectColor, sf::Color TextColor, const unsigned int textSize, const std::string& text, int x, int y, sf::Font& fontr);
 
+void DrawText(sf::RenderWindow* window, sf::Color TextColor, const unsigned int textSize, const std::string& text, int x, int y, sf::Font& fontr);
+
 #endif /* drawing_utils_hpp */

@@ -47,7 +47,7 @@ public:
     RandomAI(Actor* e);
     ~RandomAI();
     
-    TurnAction make_turn(Map&, Entity* player, std::mt19937& rd);
+    TurnAction make_turn(Map&, Entity* player, std::mt19937& rd); // pass entity
     
 };
 
