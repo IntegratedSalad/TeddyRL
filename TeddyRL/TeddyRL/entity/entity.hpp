@@ -37,7 +37,6 @@ private:
     
 public:
     Tile* tile;
-    unsigned int mapVectorPos; // TODO: unused, delete
     
     Entity();
     Entity(Tile* _tile, std::string name, int _x, int _y);
@@ -50,6 +49,7 @@ public:
     TurnAction openDoor(Int2DVec&, std::vector<Entity* >);
     
     void die(sf::Sprite& corpseSprite);
+    // move
     
     bool isEntityBlocking(void)
     {
@@ -70,7 +70,7 @@ public:
     
     static Entity* createNewEntityFromSprite(sf::Sprite entitySprite, std::string name, bool isInvisible, bool blocks, sf::Color entityColor, int x, int y);
     
-    unsigned int actorsVectorPos;
+    unsigned int blockingEntitiesVectorPos;
     
 };
 

@@ -20,7 +20,7 @@ Map::Map()
         {
             vec.push_back(-1);
         }
-        blockingEntities2DVector.push_back(vec);
+        blockingEntitiesInt2DVector.push_back(vec);
     }
 }
 
@@ -34,15 +34,15 @@ Map::~Map()
 void Map::placeBlockingEntityOnMap(Entity* entity, int x, int y)
 {
     this->blockingEntities.push_back(entity);
-    entity->actorsVectorPos = blockingEntities.size() - 1;
-    this->blockingEntities2DVector[entity->getX()][entity->getY()] = entity->actorsVectorPos;
+    entity->blockingEntitiesVectorPos = blockingEntities.size() - 1;
+    this->blockingEntitiesInt2DVector[entity->getX()][entity->getY()] = entity->blockingEntitiesVectorPos;
     entity->setPosition(x, y);
 }
 
 void Map::removeEntityFromMap(Entity* entity)
 {
     //delete this->blockingEntities[entity->actorsVectorPos];
-    this->blockingEntities2DVector[entity->getY()][entity->getY()] = -1;
+    this->blockingEntitiesInt2DVector[entity->getY()][entity->getY()] = -1;
 }
 
 void Map::drawEnclosingSquare(sf::Sprite wallSprite)
@@ -95,7 +95,7 @@ void Map::generateLevel(const std::vector<sf::Sprite> spritesVector, std::mt1993
 
 Entity* Map::getBlockingEntityPointerFromLocation(int x, int y) const
 {
-    int index = blockingEntities2DVector[x][y];
+    int index = blockingEntitiesInt2DVector[x][y];
     if (index >= 0)
     {
         return blockingEntities[index];
@@ -112,6 +112,6 @@ Entity* Map::getBlockingEntityPointerFromEntityVectorPos(int vectorPos) const
 
 int Map::getBlockingEntityIndexFromLocation(int x, int y) const
 {
-    return blockingEntities2DVector[x][y];
+    return blockingEntitiesInt2DVector[x][y];
 }
 

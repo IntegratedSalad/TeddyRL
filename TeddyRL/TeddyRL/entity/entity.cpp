@@ -9,17 +9,17 @@
 #include "entity.hpp"
 #include <iostream>
 
-Entity::Entity() : x(0), y(0), actorComponent(nullptr), actorsVectorPos(0)
+Entity::Entity() : x(0), y(0), actorComponent(nullptr), blockingEntitiesVectorPos(0)
 {
     this->setPosition(x, y);
 }
 
-Entity::Entity(Tile* _tile, std::string name, int _x, int _y) : x(_x), y(_y), tile(_tile), actorComponent(nullptr), actorsVectorPos(0), name(name)
+Entity::Entity(Tile* _tile, std::string name, int _x, int _y) : x(_x), y(_y), tile(_tile), actorComponent(nullptr), blockingEntitiesVectorPos(0), name(name)
 {
     this->setPosition(x, y);
 }
 
-Entity::Entity(Tile* _tile, std::string name, int _x, int _y, Actor* comp) : x(_x), y(_y), tile(_tile), actorComponent(comp), actorsVectorPos(0), name(name)
+Entity::Entity(Tile* _tile, std::string name, int _x, int _y, Actor* comp) : x(_x), y(_y), tile(_tile), actorComponent(comp), blockingEntitiesVectorPos(0), name(name)
 {
     this->setPosition(x, y);
 }
@@ -31,17 +31,16 @@ Entity::Entity(Tile* _tile, std::string name, int _x, int _y, Actor* comp) : x(_
 // TODO: pass const map reference, not intvec and entity vector.
 TurnAction Entity::moveOrPerformAction(int moveX, int moveY, Int2DVec& intVec, std::vector<Entity* > entityVector)
 {
-    int indexAtPositionOfMove = intVec[this->x + moveX][this->y + moveY]; // TODO: change the name of that variable.
+    int indexAtPositionOfMove = intVec[this->x + moveX][this->y + moveY];
     Entity* playerPointer = entityVector[0];
     
     TurnAction turnResult;
     turnResult.name = "move";
-    turnResult.entityPerformingActionVectorPos = this->actorsVectorPos;
+    turnResult.entityPerformingActionVectorPos = this->blockingEntitiesVectorPos;
     
     if (indexAtPositionOfMove < 0)
     {
         /* Tile transformation */
-        
         intVec[this->x][this->y] = -1;
         
         moveX *= C_TILE_IN_GAME_SIZE;
@@ -54,7 +53,7 @@ TurnAction Entity::moveOrPerformAction(int moveX, int moveY, Int2DVec& intVec, s
         this->x = this->tile->getPosition().x / C_TILE_IN_GAME_SIZE;
         this->y = this->tile->getPosition().y / C_TILE_IN_GAME_SIZE;
         
-        intVec[this->x][this->y] = this->actorsVectorPos;
+        intVec[this->x][this->y] = this->blockingEntitiesVectorPos;
         return turnResult;
     }
     else // return entity and decide what to do with it.
@@ -68,8 +67,8 @@ TurnAction Entity::moveOrPerformAction(int moveX, int moveY, Int2DVec& intVec, s
                 {
                     // Later, check if the AI is hostile.
                     turnResult.name = "attack";
-                    turnResult.entityPerformingActionVectorPos = this->actorsVectorPos;
-                    turnResult.entityTargetOfActionVectorPos = ep->actorsVectorPos;
+                    turnResult.entityPerformingActionVectorPos = this->blockingEntitiesVectorPos;
+                    turnResult.entityTargetOfActionVectorPos = ep->blockingEntitiesVectorPos;
                     return turnResult;
                 } else
                 {

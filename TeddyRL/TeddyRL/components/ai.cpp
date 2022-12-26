@@ -32,7 +32,7 @@ TurnAction RandomAI::make_turn(Map& m, Entity* player, std::mt19937& rd)
     std::uniform_int_distribution<std::mt19937::result_type> randPosX(-1, 1);
     std::uniform_int_distribution<std::mt19937::result_type> randPosY(-1, 1);
 
-    TurnAction turnResults = this->ap->ownEntity->moveOrPerformAction(randPosX(rd), randPosY(rd), m.blockingEntities2DVector, m.blockingEntities);
+    TurnAction turnResults = this->ap->ownEntity->moveOrPerformAction(randPosX(rd), randPosY(rd), m.blockingEntitiesInt2DVector, m.blockingEntities);
     
     return turnResults;
     

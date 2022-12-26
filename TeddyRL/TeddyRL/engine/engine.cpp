@@ -111,7 +111,7 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
         TurnAction playerTurnResults;
         if (turn == GameState::PLAYER_AND_FRIENDS_TURN)
         {
-            turn = handlePlayerAction(player, playerAction, gameMapObj.blockingEntities2DVector, gameMapObj.blockingEntities, playerTurnResults); // turn results are written in function, in a variable passed by reference.
+            turn = handlePlayerAction(player, playerAction, gameMapObj.blockingEntitiesInt2DVector, gameMapObj.blockingEntities, playerTurnResults); // turn results are written in function, in a variable passed by reference.
                 
             if (playerTurnResults.name == "attack") // placeholder
             {
@@ -135,7 +135,7 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
                 Actor* ap = gameMapObj.blockingEntities[i]->getActorComponent();
                 if (ap != nullptr)
                 {
-                    aiTurnResults = ap->make_turn(gameMapObj.blockingEntities2DVector, gameMapObj.blockingEntities, gameMapObj, rng, player);
+                    aiTurnResults = ap->make_turn(gameMapObj.blockingEntitiesInt2DVector, gameMapObj.blockingEntities, gameMapObj, rng, player);
                     if (aiTurnResults.name == "attack") // placeholder
                     {
                         Entity* attackerEntityPointer = gameMapObj.getBlockingEntityPointerFromEntityVectorPos(aiTurnResults.entityPerformingActionVectorPos);
@@ -159,7 +159,7 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
         
         /* DRAW */
         
-        this->renderAll(gameMapObj.blockingEntities2DVector, gameMapObj.blockingEntities, window, gameMapObj);
+        this->renderAll(gameMapObj.blockingEntitiesInt2DVector, gameMapObj.blockingEntities, window, gameMapObj);
 
         currentTime = clock.getElapsedTime();
         fps = 1.0f / previousTime.asSeconds() - currentTime.asSeconds();

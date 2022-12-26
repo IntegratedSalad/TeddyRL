@@ -8,7 +8,6 @@
 
 #ifndef actor_hpp
 #define actor_hpp
-#pragma once
 
 #include <memory>
 #include <SFML/Graphics.hpp>
@@ -21,10 +20,8 @@
 typedef std::vector<std::vector<int>> Int2DVec;
 class Entity;
 class Map;
-
 class AI;
 
-/* Maybe actor should subclass Entity? */
 class Actor
 {
 private:
@@ -39,11 +36,9 @@ public:
     ~Actor();
     Entity* ownEntity; // TODO: cannot have their own entity.
 #warning we should think about what component has what
-    TurnAction make_turn(Int2DVec& intVec, std::vector<Entity* > entityVector, Map& m, std::mt19937 &rd, Entity* player); // pass entity
+    TurnAction make_turn(Int2DVec& intVec, std::vector<Entity* > entityVector, Map& m, std::mt19937& rd, Entity* player); // pass entity
     
     void setAI(AI* aip) {this->ai = aip;}
-
-    
 };
 
 #endif /* actor_hpp */
