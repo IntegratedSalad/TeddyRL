@@ -8,18 +8,13 @@
 
 #include "actor.hpp"
 
-Actor::Actor(Entity* ep) : ownEntity(ep)
+Actor::Actor()
 {
-    
 }
 
 Actor::~Actor()
 {
-   delete this->ai;
-}
-
-TurnAction Actor::make_turn(Int2DVec& intVec, std::vector<Entity* > entityVector, Map& m, std::mt19937 &rd, Entity* player)
-{
-    TurnAction turnResult = this->ai->make_turn(m, player, rd);
-    return turnResult;
+    delete this->ai;
+    this->ai = nullptr;
+    assert(this->ai == nullptr);
 }

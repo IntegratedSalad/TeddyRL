@@ -11,32 +11,32 @@
 
 #include <SFML/Window.hpp>
 #include <map>
-
-#include "Actions.h"
+#include "PlayerActions.h"
+#define DEBUG_ACTION 404
 
 using namespace sf;
-typedef std::map<Keyboard::Key, Action> KeyActionMap;
+typedef std::map<Keyboard::Key, PlayerAction> KeyActionMap;
 const KeyActionMap inGameBindings =
 {
 
-    {Keyboard::Key::K, Action::ACTION_MOVE_N},
-    {Keyboard::Key::Up, Action::ACTION_MOVE_N},
-    {Keyboard::Key::J, Action::ACTION_MOVE_S},
-    {Keyboard::Key::Down, Action::ACTION_MOVE_S},
-    {Keyboard::Key::Y, Action::ACTION_MOVE_NW},
-    {Keyboard::Key::U, Action::ACTION_MOVE_NE},
-    {Keyboard::Key::L, Action::ACTION_MOVE_E},
-    {Keyboard::Key::Right, Action::ACTION_MOVE_E},
-    {Keyboard::Key::H, Action::ACTION_MOVE_W},
-    {Keyboard::Key::Left, Action::ACTION_MOVE_W},
-    {Keyboard::Key::N, Action::ACTION_MOVE_SE},
-    {Keyboard::Key::B, Action::ACTION_MOVE_SW},
-    {Keyboard::Key::Period, Action::ACTION_PASS_TURN},
+    {Keyboard::Key::K, PlayerAction::PLR_ACTION_MOVE_N},
+    {Keyboard::Key::Up, PlayerAction::PLR_ACTION_MOVE_N},
+    {Keyboard::Key::J, PlayerAction::PLR_ACTION_MOVE_S},
+    {Keyboard::Key::Down, PlayerAction::PLR_ACTION_MOVE_S},
+    {Keyboard::Key::Y, PlayerAction::PLR_ACTION_MOVE_NW},
+    {Keyboard::Key::U, PlayerAction::PLR_ACTION_MOVE_NE},
+    {Keyboard::Key::L, PlayerAction::PLR_ACTION_MOVE_E},
+    {Keyboard::Key::Right, PlayerAction::PLR_ACTION_MOVE_E},
+    {Keyboard::Key::H, PlayerAction::PLR_ACTION_MOVE_W},
+    {Keyboard::Key::Left, PlayerAction::PLR_ACTION_MOVE_W},
+    {Keyboard::Key::N, PlayerAction::PLR_ACTION_MOVE_SE},
+    {Keyboard::Key::B, PlayerAction::PLR_ACTION_MOVE_SW},
+    {Keyboard::Key::Period, PlayerAction::PLR_ACTION_PASS_TURN},
 #if 1
-    {Keyboard::Key::F1, static_cast<Action>(404)}
+    {Keyboard::Key::F1, static_cast<PlayerAction>(DEBUG_ACTION)}
 #endif
 };
 
-Action returnActionFromInput(const KeyActionMap bindingsMap, Keyboard::Key key_code);
+PlayerAction returnActionFromInput(const KeyActionMap bindingsMap, Keyboard::Key key_code);
 
 #endif /* handleKeys_hpp */

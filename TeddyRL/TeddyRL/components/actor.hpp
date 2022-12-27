@@ -13,7 +13,7 @@
 #include <SFML/Graphics.hpp>
 #include "ai.hpp"
 #include "entity.hpp"
-#include "turnAction.hpp"
+#include "TurnActions.hpp"
 #include <random>
 
 /* Actor is a component that relies on AI that it's given */
@@ -25,20 +25,18 @@ class AI;
 class Actor
 {
 private:
-    
     int hp;
     int mana;
     AI* ai;
 
 public:
-    
-    Actor(Entity*);
+    Actor();
     ~Actor();
-    Entity* ownEntity; // TODO: cannot have their own entity.
-#warning we should think about what component has what
-    TurnAction make_turn(Int2DVec& intVec, std::vector<Entity* > entityVector, Map& m, std::mt19937& rd, Entity* player); // pass entity
     
     void setAI(AI* aip) {this->ai = aip;}
+    AI* getAI(void) {return this->ai;}
+    
+    ActionResult attack(const Actor&) const; // attack method doesn't affect Actor directly.
 };
 
 #endif /* actor_hpp */

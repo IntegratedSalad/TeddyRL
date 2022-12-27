@@ -14,11 +14,10 @@
 #include "constants.hpp"
 #include <random>
 
-
 /* Because you will be able to go back to the previous levels, every level map will be initialized, and kept in a list. */
 
 typedef std::vector<std::vector<int>> Int2DVec;
-typedef std::vector<Int2DVec> LevelsVector; // TODO: Struct
+typedef std::vector<Int2DVec> LevelsVector; // TODO: Struct containing Level info.
 class Entity;
 
 class Map
@@ -30,10 +29,8 @@ private:
     void drawEnclosingSquare(sf::Sprite);
     
 public:
-    
-    /*  */
-    Int2DVec blockingEntitiesInt2DVector; // Contains blocking entities' position in entityVector (walls, monsters etc).
-    std::vector<Entity* > blockingEntities; // contains player
+    Int2DVec blockingEntitiesInt2DVector; // Contains blocking entities' position in entityVector (walls, monsters etc)
+    std::vector<Entity* > blockingEntities;
     LevelsVector levelsVector;
     
     Map();

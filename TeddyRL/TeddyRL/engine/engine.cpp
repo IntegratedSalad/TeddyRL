@@ -83,7 +83,7 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
         previousTime = clock.getElapsedTime();
         clock.restart();
 
-        Action playerAction = Action::ACTION_IDLE;
+        PlayerAction playerAction = PlayerAction::PLR_ACTION_IDLE;
         while (window->pollEvent(event))
         {
             switch(event.type)
@@ -108,49 +108,79 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
         
         /* Player & friends turn */
         
-        TurnAction playerTurnResults;
+        ActionResult playerActionResult;
         if (turn == GameState::PLAYER_AND_FRIENDS_TURN)
         {
-            turn = handlePlayerAction(player, playerAction, gameMapObj.blockingEntitiesInt2DVector, gameMapObj.blockingEntities, playerTurnResults); // turn results are written in function, in a variable passed by reference.
+            turn = handlePlayerAction(player, playerAction, gameMapObj.blockingEntitiesInt2DVector, gameMapObj.blockingEntities, playerActionResult); // turn results are written in function, in a variable passed by reference.
                 
-            if (playerTurnResults.name == "attack") // placeholder
+            if (playerActionResult.type == ActionType::ACTIONTYPE_ATTACK)
             {
-                Entity* attackerEntityPointer = gameMapObj.getBlockingEntityPointerFromEntityVectorPos(playerTurnResults.entityPerformingActionVectorPos);
-                Entity* targetEntityPointer = gameMapObj.getBlockingEntityPointerFromEntityVectorPos(playerTurnResults.entityTargetOfActionVectorPos);
+                // always the player
+                Entity* attackerEntityPointer =  gameMapObj.getBlockingEntityPointerFromEntityVectorPos(playerActionResult.entityPerformingActionVectorPos);
+                Entity* targetEntityPointer = gameMapObj.getBlockingEntityPointerFromEntityVectorPos(playerActionResult.entityTargetOfActionVectorPos);
                 
-                std::cout << attackerEntityPointer->getName() + "attacks " << targetEntityPointer->getName() << std::endl;
-                targetEntityPointer->die(corpseSprite);
+                std::cout << attackerEntityPointer->getName() + " attacks " << targetEntityPointer->getName() << std::endl;
                 gameMapObj.removeEntityFromMap(targetEntityPointer);
+                targetEntityPointer->die(corpseSprite);
+                std::cout << targetEntityPointer->getName() << " dies!" << std::endl;
+                targetEntityPointer = nullptr;
+                assert(targetEntityPointer == nullptr);
             }
         }
         
         // TODO: Execute player turn
         /* Enemies turn */
         
-        TurnAction aiTurnResults;
+        ActionResult aiActionResult;
         if (turn == GameState::ENEMY_TURN)
         {
-            for (int i = 1; i < gameMapObj.blockingEntities.size(); i++) // use iterator
+            for (int i = 1; i < gameMapObj.blockingEntities.size(); i++)
             {
-                Actor* ap = gameMapObj.blockingEntities[i]->getActorComponent();
-                if (ap != nullptr)
+                Entity* ep = gameMapObj.blockingEntities[i];
+                Actor* actorp = ep->getActorComponent();
+                
+                /* AI makes a turn - returns turn result that should be applied.
+                   If it moves - it applies changes to the Entity object.
+                   If it wants to heal itself, drink something, or do anything related to Actor, it returns turn result
+                   tied to an Actor component.
+                   
+                 */
+                if (actorp != nullptr)
                 {
-                    aiTurnResults = ap->make_turn(gameMapObj.blockingEntitiesInt2DVector, gameMapObj.blockingEntities, gameMapObj, rng, player);
-                    if (aiTurnResults.name == "attack") // placeholder
+                    /* AI makes turn */
+                    AI* aip = actorp->getAI();
+                    aiActionResult = aip->make_turn(gameMapObj, player, rng);
+                    if (aiActionResult.type == ActionType::ACTIONTYPE_MOVE)
                     {
-                        Entity* attackerEntityPointer = gameMapObj.getBlockingEntityPointerFromEntityVectorPos(aiTurnResults.entityPerformingActionVectorPos);
+                        // Move.
                         
-                        Entity* targetEntityPointer = gameMapObj.getBlockingEntityPointerFromEntityVectorPos(aiTurnResults.entityTargetOfActionVectorPos);
+                        // use switch here
+                        Direction dirData = static_cast<Direction>(aiActionResult.m_ActionData["direction"]);
+                        std::tuple<int, int> directions = mapDirectionToCoordinates(dirData);
+                        int x = std::get<0>(directions);
+                        int y = std::get<1>(directions);
+                        ActionResult moveActionResult = ep->moveOrBump(x, y, gameMapObj.blockingEntitiesInt2DVector, gameMapObj.blockingEntities);
                         
-                        std::cout << attackerEntityPointer->getName() + "attacks " << targetEntityPointer->getName() << std::endl;
-                        
-                        if (targetEntityPointer == player)
+                        if (moveActionResult.type == ActionType::ACTIONTYPE_ATTACK)
                         {
-                            this->engineState = EngineState::STATE_GAME_OVER;
+                            // get Actor data and make attack
+                            int performerVecPos = moveActionResult.entityPerformingActionVectorPos; // always current ep
+                            int targetVecPos = moveActionResult.entityTargetOfActionVectorPos;
+                            
+                            Entity* performerEntityPointer = gameMapObj.getBlockingEntityPointerFromEntityVectorPos(performerVecPos);
+                            Entity* targetEntityPointer = gameMapObj.getBlockingEntityPointerFromEntityVectorPos(targetVecPos);
+                            
+                            std::cout << performerEntityPointer->getName() << " attacks: " << targetEntityPointer->getName() << std::endl;
+                            
+                            gameMapObj.removeEntityFromMap(targetEntityPointer);
+                            targetEntityPointer->die(corpseSprite);
+                            std::cout << targetEntityPointer->getName() << " dies!" << std::endl;
+                            targetEntityPointer = nullptr;
+                            assert(targetEntityPointer == nullptr);
+                            this->setEngineState(EngineState::STATE_GAME_OVER);
+                            // TODO: Actors performing attack and defense.
                         }
-                        // TODO: Player dies.
                     }
-                    
                     // TODO: What if we'll design time system, and monster will deplete its energy, making player have two actions?
                 }
             }
@@ -163,20 +193,17 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
 
         currentTime = clock.getElapsedTime();
         fps = 1.0f / previousTime.asSeconds() - currentTime.asSeconds();
-        
         std::string fpsString = std::to_string(floor(fps));
         
         if (debugModeOn)
         {
             drawTextOnRectangle(window, sf::Color::Black, sf::Color::White, 32, fpsString, 0, (C_MAP_SIZE - 1) * C_TILE_IN_GAME_SIZE, *gameFont);
         }
-        
         window->display();
     }
     
     if (this->engineState == EngineState::STATE_GAME_OVER)
     {
-        delete playerTile;
         this->RenderGameOver(window);
         std::cout << "dupa" << std::endl;
     }
@@ -187,14 +214,13 @@ void Engine::renderAll(Int2DVec intVec, std::vector<Entity* > blockingEntities, 
 {
     /* Render Game Map */
     
-    // TODO: Draw player first, monsters second and items last.
     // TODO: Monsters have to have black background or background that means something (status or etc.)
     
         for (Entity* bep : blockingEntities)
         {
-            window->draw(*bep->tile);
+            if (bep != nullptr)
+                window->draw(*bep->tile);
         }
-    
     
     if (debugModeOn)
         renderDebugInfo(map, this->player, window);
@@ -205,47 +231,47 @@ void Engine::renderAll(Int2DVec intVec, std::vector<Entity* > blockingEntities, 
 }
 
 /* It should return something */
-GameState Engine::handlePlayerAction(Entity* player, Action playerAction, Int2DVec& intVec, std::vector<Entity* > actorsVector, TurnAction& turnAction)
+GameState Engine::handlePlayerAction(Entity* player, PlayerAction playerAction, Int2DVec& intVec, std::vector<Entity* > actorsVector, ActionResult& turnAction)
 {
     switch (playerAction)
     {
-        case Action::ACTION_MOVE_N:
-            turnAction = player->moveOrPerformAction(0, -1, intVec, actorsVector);
+        case PlayerAction::PLR_ACTION_MOVE_N:
+            turnAction = player->moveOrBump(0, -1, intVec, actorsVector);
             return GameState::ENEMY_TURN;
             
-        case Action::ACTION_MOVE_NE:
-            turnAction = player->moveOrPerformAction(1, -1, intVec, actorsVector);
+        case PlayerAction::PLR_ACTION_MOVE_NE:
+            turnAction = player->moveOrBump(1, -1, intVec, actorsVector);
             return GameState::ENEMY_TURN;
         
-        case Action::ACTION_MOVE_E:
-            turnAction = player->moveOrPerformAction(1, 0, intVec, actorsVector);
+        case PlayerAction::PLR_ACTION_MOVE_E:
+            turnAction = player->moveOrBump(1, 0, intVec, actorsVector);
             return GameState::ENEMY_TURN;
             
-        case Action::ACTION_MOVE_SE:
-            turnAction = player->moveOrPerformAction(1, 1, intVec, actorsVector);
+        case PlayerAction::PLR_ACTION_MOVE_SE:
+            turnAction = player->moveOrBump(1, 1, intVec, actorsVector);
             return GameState::ENEMY_TURN;
             
-        case Action::ACTION_MOVE_S:
-            turnAction = player->moveOrPerformAction(0, 1, intVec, actorsVector);
+        case PlayerAction::PLR_ACTION_MOVE_S:
+            turnAction = player->moveOrBump(0, 1, intVec, actorsVector);
             return GameState::ENEMY_TURN;
             
-        case Action::ACTION_MOVE_SW:
-            turnAction = player->moveOrPerformAction(-1, 1, intVec, actorsVector);
+        case PlayerAction::PLR_ACTION_MOVE_SW:
+            turnAction = player->moveOrBump(-1, 1, intVec, actorsVector);
             return GameState::ENEMY_TURN;
             
-        case Action::ACTION_MOVE_W:
-            turnAction = player->moveOrPerformAction(-1, 0, intVec, actorsVector);
+        case PlayerAction::PLR_ACTION_MOVE_W:
+            turnAction = player->moveOrBump(-1, 0, intVec, actorsVector);
             return GameState::ENEMY_TURN;
             
-        case Action::ACTION_MOVE_NW:
-            turnAction = player->moveOrPerformAction(-1, -1, intVec, actorsVector);
+        case PlayerAction::PLR_ACTION_MOVE_NW:
+            turnAction = player->moveOrBump(-1, -1, intVec, actorsVector);
             return GameState::ENEMY_TURN;
             
-        case Action::ACTION_PASS_TURN:
+        case PlayerAction::PLR_ACTION_PASS_TURN:
             return GameState::ENEMY_TURN;
         
 #if DEBUG
-        case static_cast<Action>(404):
+        case static_cast<PlayerAction>(404):
             
             if (debugModeOn)
             {
@@ -259,7 +285,7 @@ GameState Engine::handlePlayerAction(Entity* player, Action playerAction, Int2DV
             
             return GameState::PLAYER_AND_FRIENDS_TURN;
 #endif
-        case Action::ACTION_IDLE:
+        case PlayerAction::PLR_ACTION_IDLE:
             return GameState::PLAYER_AND_FRIENDS_TURN;
     }
 }

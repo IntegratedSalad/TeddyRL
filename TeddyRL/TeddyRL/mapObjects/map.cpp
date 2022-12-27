@@ -42,7 +42,8 @@ void Map::placeBlockingEntityOnMap(Entity* entity, int x, int y)
 void Map::removeEntityFromMap(Entity* entity)
 {
     //delete this->blockingEntities[entity->actorsVectorPos];
-    this->blockingEntitiesInt2DVector[entity->getY()][entity->getY()] = -1;
+    this->blockingEntitiesInt2DVector[entity->getX()][entity->getY()] = -1;
+    this->blockingEntities.erase(this->blockingEntities.begin() + entity->blockingEntitiesVectorPos); // erase from entities.
 }
 
 void Map::drawEnclosingSquare(sf::Sprite wallSprite)
@@ -85,10 +86,9 @@ void Map::generateLevel(const std::vector<sf::Sprite> spritesVector, std::mt1993
        Entity* e = Entity::createNewEntityFromSprite(enemySprite, "Worm", false, true, sf::Color::White, rand_pos(rng), rand_pos(rng));
         placeBlockingEntityOnMap(e, e->getX(), e->getY());
         
-        Actor* acp = new Actor(e);
-        RandomAI* raip = new RandomAI(acp);
+        Actor* acp = new Actor();
+        RandomAI* raip = new RandomAI();
         acp->setAI(raip);
-        
         e->setActorComponent(acp);
     }
 }

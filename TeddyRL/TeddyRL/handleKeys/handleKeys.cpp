@@ -11,15 +11,15 @@
 
 /* KEY_PRESSED:ACTION_ENUM */
 
-Action returnActionFromInput(const std::map<sf::Keyboard::Key, Action> bindingsMap, sf::Keyboard::Key key_code)
+PlayerAction returnActionFromInput(const std::map<sf::Keyboard::Key, PlayerAction> bindingsMap, sf::Keyboard::Key key_code)
 {
-    Action action;
+    PlayerAction action;
     try
     {
         action = bindingsMap.at(key_code);
     } catch (std::out_of_range)
     {
-      action = Action::ACTION_IDLE;
+      action = PlayerAction::PLR_ACTION_IDLE;
     }
     
     return action;

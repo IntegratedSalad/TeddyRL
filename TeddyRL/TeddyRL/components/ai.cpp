@@ -8,32 +8,27 @@
 
 #include "ai.hpp"
 
-AI::AI(Actor* a) : ap(a)
+AI::AI()
 {
-    this->ap = a;
 }
 
 AI::~AI()
 {
 }
 
-RandomAI::RandomAI(Actor* e) : AI(e)
+RandomAI::RandomAI()
 {
 }
 
 RandomAI::~RandomAI()
 {
-    
 }
 
-TurnAction RandomAI::make_turn(Map& m, Entity* player, std::mt19937& rd)
+ActionResult RandomAI::make_turn(Map& m, Entity* player, std::mt19937& rd)
 {
-    /* AI steers entity directly */
-    std::uniform_int_distribution<std::mt19937::result_type> randPosX(-1, 1);
-    std::uniform_int_distribution<std::mt19937::result_type> randPosY(-1, 1);
-
-    TurnAction turnResults = this->ap->ownEntity->moveOrPerformAction(randPosX(rd), randPosY(rd), m.blockingEntitiesInt2DVector, m.blockingEntities);
-    
-    return turnResults;
-    
+    std::uniform_int_distribution<std::mt19937::result_type> randDir(0, 8);
+    ActionResult aiActionResult;
+    aiActionResult.type = ActionType::ACTIONTYPE_MOVE;
+    aiActionResult.m_ActionData["direction"] = randDir(rd);
+    return aiActionResult;
 }

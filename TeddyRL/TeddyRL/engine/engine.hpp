@@ -9,8 +9,8 @@
 #include "map.hpp"
 #include "constants.hpp"
 
-#include "Actions.h"
-#include "turnAction.hpp"
+#include "PlayerActions.h"
+#include "TurnActions.hpp"
 #include "tile.hpp"
 
 /* TODO: all caps */
@@ -66,7 +66,7 @@ public:
 //    }
 //    
     
-    GameState handlePlayerAction(Entity* player, Action playerAction, Int2DVec&, std::vector<Entity* > entityVector, TurnAction&);
+    GameState handlePlayerAction(Entity* player, PlayerAction playerAction, Int2DVec&, std::vector<Entity* > entityVector, ActionResult&);
     
     void renderDebugInfo(const Map&, const Entity* player, sf::RenderWindow* window) const;
     

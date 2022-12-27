@@ -29,14 +29,21 @@ Entity::Entity(Tile* _tile, std::string name, int _x, int _y, Actor* comp) : x(_
 
 /* Bumping into something counts as performing action. */
 // TODO: pass const map reference, not intvec and entity vector.
-TurnAction Entity::moveOrPerformAction(int moveX, int moveY, Int2DVec& intVec, std::vector<Entity* > entityVector)
+ActionResult Entity::moveOrBump(int moveX, int moveY, Int2DVec& intVec, std::vector<Entity* > entityVector)
 {
     int indexAtPositionOfMove = intVec[this->x + moveX][this->y + moveY];
     Entity* playerPointer = entityVector[0];
     
-    TurnAction turnResult;
-    turnResult.name = "move";
-    turnResult.entityPerformingActionVectorPos = this->blockingEntitiesVectorPos;
+    /* This method should be only about moving an entity */
+    
+    ActionResult moveResult;
+    moveResult.type = ActionType::ACTIONTYPE_IDLE;
+    moveResult.entityPerformingActionVectorPos = this->blockingEntitiesVectorPos;
+    
+    if (moveX == 0 && moveY == 0)
+    {
+        return moveResult;
+    }
     
     if (indexAtPositionOfMove < 0)
     {
@@ -54,60 +61,54 @@ TurnAction Entity::moveOrPerformAction(int moveX, int moveY, Int2DVec& intVec, s
         this->y = this->tile->getPosition().y / C_TILE_IN_GAME_SIZE;
         
         intVec[this->x][this->y] = this->blockingEntitiesVectorPos;
-        return turnResult;
+        return moveResult;
     }
     else // return entity and decide what to do with it.
     {
         Entity* ep = entityVector.at(indexAtPositionOfMove); // there is an entity
-        if (ep->tile->canBlock) // always blocks
+        if (ep != nullptr)
         {
-            if (moveX != 0 || moveY != 0)
+            if (ep->tile->canBlock) // always blocks
             {
-                if (ep->actorComponent != nullptr || ep == playerPointer) // player attacks entity or entity attacks player.
+                if (moveX != 0 || moveY != 0)
                 {
-                    // Later, check if the AI is hostile.
-                    turnResult.name = "attack";
-                    turnResult.entityPerformingActionVectorPos = this->blockingEntitiesVectorPos;
-                    turnResult.entityTargetOfActionVectorPos = ep->blockingEntitiesVectorPos;
-                    return turnResult;
-                } else
-                {
+                    if (ep->actorComponent != nullptr || ep == playerPointer) // player attacks entity or entity attacks player.
+                    {
+                        // Later, check if the AI is hostile.
+                        moveResult.type = ActionType::ACTIONTYPE_ATTACK;
+                        moveResult.entityPerformingActionVectorPos = this->blockingEntitiesVectorPos;
+                        moveResult.entityTargetOfActionVectorPos = ep->blockingEntitiesVectorPos;
+                        return moveResult;
+                    }
                 }
             }
         }
     }
-    return turnResult;
+    return moveResult;
 }
 
 void Entity::setPosition(int _x, int _y)
 {
     this->x = _x;
     this->y = _y;
-    
     this->tile->setPosition(_x * C_TILE_IN_GAME_SIZE, _y * C_TILE_IN_GAME_SIZE);
 }
 
 void Entity::die(sf::Sprite& corpseSprite)
 {
-    this->tile->setTile(corpseSprite, sf::Color(100, 100, 100));
-    this->tile->canBlock = false;
-    
-//    if (this->actorComponent != nullptr)
-//        delete this->actorComponent;
-//
-    //this->actorComponent = nullptr;
-    this->name = "Corpse of: " + this->name;
-    if (this->actorComponent != nullptr)
-    {
-        delete this->actorComponent;
-    }
+    //this->tile->setTile(corpseSprite, sf::Color(100, 100, 100));
+    delete this->actorComponent;
+    this->actorComponent = nullptr;
+    assert(this->actorComponent == nullptr);
     delete this;
-    // TODO: this->itemComponent = 
 }
 
 Entity::~Entity()
 {
+    this->tile->canBlock = false;
     delete this->tile;
+    this->tile = nullptr;
+    assert(this->tile == nullptr);
 }
 
 Entity* Entity::createNewEntityFromSprite(sf::Sprite entitySprite, std::string name, bool isInvisible, bool blocks, sf::Color entityColor, int x, int y)

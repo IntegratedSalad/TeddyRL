@@ -15,7 +15,7 @@
 #include "tile.hpp"
 #include "actor.hpp"
 #include "constants.hpp"
-#include "turnAction.hpp"
+#include "TurnActions.hpp"
 
 /* Entity is a single object on game map, that isn't a free space.
    Entity has a pointer to Tile object, that is its graphical representation.
@@ -27,7 +27,6 @@ class Actor;
 class Entity
 {
 private:
-    
     Actor* actorComponent;
     
     int x;
@@ -44,9 +43,9 @@ public:
     
     ~Entity();
 
-    TurnAction moveOrPerformAction(int moveX, int moveY, Int2DVec&, std::vector<Entity* > entityVector);
-    TurnAction pickUp(Int2DVec&, std::vector<Entity* >);
-    TurnAction openDoor(Int2DVec&, std::vector<Entity* >);
+    ActionResult moveOrBump(int moveX, int moveY, Int2DVec&, std::vector<Entity* > entityVector);
+    ActionResult pickUp(Int2DVec&, std::vector<Entity* >);
+    ActionResult openDoor(Int2DVec&, std::vector<Entity* >);
     
     void die(sf::Sprite& corpseSprite);
     // move
@@ -71,7 +70,6 @@ public:
     static Entity* createNewEntityFromSprite(sf::Sprite entitySprite, std::string name, bool isInvisible, bool blocks, sf::Color entityColor, int x, int y);
     
     unsigned int blockingEntitiesVectorPos;
-    
 };
 
 
