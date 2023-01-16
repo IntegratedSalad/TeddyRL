@@ -10,8 +10,7 @@
 
 void debugPrintInt2dVector(const Int2DVec& vec, const std::string& name)
 {
-    std::cout << ">>>> " << name << "vec contents: <<<<" << std::endl;
-    
+    std::cout << ">>>> " << name << " vec contents: <<<<" << std::endl;
     for (Int2DVec::const_iterator it = vec.begin(); it != vec.end(); it++)
     {
         for (std::vector<int>::const_iterator jt = it->begin(); jt != it->end(); jt++)
@@ -22,3 +21,12 @@ void debugPrintInt2dVector(const Int2DVec& vec, const std::string& name)
         std::cout << std::endl;
     }
 }
+//
+//template<class T> // TODO: Serialize to one file all the data - one stream used to write and read
+//void saveData(T instance, const std::string& fileName, boost::archive::binary_oarchive& bo)
+//{
+//    
+//    std::ofstream ofs(fileName + ".misio");
+//    
+//    bo << instance;
+//}

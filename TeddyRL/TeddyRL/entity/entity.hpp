@@ -16,6 +16,7 @@
 #include "actor.hpp"
 #include "constants.hpp"
 #include "TurnActions.hpp"
+#include <boost/archive/binary_oarchive.hpp>
 
 /* Entity is a single object on game map, that isn't a free space.
    Entity has a pointer to Tile object, that is its graphical representation.
@@ -27,6 +28,17 @@ class Actor;
 class Entity
 {
 private:
+    friend class boost::serialization::access;
+    
+    template<class Archive>
+    void serialize(Archive& ar, const unsigned int version)
+    {
+        ar & actorComponent;
+        ar & name;
+        ar & x;
+        ar & y;
+    }
+    
     Actor* actorComponent;
     
     int x;

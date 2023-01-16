@@ -11,6 +11,8 @@
 
 #include <iostream>
 #include <vector>
+#include <fstream>
+#include <boost/archive/binary_iarchive.hpp>
 
 typedef std::vector<std::vector<int>> Int2DVec;
 void debugPrintInt2dVector(const Int2DVec& vec, const std::string& name);

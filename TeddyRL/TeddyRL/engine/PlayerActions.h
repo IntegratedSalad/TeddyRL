@@ -22,7 +22,8 @@ enum class PlayerAction
     PLR_ACTION_MOVE_W,
     PLR_ACTION_MOVE_NW,
     PLR_ACTION_IDLE,
-    PLR_ACTION_PASS_TURN
+    PLR_ACTION_PASS_TURN,
+    PLR_ACTION_SAVE_GAME
     /*          */
 };
 

@@ -90,6 +90,7 @@ void Map::generateLevel(const std::vector<sf::Sprite> spritesVector, std::mt1993
         RandomAI* raip = new RandomAI();
         acp->setAI(raip);
         e->setActorComponent(acp);
+        acp->setType(AIType::RANDOM);
     }
 }
 

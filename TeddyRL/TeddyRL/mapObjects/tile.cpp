@@ -56,7 +56,6 @@ void Tile::setTile(sf::Sprite& _sprite, sf::Color color)
     t = _sprite.getTexture();
 
     this->setTexture(t);
-    
 //    assert(t == this->getTexture());  //true
     this->setFillColor(color);
 }

@@ -70,7 +70,7 @@ ActionResult Entity::moveOrBump(int moveX, int moveY, Int2DVec& intVec, std::vec
         {
             if (ep->tile->canBlock) // always blocks
             {
-                if (moveX != 0 || moveY != 0)
+                if (moveX != 0 || moveY != 0) // TODO: checked earlier, remove
                 {
                     if (ep->actorComponent != nullptr || ep == playerPointer) // player attacks entity or entity attacks player.
                     {
@@ -97,9 +97,12 @@ void Entity::setPosition(int _x, int _y)
 void Entity::die(sf::Sprite& corpseSprite)
 {
     //this->tile->setTile(corpseSprite, sf::Color(100, 100, 100));
-    delete this->actorComponent;
-    this->actorComponent = nullptr;
-    assert(this->actorComponent == nullptr);
+    if (this->actorComponent != nullptr)
+    {            
+        delete this->actorComponent;
+        this->actorComponent = nullptr;
+        assert(this->actorComponent == nullptr);
+    }
     delete this;
 }
 

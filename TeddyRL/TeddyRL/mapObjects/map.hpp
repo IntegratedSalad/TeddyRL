@@ -13,6 +13,9 @@
 #include "entity.hpp"
 #include "constants.hpp"
 #include <random>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/serialization/vector.hpp>
 
 /* Because you will be able to go back to the previous levels, every level map will be initialized, and kept in a list. */
 
@@ -23,6 +26,18 @@ class Entity;
 class Map
 {
 private:
+    friend class boost::serialization::access;
+    
+    template<class Archive>
+    void serialize(Archive& ar, const unsigned int version)
+    {
+        ar & roomsNum;
+        ar & currentLevelNum;
+        ar & blockingEntitiesInt2DVector;
+        ar & blockingEntities;
+        ar & levelsVector;
+    }
+    
     unsigned int roomsNum;
     int currentLevelNum;
     

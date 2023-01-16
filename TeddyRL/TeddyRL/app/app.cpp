@@ -22,7 +22,14 @@ void App::run()
     
     const std::vector<sf::Sprite> spritesVector = tileset.getSprites();
     
+    // Maybe here add class SpriteColection with a getter
+    
     Engine engine = Engine();
+    
+    // Show main menu
+    // Check if there is no save games
+    // engine.checkForSaveGame()
+    
     EngineState state = engine.mainLoop(window, spritesVector);
 
     switch (state)

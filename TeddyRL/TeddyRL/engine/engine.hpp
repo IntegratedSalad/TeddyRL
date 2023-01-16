@@ -38,6 +38,8 @@ private:
     EngineState engineState;
     Entity* player;
     Map* gameMap;
+    
+    bool saveGame = false;
 
 public:
     sf::Font* gameFont;

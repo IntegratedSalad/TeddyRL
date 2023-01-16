@@ -12,6 +12,7 @@
 
 bool debugModeOn = false;
 
+const std::string PATH = "/Users/dev/Desktop/MisioSaves/";
 Engine::Engine()
 {
     engineState = EngineState::STATE_RUNNING;
@@ -34,7 +35,10 @@ Engine::~Engine()
 }
 
 EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Sprite> spritesVector)
+//EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Sprite> spritesVector, Map&)
 {
+    // pass game map obj, player always initialized before game map obj and place in it
+    /* TODO: More organized initialization - some things don't need to be saved and need to be initialized each time */
     
     std::random_device rnd;
     std::mt19937 rng(rnd());
@@ -46,14 +50,18 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
     
     bool mouseActivated = false;
     
-    Map gameMapObj{}; /* TODO: Think about map and its fields being a private field of the Engine class. */
+    Map gameMapObj{};
 
     sf::Sprite playerSprite = spritesVector[73];
-    sf::Sprite corpseSprite = spritesVector.at(static_cast<int>(TileSprite::CORPSE));
+    sf::Sprite corpseSprite = spritesVector.at(static_cast<int>(TileSprite::CORPSE)); // this is not an ideal solution
+    // maybe create a class that has a vector as a private member, and you can append sprites and get by overloading [] operator,
+    // in a method that accepts TileSprite
     
     Tile* playerTile = new Tile{false, true, playerSprite, sf::Color::White};
     
+    Actor* pacp = new Actor{};
     Entity* player = new Entity{playerTile, "Teddy", 4, 4};
+    player->setActorComponent(pacp);
     /* player is manually added before every entity, its entityVectorPos is 0. */
 
     gameMapObj.placeBlockingEntityOnMap(player, player->getX(), player->getY());
@@ -90,7 +98,10 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
             {
                 case sf::Event::Closed:
                 {
+                    /* TODO: Handle Cleanup */
+                    
                     delete playerTile;
+                    delete this->gameFont;
                     window->close();
                     return EngineState::STATE_EXITING;
                 }
@@ -111,7 +122,10 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
         ActionResult playerActionResult;
         if (turn == GameState::PLAYER_AND_FRIENDS_TURN)
         {
+            
             turn = handlePlayerAction(player, playerAction, gameMapObj.blockingEntitiesInt2DVector, gameMapObj.blockingEntities, playerActionResult); // turn results are written in function, in a variable passed by reference.
+            
+            // Player starts first!
                 
             if (playerActionResult.type == ActionType::ACTIONTYPE_ATTACK)
             {
@@ -127,8 +141,8 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
                 assert(targetEntityPointer == nullptr);
             }
         }
+        /* Friends turn */
         
-        // TODO: Execute player turn
         /* Enemies turn */
         
         ActionResult aiActionResult;
@@ -200,6 +214,18 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
             drawTextOnRectangle(window, sf::Color::Black, sf::Color::White, 32, fpsString, 0, (C_MAP_SIZE - 1) * C_TILE_IN_GAME_SIZE, *gameFont);
         }
         window->display();
+        
+        if (saveGame)
+        {
+            std::ofstream ofs(PATH + "save.misio", std::ios::binary);
+            boost::archive::binary_oarchive o(ofs);
+            o << gameMapObj;
+            std::cout << "Game saved." << std::endl;
+            saveGame = false;
+        }
+        
+        // Let's try to load game here - it will just swap the MapObj.
+        
     }
     
     if (this->engineState == EngineState::STATE_GAME_OVER)
@@ -287,6 +313,13 @@ GameState Engine::handlePlayerAction(Entity* player, PlayerAction playerAction, 
 #endif
         case PlayerAction::PLR_ACTION_IDLE:
             return GameState::PLAYER_AND_FRIENDS_TURN;
+        case PlayerAction::PLR_ACTION_SAVE_GAME:
+        {
+            // Save Game
+            saveGame = true;
+            return GameState::PLAYER_AND_FRIENDS_TURN;
+        }
+            
     }
 }
 
