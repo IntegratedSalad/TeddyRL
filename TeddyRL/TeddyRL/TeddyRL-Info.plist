@@ -7,7 +7,9 @@
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleIconFile</key>
-	<string>/Users/dev/Desktop/misio icon.png</string>
+	<string>misioicon.icns</string>
+	<key>CFBundleIconName</key>
+	<string>misioicon.icns</string>
 	<key>CFBundleIdentifier</key>
 	<string>bups.${PRODUCT_NAME:rfc1034identifier}</string>
 	<key>CFBundleInfoDictionaryVersion</key>

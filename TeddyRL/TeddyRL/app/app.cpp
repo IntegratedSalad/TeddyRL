@@ -1,13 +1,6 @@
 #include "app.hpp"
 #include "constants.hpp"
 
-#if DEBUG && __APPLE__
-#define GET_PATH_STR_WORKDIR_MACOS(x) x.parent_path().parent_path().parent_path().parent_path().string()
-#endif
-
-#if RELEASE && __APPLE__
-#define GET_PATH_STR_WORKDIR_MACOS(x) x.parent_path().string()
-#endif
 
 App::App(const std::string execPath) : executableFilePath(execPath)
 {
