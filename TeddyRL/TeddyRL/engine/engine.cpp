@@ -12,17 +12,15 @@
 
 bool debugModeOn = false;
 
-const std::string PATH = "/Users/dev/Desktop/MisioSaves/";
+const std::string PATH = "/Users/dev/Desktop/MisioSaves/"; // TODO: Create save directory
 Engine::Engine()
 {
     engineState = EngineState::STATE_RUNNING;
-    
     sf::Font* _font = new sf::Font;
     
     if (!_font->loadFromFile(resourcePath() + "dos_vga_font.ttf"))
     {
         std::cout << "Couldn't load the font. Exiting" << std::endl;
-        
         return EngineState::STATE_EXITING;
 
     }
@@ -122,7 +120,6 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
         ActionResult playerActionResult;
         if (turn == GameState::PLAYER_AND_FRIENDS_TURN)
         {
-            
             turn = handlePlayerAction(player, playerAction, gameMapObj.blockingEntitiesInt2DVector, gameMapObj.blockingEntities, playerActionResult); // turn results are written in function, in a variable passed by reference.
             
             // Player starts first!
@@ -215,21 +212,25 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
         }
         window->display();
         
-        if (saveGame)
+        if (saveGame) // Don't allow for save scumming exiting results in a save and you can only load from main menu
         {
+            // also, saving exits the game <- exits to the main menu
             std::ofstream ofs(PATH + "save.misio", std::ios::binary);
             boost::archive::binary_oarchive o(ofs);
             o << gameMapObj;
             std::cout << "Game saved." << std::endl;
             saveGame = false;
+            // exit game
         }
         
-        // Let's try to load game here - it will just swap the MapObj.
+        // Let's try to load game here - it will just swap the MapObj. Later load only from main menu
+        // Free every sprite from memory, along with every object allocated. Load new from file.
         
     }
     
     if (this->engineState == EngineState::STATE_GAME_OVER)
     {
+        // destroy save file(s)
         this->RenderGameOver(window);
         std::cout << "dupa" << std::endl;
     }
@@ -368,6 +369,11 @@ void Engine::renderDebugInfo(const Map& map, const Entity* player, sf::RenderWin
             }
         }
     }
+}
+
+void Engine::prepareToExit(void)
+{
+    /* Free everything */
 }
 
 EngineState Engine::RenderGameOver(sf::RenderWindow* window) const

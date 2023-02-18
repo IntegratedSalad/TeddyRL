@@ -13,6 +13,8 @@ private:
     const std::vector<sf::Sprite> tilesetVector;
     const std::vector<sf::Sprite> setTileSetVector(Tileset tileset);
     
+    void HandleExit();
+    
 public:
     
     App();

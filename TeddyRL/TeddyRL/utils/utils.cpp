@@ -17,16 +17,6 @@ void debugPrintInt2dVector(const Int2DVec& vec, const std::string& name)
         {
             std::cout << *jt << " ";
         }
-        
         std::cout << std::endl;
     }
 }
-//
-//template<class T> // TODO: Serialize to one file all the data - one stream used to write and read
-//void saveData(T instance, const std::string& fileName, boost::archive::binary_oarchive& bo)
-//{
-//    
-//    std::ofstream ofs(fileName + ".misio");
-//    
-//    bo << instance;
-//}

@@ -26,7 +26,7 @@ void App::run()
     
     Engine engine = Engine();
     
-    // Show main menu
+    // Show main menu <- not needed for now as it just adds something that takes time
     // Check if there is no save games
     // engine.checkForSaveGame()
     

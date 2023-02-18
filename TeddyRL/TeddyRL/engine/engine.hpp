@@ -21,7 +21,6 @@ enum class EngineState
     STATE_EXITING,
     STATE_MENU,
     STATE_GAME_OVER
-    
 };
 
 enum class GameState
@@ -40,6 +39,9 @@ private:
     Map* gameMap;
     
     bool saveGame = false;
+    
+    void prepareToExit(void);
+    Map* SetupNewGameMap(void);
 
 public:
     sf::Font* gameFont;
@@ -69,8 +71,10 @@ public:
 //    
     
     GameState handlePlayerAction(Entity* player, PlayerAction playerAction, Int2DVec&, std::vector<Entity* > entityVector, ActionResult&);
-    
     void renderDebugInfo(const Map&, const Entity* player, sf::RenderWindow* window) const;
+    
+    void SaveGame(void);
+    void LoadGame();
     
 };
 
