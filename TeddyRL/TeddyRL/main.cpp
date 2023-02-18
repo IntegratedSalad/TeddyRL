@@ -21,10 +21,9 @@ void printResourcePath()
     std::cout << resourcePath() << std::endl;
 }
 
-int main(int, char const**)
+int main(int argc, const char** argv)
 {
-
-    App app = App();
+    App app = App(argv[0]);
     app.run();
 
     return EXIT_SUCCESS;

@@ -11,8 +11,6 @@
 #define DEBUG 1
 
 bool debugModeOn = false;
-
-const std::string PATH = "/Users/dev/Desktop/MisioSaves/"; // TODO: Create save directory
 Engine::Engine()
 {
     engineState = EngineState::STATE_RUNNING;
@@ -24,6 +22,7 @@ Engine::Engine()
         return EngineState::STATE_EXITING;
 
     }
+    
     this->gameFont = _font;
 }
 
@@ -48,7 +47,7 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
     
     bool mouseActivated = false;
     
-    Map gameMapObj{};
+    Map gameMapObj{}; // created before entering main Loop
 
     sf::Sprite playerSprite = spritesVector[73];
     sf::Sprite corpseSprite = spritesVector.at(static_cast<int>(TileSprite::CORPSE)); // this is not an ideal solution
@@ -215,11 +214,11 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
         if (saveGame) // Don't allow for save scumming exiting results in a save and you can only load from main menu
         {
             // also, saving exits the game <- exits to the main menu
-            std::ofstream ofs(PATH + "save.misio", std::ios::binary);
-            boost::archive::binary_oarchive o(ofs);
-            o << gameMapObj;
-            std::cout << "Game saved." << std::endl;
-            saveGame = false;
+//            std::ofstream ofs(PATH_TO_CURRENT_DIRECTORY + "save.td", std::ios::binary);
+//            boost::archive::binary_oarchive o(ofs);
+//            o << gameMapObj;
+//            std::cout << "Game saved." << std::endl;
+//            saveGame = false;
             // exit game
         }
         
