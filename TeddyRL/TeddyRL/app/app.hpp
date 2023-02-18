@@ -11,14 +11,14 @@ private:
     sf::RenderWindow* window;
     sf::Font* font;
     
-    const std::string executableFilePath;
+    const std::string executableDirPath;
     
     const std::vector<sf::Sprite> tilesetVector;
     const std::vector<sf::Sprite> setTileSetVector(Tileset tileset);
     
     void CreateSaveGameFolder(void);
     void HandleExit();
-    const std::string ReturnSavedGamePath(void) const;
+    const std::string ReturnSavedGameFilePath(void) const;
     
 public:
     

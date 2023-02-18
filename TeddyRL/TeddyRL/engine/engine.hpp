@@ -42,6 +42,8 @@ private:
     
     void prepareToExit(void);
     Map* SetupNewGameMap(void);
+    
+    std::string saveDirPath;
 
 public:
     sf::Font* gameFont;
@@ -49,6 +51,11 @@ public:
     Engine();
     ~Engine();
     EngineState mainLoop(sf::RenderWindow* window, const std::vector<sf::Sprite> tilesetVector);
+    
+    void setDirPath(const std::string& p)
+    {
+        saveDirPath = p;
+    }
     
     EngineState getEngineState(void)
     {

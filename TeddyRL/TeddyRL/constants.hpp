@@ -17,6 +17,7 @@
 #define GET_PATH_STR_WORKDIR_MACOS(x) x.parent_path().string()
 #endif
 
+const std::string SAVE_DIR_NAME = "MisioSaves";
 
 const int C_SCREEN_WIDTH  = 1600;
 const int C_SCREEN_HEIGHT = 1400;

@@ -2,7 +2,7 @@
 #include "constants.hpp"
 
 
-App::App(const std::string execPath) : executableFilePath(execPath)
+App::App(const std::string execPath) : executableDirPath(execPath)
 {
     sf::VideoMode videoMode = sf::VideoMode(C_SCREEN_WIDTH, C_SCREEN_HEIGHT);
     window = new sf::RenderWindow(videoMode, "TeddyRL");
@@ -25,13 +25,21 @@ void App::run()
     // Maybe here add class SpriteColection with a getter
     
     Engine engine = Engine();
-    const std::string pathToSavedGame = ReturnSavedGamePath();
-    if (pathToSavedGame.empty())
+    engine.setDirPath(this->executableDirPath);
+    const std::string pathToSavedGameFile = ReturnSavedGameFilePath();
+    if (pathToSavedGameFile.empty())
     {
         CreateSaveGameFolder();
     }
     
     // Show main menu <- not needed for NOW as it just adds something that takes time
+    
+    if (!pathToSavedGameFile.empty())
+    {
+        std::cout << "Found a save file: " << pathToSavedGameFile << std::endl;
+    }
+    
+    // Create mapObject - either load the data or create a fresh one
     
     EngineState state = engine.mainLoop(window, spritesVector);
 
@@ -48,10 +56,9 @@ void App::run()
 
 void App::CreateSaveGameFolder(void)
 {
-    const std::string dirName = "MisioSaves";
-    std::filesystem::path execPath = std::filesystem::path(executableFilePath);
+    std::filesystem::path execPath = std::filesystem::path(executableDirPath);
 #ifdef __APPLE__
-    const std::string fullPath = GET_PATH_STR_WORKDIR_MACOS(execPath) + "/" + dirName;
+    const std::string fullPath = GET_PATH_STR_WORKDIR_MACOS(execPath) + "/" + SAVE_DIR_NAME;
 #endif
     
     if (!std::filesystem::exists(fullPath) || (!std::filesystem::is_directory(fullPath)))
@@ -60,25 +67,23 @@ void App::CreateSaveGameFolder(void)
     }
 }
 
-const std::string App::ReturnSavedGamePath(void) const
+const std::string App::ReturnSavedGameFilePath(void) const
 {
     // only one save game file!
     // pressing "New Game" will erase previous save
     
-    const std::string dirName = "MisioSaves";
-    std::filesystem::path execPath = std::filesystem::path(executableFilePath);
+    std::filesystem::path execPath = std::filesystem::path(executableDirPath);
 #ifdef __APPLE__
-    const std::string fullPath = GET_PATH_STR_WORKDIR_MACOS(execPath) + "/" + dirName;
+    const std::string fullPath = GET_PATH_STR_WORKDIR_MACOS(execPath) + "/" + SAVE_DIR_NAME;
 #endif
     std::string toReturn = "";
     
     if (std::filesystem::exists(fullPath))
     {
-        std::string filePath = "";
-        
         for (const auto& entry : std::filesystem::directory_iterator(fullPath))
         {
-            toReturn = entry.path();
+            std::cout << entry.path().string() << std::endl;
+            toReturn = entry.path().string();
             break; // return first file
         }
     }

@@ -34,7 +34,7 @@ Engine::~Engine()
 EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Sprite> spritesVector)
 //EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Sprite> spritesVector, Map&)
 {
-    // pass game map obj, player always initialized before game map obj and place in it
+    // pass game map obj, player always initialized before game map obj and placed in it
     /* TODO: More organized initialization - some things don't need to be saved and need to be initialized each time */
     
     std::random_device rnd;
@@ -214,11 +214,13 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
         if (saveGame) // Don't allow for save scumming exiting results in a save and you can only load from main menu
         {
             // also, saving exits the game <- exits to the main menu
-//            std::ofstream ofs(PATH_TO_CURRENT_DIRECTORY + "save.td", std::ios::binary);
-//            boost::archive::binary_oarchive o(ofs);
-//            o << gameMapObj;
-//            std::cout << "Game saved." << std::endl;
-//            saveGame = false;
+            
+            std::filesystem::path execPath = std::filesystem::path(saveDirPath);
+            std::ofstream ofs(GET_PATH_STR_WORKDIR_MACOS(execPath) + "/" + SAVE_DIR_NAME + "/" + "save.td", std::ios::binary);
+            boost::archive::binary_oarchive o(ofs);
+            o << gameMapObj;
+            std::cout << "Game saved." << std::endl;
+            saveGame = false;
             // exit game
         }
         
