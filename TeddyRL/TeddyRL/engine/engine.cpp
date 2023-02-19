@@ -57,6 +57,7 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
     Tile* playerTile = new Tile{false, true, playerSprite, sf::Color::White};
     
     Actor* pacp = new Actor{};
+    pacp->setAI(nullptr); // have to manually set pointer to null!!!
     Entity* player = new Entity{playerTile, "Teddy", 4, 4};
     player->setActorComponent(pacp);
     /* player is manually added before every entity, its entityVectorPos is 0. */

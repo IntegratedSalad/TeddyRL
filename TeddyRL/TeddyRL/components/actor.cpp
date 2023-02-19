@@ -14,7 +14,10 @@ Actor::Actor()
 
 Actor::~Actor()
 {
-    delete this->ai;
+    if (this->ai != nullptr)
+    {
+        delete this->ai;
+    }
     this->ai = nullptr;
     assert(this->ai == nullptr);
 }
