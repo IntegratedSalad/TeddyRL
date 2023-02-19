@@ -34,14 +34,11 @@ void App::run()
     
     // Show main menu <- not needed for NOW as it just adds something that takes time
     
-    if (!pathToSavedGameFile.empty())
-    {
-        std::cout << "Found a save file: " << pathToSavedGameFile << std::endl;
-    }
+    std::random_device rnd;
+    std::mt19937 rng(rnd());
+    engine.Setup(pathToSavedGameFile.empty(), spritesVector); // Create mapObject - either load the data or create a fresh one
     
-    // Create mapObject - either load the data or create a fresh one
-    
-    EngineState state = engine.mainLoop(window, spritesVector);
+    EngineState state = engine.mainLoop(window, rng);
 
     switch (state)
     {
@@ -51,6 +48,8 @@ void App::run()
             
         default:
             break;
+            
+    // TODO: Save here
     }
 }
 

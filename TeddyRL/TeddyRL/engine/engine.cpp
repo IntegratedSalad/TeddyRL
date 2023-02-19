@@ -8,8 +8,6 @@
 #include "drawing_utils.hpp"
 #include <random>
 
-#define DEBUG 1
-
 bool debugModeOn = false;
 Engine::Engine()
 {
@@ -22,23 +20,21 @@ Engine::Engine()
         return EngineState::STATE_EXITING;
 
     }
-    
     this->gameFont = _font;
+    this->gameMap = nullptr;
 }
 
 Engine::~Engine()
 {
     delete this->gameFont;
+    delete this->gameMap;
 }
 
-EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Sprite> spritesVector)
+EngineState Engine::mainLoop(sf::RenderWindow* window, std::mt19937& rng)
 //EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Sprite> spritesVector, Map&)
 {
     // pass game map obj, player always initialized before game map obj and placed in it
     /* TODO: More organized initialization - some things don't need to be saved and need to be initialized each time */
-    
-    std::random_device rnd;
-    std::mt19937 rng(rnd());
     
     float fps;
     sf::Clock clock;
@@ -46,6 +42,8 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
     sf::Time currentTime;
     
     bool mouseActivated = false;
+    
+    // --- REMOVE ---
     
     Map gameMapObj{}; // created before entering main Loop
 
@@ -57,7 +55,7 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
     Tile* playerTile = new Tile{false, true, playerSprite, sf::Color::White};
     
     Actor* pacp = new Actor{};
-    pacp->setAI(nullptr); // have to manually set pointer to null!!!
+    
     Entity* player = new Entity{playerTile, "Teddy", 4, 4};
     player->setActorComponent(pacp);
     /* player is manually added before every entity, its entityVectorPos is 0. */
@@ -65,10 +63,12 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
     gameMapObj.placeBlockingEntityOnMap(player, player->getX(), player->getY());
     this->player = player;
     
-    gameMapObj.generateLevel(spritesVector, rng);
+    gameMapObj.generateLevel(spritesVector);
     
     std::cout << gameMapObj.blockingEntities.size() << std::endl;
     
+    
+    // --- REMOVE END ---
     GameState turn = GameState::PLAYER_AND_FRIENDS_TURN;
 
     /* Game Map View, Camera system */
@@ -138,6 +138,7 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
                 std::cout << targetEntityPointer->getName() << " dies!" << std::endl;
                 targetEntityPointer->die(corpseSprite);
                 targetEntityPointer = nullptr;
+#warning Assert is optimized if optimization is on. Apart from tests, assertion shouldn't be used.
                 assert(targetEntityPointer == nullptr);
                 
             }
@@ -407,4 +408,29 @@ EngineState Engine::RenderGameOver(sf::RenderWindow* window) const
             window->display();
         }
     }
+}
+
+void Engine::Setup(bool newGame, const std::vector<sf::Sprite> spritesVector)
+{
+    if (newGame)
+    {
+        SetupNewGameMap(spritesVector);
+    } else
+    {
+        LoadGameMap();
+    }
+}
+
+void Engine::SetupNewGameMap(const std::vector<sf::Sprite> spritesVector)
+{
+    Map* mp = new Map(spritesVector);
+    
+    // Set up player
+    
+    this->gameMap = mp;
+}
+
+void Engine::LoadGameMap(const std::vector<sf::Sprite> spritesVector)
+{
+    
 }

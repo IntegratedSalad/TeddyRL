@@ -41,7 +41,8 @@ private:
     bool saveGame = false;
     
     void prepareToExit(void);
-    Map* SetupNewGameMap(void);
+    void SetupNewGameMap(const std::vector<sf::Sprite> spritesVector);
+    void LoadGameMap(const std::vector<sf::Sprite> spritesVector);
     
     std::string saveDirPath;
 
@@ -50,7 +51,7 @@ public:
     
     Engine();
     ~Engine();
-    EngineState mainLoop(sf::RenderWindow* window, const std::vector<sf::Sprite> tilesetVector);
+    EngineState mainLoop(sf::RenderWindow* window, std::mt19937& rng);
     
     void setDirPath(const std::string& p)
     {
@@ -80,8 +81,10 @@ public:
     GameState handlePlayerAction(Entity* player, PlayerAction playerAction, Int2DVec&, std::vector<Entity* > entityVector, ActionResult&);
     void renderDebugInfo(const Map&, const Entity* player, sf::RenderWindow* window) const;
     
-    void SaveGame(void);
-    void LoadGame();
+    //void SaveGame(void);
+    //void LoadGame();
+    
+    void Setup(bool newGame, const std::vector<sf::Sprite> spritesVector);
     
 };
 

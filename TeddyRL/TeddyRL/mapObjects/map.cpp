@@ -11,7 +11,7 @@
 #include "entity.hpp"
 #include "actor.hpp"
 
-Map::Map()
+Map::Map(const std::vector<sf::Sprite> sv) : spritesVector(sv)
 {
     for (int i = 0; i < C_MAP_SIZE; i++)
     {
@@ -62,11 +62,14 @@ void Map::drawEnclosingSquare(sf::Sprite wallSprite)
     }
 }
 
-void Map::generateLevel(const std::vector<sf::Sprite> spritesVector, std::mt19937& rng)
+void Map::generateLevel()
 {
     // Each wall can have the same pointer to the tile. It won't get destructed, so why have different pointers?
     
     // Each wall should have a reference to sprite and tile?
+    
+    std::random_device rnd;
+    std::mt19937 rng(rnd());
     
 #warning if memory gets bloated by any of this, we will have to redesign tile memory management.
     

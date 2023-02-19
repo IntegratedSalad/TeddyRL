@@ -8,8 +8,11 @@
 
 #include "actor.hpp"
 
-Actor::Actor()
+Actor::Actor() : ai(nullptr)
 {
+    /* We have to set the ai pointer to nullptr, because player also has an actor component.
+       Actor component has a pointer to an AI, that ISN'T AUTOMATICALLY SET TO NULLPTR!
+     */
 }
 
 Actor::~Actor()

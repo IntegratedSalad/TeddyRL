@@ -43,19 +43,21 @@ private:
     
     void drawEnclosingSquare(sf::Sprite);
     
+    const std::vector<sf::Sprite> spritesVector;
+    
 public:
     Int2DVec blockingEntitiesInt2DVector; // Contains blocking entities' position in entityVector (walls, monsters etc)
     std::vector<Entity* > blockingEntities;
     LevelsVector levelsVector;
     
-    Map();
+    Map(const std::vector<sf::Sprite> sv);
     ~Map();
     
     void removeEntityFromMap(Entity* entity);
     void placeBlockingEntityOnMap(Entity*, int x, int y);
     int getBlockingEntityIndexFromLocation(int, int) const;
     
-    void generateLevel(const std::vector<sf::Sprite> spritesVector, std::mt19937&);
+    void generateLevel();
     
     Entity* getBlockingEntityPointerFromLocation(int, int) const;
     Entity* getBlockingEntityPointerFromEntityVectorPos(int) const;
