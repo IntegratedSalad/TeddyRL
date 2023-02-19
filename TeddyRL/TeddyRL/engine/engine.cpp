@@ -105,9 +105,11 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
                 case sf::Event::KeyPressed:
                 {
                     playerAction = returnActionFromInput(bindings, event.key.code);
+                    break;
                 }
                 default:
                 {
+                    break;
                 }
             }
         }
@@ -130,11 +132,13 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Spr
                 Entity* targetEntityPointer = gameMapObj.getBlockingEntityPointerFromEntityVectorPos(playerActionResult.entityTargetOfActionVectorPos);
                 
                 std::cout << attackerEntityPointer->getName() + " attacks " << targetEntityPointer->getName() << std::endl;
+                
                 gameMapObj.removeEntityFromMap(targetEntityPointer);
-                targetEntityPointer->die(corpseSprite);
                 std::cout << targetEntityPointer->getName() << " dies!" << std::endl;
+                targetEntityPointer->die(corpseSprite);
                 targetEntityPointer = nullptr;
                 assert(targetEntityPointer == nullptr);
+                
             }
         }
         /* Friends turn */
@@ -314,6 +318,7 @@ GameState Engine::handlePlayerAction(Entity* player, PlayerAction playerAction, 
             return GameState::PLAYER_AND_FRIENDS_TURN;
 #endif
         case PlayerAction::PLR_ACTION_IDLE:
+            turnAction.type = ActionType::ACTIONTYPE_IDLE;
             return GameState::PLAYER_AND_FRIENDS_TURN;
         case PlayerAction::PLR_ACTION_SAVE_GAME:
         {
