@@ -54,6 +54,8 @@ public:
     ~Map();
     
     void removeEntityFromMap(Entity* entity);
+    void KillEntity(Entity* entity);
+    
     void placeBlockingEntityOnMap(Entity*, int x, int y);
     int getBlockingEntityIndexFromLocation(int, int) const;
     

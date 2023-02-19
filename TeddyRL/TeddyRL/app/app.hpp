@@ -2,6 +2,8 @@
 #include "engine.hpp"
 #include "tileset.hpp"
 #include <filesystem>
+#include <iostream>
+#include <fstream>
 
 class App
 {
@@ -19,6 +21,7 @@ private:
     void CreateSaveGameFolder(void);
     void HandleExit();
     const std::string ReturnSavedGameFilePath(void) const;
+    void DestroySavedGameFile(void);
     
 public:
     

@@ -46,6 +46,15 @@ void Map::removeEntityFromMap(Entity* entity)
     this->blockingEntities.erase(this->blockingEntities.begin() + entity->blockingEntitiesVectorPos); // erase from entities.
 }
 
+void Map::KillEntity(Entity* entity)
+{
+    sf::Sprite corpseSprite = spritesVector.at(static_cast<int>(TileSprite::CORPSE));
+    entity->die(corpseSprite); // TODO: spawn an item! 
+    entity = nullptr;
+#warning Assert is optimized if optimization is on. Apart from tests, assertion shouldn't be used.
+    assert(entity == nullptr);
+}
+
 void Map::drawEnclosingSquare(sf::Sprite wallSprite)
 {
     for (int i = 0; i < C_MAP_SIZE; i++)

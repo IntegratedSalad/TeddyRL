@@ -31,7 +31,6 @@ Engine::~Engine()
 }
 
 EngineState Engine::mainLoop(sf::RenderWindow* window, std::mt19937& rng)
-//EngineState Engine::mainLoop(sf::RenderWindow* window, const std::vector<sf::Sprite> spritesVector, Map&)
 {
     // pass game map obj, player always initialized before game map obj and placed in it
     /* TODO: More organized initialization - some things don't need to be saved and need to be initialized each time */
@@ -42,33 +41,6 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, std::mt19937& rng)
     sf::Time currentTime;
     
     bool mouseActivated = false;
-    
-    // --- REMOVE ---
-    
-    Map gameMapObj{}; // created before entering main Loop
-
-    sf::Sprite playerSprite = spritesVector[73];
-    sf::Sprite corpseSprite = spritesVector.at(static_cast<int>(TileSprite::CORPSE)); // this is not an ideal solution
-    // maybe create a class that has a vector as a private member, and you can append sprites and get by overloading [] operator,
-    // in a method that accepts TileSprite
-    
-    Tile* playerTile = new Tile{false, true, playerSprite, sf::Color::White};
-    
-    Actor* pacp = new Actor{};
-    
-    Entity* player = new Entity{playerTile, "Teddy", 4, 4};
-    player->setActorComponent(pacp);
-    /* player is manually added before every entity, its entityVectorPos is 0. */
-
-    gameMapObj.placeBlockingEntityOnMap(player, player->getX(), player->getY());
-    this->player = player;
-    
-    gameMapObj.generateLevel(spritesVector);
-    
-    std::cout << gameMapObj.blockingEntities.size() << std::endl;
-    
-    
-    // --- REMOVE END ---
     GameState turn = GameState::PLAYER_AND_FRIENDS_TURN;
 
     /* Game Map View, Camera system */
@@ -97,10 +69,7 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, std::mt19937& rng)
                 case sf::Event::Closed:
                 {
                     /* TODO: Handle Cleanup */
-                    
-                    delete playerTile;
-                    delete this->gameFont;
-                    window->close();
+                    /* TODO: Prompt the user to save game. */
                     return EngineState::STATE_EXITING;
                 }
                 case sf::Event::KeyPressed:
@@ -122,25 +91,21 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, std::mt19937& rng)
         ActionResult playerActionResult;
         if (turn == GameState::PLAYER_AND_FRIENDS_TURN)
         {
-            turn = handlePlayerAction(player, playerAction, gameMapObj.blockingEntitiesInt2DVector, gameMapObj.blockingEntities, playerActionResult); // turn results are written in function, in a variable passed by reference.
+            turn = handlePlayerAction(player, playerAction, gameMap->blockingEntitiesInt2DVector, gameMap->blockingEntities, playerActionResult); // turn results are written in function, in a variable passed by reference.
             
             // Player starts first!
                 
             if (playerActionResult.type == ActionType::ACTIONTYPE_ATTACK)
             {
                 // always the player
-                Entity* attackerEntityPointer =  gameMapObj.getBlockingEntityPointerFromEntityVectorPos(playerActionResult.entityPerformingActionVectorPos);
-                Entity* targetEntityPointer = gameMapObj.getBlockingEntityPointerFromEntityVectorPos(playerActionResult.entityTargetOfActionVectorPos);
+                Entity* attackerEntityPointer =  gameMap->getBlockingEntityPointerFromEntityVectorPos(playerActionResult.entityPerformingActionVectorPos);
+                Entity* targetEntityPointer = gameMap->getBlockingEntityPointerFromEntityVectorPos(playerActionResult.entityTargetOfActionVectorPos);
                 
                 std::cout << attackerEntityPointer->getName() + " attacks " << targetEntityPointer->getName() << std::endl;
                 
-                gameMapObj.removeEntityFromMap(targetEntityPointer);
+                gameMap->removeEntityFromMap(targetEntityPointer);
+                gameMap->KillEntity(targetEntityPointer);
                 std::cout << targetEntityPointer->getName() << " dies!" << std::endl;
-                targetEntityPointer->die(corpseSprite);
-                targetEntityPointer = nullptr;
-#warning Assert is optimized if optimization is on. Apart from tests, assertion shouldn't be used.
-                assert(targetEntityPointer == nullptr);
-                
             }
         }
         /* Friends turn */
@@ -150,9 +115,9 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, std::mt19937& rng)
         ActionResult aiActionResult;
         if (turn == GameState::ENEMY_TURN)
         {
-            for (int i = 1; i < gameMapObj.blockingEntities.size(); i++)
+            for (int i = 1; i < gameMap->blockingEntities.size(); i++)
             {
-                Entity* ep = gameMapObj.blockingEntities[i];
+                Entity* ep = gameMap->blockingEntities[i];
                 Actor* actorp = ep->getActorComponent();
                 
                 /* AI makes a turn - returns turn result that should be applied.
@@ -165,7 +130,7 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, std::mt19937& rng)
                 {
                     /* AI makes turn */
                     AI* aip = actorp->getAI();
-                    aiActionResult = aip->make_turn(gameMapObj, player, rng);
+                    aiActionResult = aip->make_turn(*gameMap, player, rng);
                     if (aiActionResult.type == ActionType::ACTIONTYPE_MOVE)
                     {
                         // Move.
@@ -175,7 +140,7 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, std::mt19937& rng)
                         std::tuple<int, int> directions = mapDirectionToCoordinates(dirData);
                         int x = std::get<0>(directions);
                         int y = std::get<1>(directions);
-                        ActionResult moveActionResult = ep->moveOrBump(x, y, gameMapObj.blockingEntitiesInt2DVector, gameMapObj.blockingEntities);
+                        ActionResult moveActionResult = ep->moveOrBump(x, y, gameMap->blockingEntitiesInt2DVector, gameMap->blockingEntities);
                         
                         if (moveActionResult.type == ActionType::ACTIONTYPE_ATTACK)
                         {
@@ -183,18 +148,15 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, std::mt19937& rng)
                             int performerVecPos = moveActionResult.entityPerformingActionVectorPos; // always current ep
                             int targetVecPos = moveActionResult.entityTargetOfActionVectorPos;
                             
-                            Entity* performerEntityPointer = gameMapObj.getBlockingEntityPointerFromEntityVectorPos(performerVecPos);
-                            Entity* targetEntityPointer = gameMapObj.getBlockingEntityPointerFromEntityVectorPos(targetVecPos);
+                            Entity* performerEntityPointer = gameMap->getBlockingEntityPointerFromEntityVectorPos(performerVecPos);
+                            Entity* targetEntityPointer = gameMap->getBlockingEntityPointerFromEntityVectorPos(targetVecPos);
                             
                             std::cout << performerEntityPointer->getName() << " attacks: " << targetEntityPointer->getName() << std::endl;
                             
-                            gameMapObj.removeEntityFromMap(targetEntityPointer);
-                            targetEntityPointer->die(corpseSprite);
+                            gameMap->removeEntityFromMap(targetEntityPointer);
+                            gameMap->KillEntity(targetEntityPointer);
                             std::cout << targetEntityPointer->getName() << " dies!" << std::endl;
-                            targetEntityPointer = nullptr;
-                            assert(targetEntityPointer == nullptr);
                             this->setEngineState(EngineState::STATE_GAME_OVER);
-                            // TODO: Actors performing attack and defense.
                         }
                     }
                     // TODO: What if we'll design time system, and monster will deplete its energy, making player have two actions?
@@ -205,7 +167,7 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, std::mt19937& rng)
         
         /* DRAW */
         
-        this->renderAll(gameMapObj.blockingEntitiesInt2DVector, gameMapObj.blockingEntities, window, gameMapObj);
+        this->renderAll(gameMap->blockingEntitiesInt2DVector, gameMap->blockingEntities, window, *gameMap);
 
         currentTime = clock.getElapsedTime();
         fps = 1.0f / previousTime.asSeconds() - currentTime.asSeconds();
@@ -220,19 +182,9 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, std::mt19937& rng)
         if (saveGame) // Don't allow for save scumming exiting results in a save and you can only load from main menu
         {
             // also, saving exits the game <- exits to the main menu
-            
-            std::filesystem::path execPath = std::filesystem::path(saveDirPath);
-            std::ofstream ofs(GET_PATH_STR_WORKDIR_MACOS(execPath) + "/" + SAVE_DIR_NAME + "/" + "save.td", std::ios::binary);
-            boost::archive::binary_oarchive o(ofs);
-            o << gameMapObj;
-            std::cout << "Game saved." << std::endl;
-            saveGame = false;
-            // exit game
+            // TODO: Saving in app class, not here
+            return EngineState::STATE_SAVING;
         }
-        
-        // Let's try to load game here - it will just swap the MapObj. Later load only from main menu
-        // Free every sprite from memory, along with every object allocated. Load new from file.
-        
     }
     
     if (this->engineState == EngineState::STATE_GAME_OVER)
@@ -334,6 +286,11 @@ GameState Engine::handlePlayerAction(Entity* player, PlayerAction playerAction, 
 
 void Engine::renderDebugInfo(const Map& map, const Entity* player, sf::RenderWindow* window) const
 {
+    /* TODO: Move rendering to another class ?Renderer?
+       Maybe renderer will also take care of the camera? e.g. returns a portion of screen to draw.
+     
+     
+     */
     drawTextOnRectangle(window, sf::Color::Black, sf::Color::White, 32, "DEBUG", 0, -8, *this->gameFont);
 
     int mouseXPositionRelative = sf::Mouse::getPosition(*window).x;
@@ -379,9 +336,10 @@ void Engine::renderDebugInfo(const Map& map, const Entity* player, sf::RenderWin
     }
 }
 
-void Engine::prepareToExit(void)
+void Engine::PrepareToExit(void)
 {
     /* Free everything */
+    
 }
 
 EngineState Engine::RenderGameOver(sf::RenderWindow* window) const
@@ -410,27 +368,47 @@ EngineState Engine::RenderGameOver(sf::RenderWindow* window) const
     }
 }
 
-void Engine::Setup(bool newGame, const std::vector<sf::Sprite> spritesVector)
-{
-    if (newGame)
-    {
-        SetupNewGameMap(spritesVector);
-    } else
-    {
-        LoadGameMap();
-    }
-}
-
 void Engine::SetupNewGameMap(const std::vector<sf::Sprite> spritesVector)
 {
     Map* mp = new Map(spritesVector);
     
     // Set up player
     
+    // Make Level
+    
+    sf::Sprite playerSprite = spritesVector[73];
+    sf::Sprite corpseSprite = spritesVector.at(static_cast<int>(TileSprite::CORPSE)); // this is not an ideal solution
+    // maybe create a class that has a vector as a private member, and you can append sprites and get by overloading [] operator,
+    
+    Tile* playerTile = new Tile{false, true, playerSprite, sf::Color::White};
+    
+    Actor* pacp = new Actor{};
+    
+    Entity* player = new Entity{playerTile, "Teddy", 4, 4};
+    player->setActorComponent(pacp);
+    /* player is manually added before every entity, its entityVectorPos is 0. */
+
+    mp->placeBlockingEntityOnMap(player, player->getX(), player->getY());
+    this->player = player;
+    
+    mp->generateLevel();
+    
+    std::cout << mp->blockingEntities.size() << std::endl;
     this->gameMap = mp;
 }
 
-void Engine::LoadGameMap(const std::vector<sf::Sprite> spritesVector)
+void Engine::LoadGameMap(const std::vector<sf::Sprite> spritesVector, Map* mp)
 {
+    sf::Sprite playerSprite = spritesVector[73];
+    sf::Sprite corpseSprite = spritesVector.at(static_cast<int>(TileSprite::CORPSE));
     
+    /* Maybe we also have to initialize everything? */
+    
+    Tile* playerTile = new Tile{false, true, playerSprite, sf::Color::White};
+    Actor* pacp = new Actor{};
+    Entity* player = new Entity{playerTile, "Teddy", 4, 4};
+    player->setActorComponent(pacp);
+    mp->placeBlockingEntityOnMap(player, 0, 0);
+    
+    this->gameMap = mp;
 }

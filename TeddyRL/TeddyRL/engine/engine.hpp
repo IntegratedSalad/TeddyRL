@@ -1,12 +1,11 @@
 #include <SFML/Graphics.hpp>
-#include <memory>
 #include <iostream>
 #ifdef __APPLE__
 #include "../ResourcePath.hpp"
 #endif
 
 #include "entity.hpp"
-#include "map.hpp"
+#include "map.hpp" // instead of including map, maybe just type forward declaration?
 #include "constants.hpp"
 
 #include "PlayerActions.h"
@@ -40,11 +39,9 @@ private:
     
     bool saveGame = false;
     
-    void prepareToExit(void);
-    void SetupNewGameMap(const std::vector<sf::Sprite> spritesVector);
-    void LoadGameMap(const std::vector<sf::Sprite> spritesVector);
+    void PrepareToExit(void);
     
-    std::string saveDirPath;
+    //std::string saveDirPath;
 
 public:
     sf::Font* gameFont;
@@ -53,10 +50,10 @@ public:
     ~Engine();
     EngineState mainLoop(sf::RenderWindow* window, std::mt19937& rng);
     
-    void setDirPath(const std::string& p)
-    {
-        saveDirPath = p;
-    }
+//    void setDirPath(const std::string& p)
+//    {
+//        saveDirPath = p;
+//    }
     
     EngineState getEngineState(void)
     {
@@ -66,6 +63,11 @@ public:
     void setEngineState(EngineState s)
     {
         this->engineState = s;
+    }
+    
+    const Map* GetGameMap(void) const
+    {
+        return this->gameMap;
     }
 
     void renderAll(Int2DVec, std::vector<Entity* > entityVector, sf::RenderWindow* window, const Map&) const;
@@ -81,10 +83,8 @@ public:
     GameState handlePlayerAction(Entity* player, PlayerAction playerAction, Int2DVec&, std::vector<Entity* > entityVector, ActionResult&);
     void renderDebugInfo(const Map&, const Entity* player, sf::RenderWindow* window) const;
     
-    //void SaveGame(void);
-    //void LoadGame();
-    
-    void Setup(bool newGame, const std::vector<sf::Sprite> spritesVector);
+    void SetupNewGameMap(const std::vector<sf::Sprite> spritesVector);
+    void LoadGameMap(const std::vector<sf::Sprite> spritesVector, Map* mp);
     
 };
 
