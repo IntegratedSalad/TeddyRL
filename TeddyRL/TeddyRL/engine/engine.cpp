@@ -371,6 +371,7 @@ EngineState Engine::RenderGameOver(sf::RenderWindow* window) const
 void Engine::SetupNewGameMap(const std::vector<sf::Sprite> spritesVector)
 {
     Map* mp = new Map(spritesVector);
+    mp->SetupLevelInformation();
     
     // Set up player
     
@@ -380,7 +381,7 @@ void Engine::SetupNewGameMap(const std::vector<sf::Sprite> spritesVector)
     sf::Sprite corpseSprite = spritesVector.at(static_cast<int>(TileSprite::CORPSE)); // this is not an ideal solution
     // maybe create a class that has a vector as a private member, and you can append sprites and get by overloading [] operator,
     
-    Tile* playerTile = new Tile{false, true, playerSprite, sf::Color::White};
+    Tile* playerTile = new Tile{false, true, playerSprite, sf::Color::White}; // TODO: Make static method or constructor. Or add .Create() method, which utilizes given TileSprite and options
     
     Actor* pacp = new Actor{};
     
@@ -391,7 +392,7 @@ void Engine::SetupNewGameMap(const std::vector<sf::Sprite> spritesVector)
     mp->placeBlockingEntityOnMap(player, player->getX(), player->getY());
     this->player = player;
     
-    mp->generateLevel();
+    mp->generateLevel(); // this is only a method to intialize a new game, not for loading the map!
     
     std::cout << mp->blockingEntities.size() << std::endl;
     this->gameMap = mp;
@@ -399,16 +400,22 @@ void Engine::SetupNewGameMap(const std::vector<sf::Sprite> spritesVector)
 
 void Engine::LoadGameMap(const std::vector<sf::Sprite> spritesVector, Map* mp)
 {
-    sf::Sprite playerSprite = spritesVector[73];
-    sf::Sprite corpseSprite = spritesVector.at(static_cast<int>(TileSprite::CORPSE));
     
-    /* Maybe we also have to initialize everything? */
+    // Not place entity but recreate entity
+    //mp->placeBlockingEntityOnMap(player, 0, 0); // instead of placing blocking entity on map, make custom deserialization. What happens here, is that memory for tile is not yet initialized, yet we operate on it so it shows BAD_ACCESS
     
-    Tile* playerTile = new Tile{false, true, playerSprite, sf::Color::White};
-    Actor* pacp = new Actor{};
-    Entity* player = new Entity{playerTile, "Teddy", 4, 4};
-    player->setActorComponent(pacp);
-    mp->placeBlockingEntityOnMap(player, 0, 0);
+    // mp is a pointer to map that has been deserialized.
+    
+    /*
+     
+     
+     */
+    
+//    for (Entity* ep : mp->blockingEntities)
+//    {
+//        
+//    }
+    
     
     this->gameMap = mp;
 }

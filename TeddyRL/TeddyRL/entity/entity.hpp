@@ -17,6 +17,7 @@
 #include "constants.hpp"
 #include "TurnActions.hpp"
 #include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
 
 /* Entity is a single object on game map, that isn't a free space.
    Entity has a pointer to Tile object, that is its graphical representation.
@@ -33,10 +34,12 @@ private:
     template<class Archive>
     void serialize(Archive& ar, const unsigned int version)
     {
-        ar & actorComponent;
+        ar & actorComponent; // TODO: Serialize actor pointer contents.
         ar & name;
         ar & x;
         ar & y;
+        ar & blockingEntitiesVectorPos;
+        //ar & tile; TODO: Where to save tile->GetSpriteEnumVal()? Custom Struct that serializes this?
     }
     
     Actor* actorComponent;
@@ -78,6 +81,8 @@ public:
     Actor* getActorComponent(void) const { return this->actorComponent; }
     
     void setActorComponent(Actor* acp);
+    
+    void SetTile(Tile* t) { this->tile = t;}
     
     static Entity* createNewEntityFromSprite(sf::Sprite entitySprite, std::string name, bool isInvisible, bool blocks, sf::Color entityColor, int x, int y);
     

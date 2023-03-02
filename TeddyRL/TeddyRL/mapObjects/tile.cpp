@@ -18,9 +18,8 @@ Tile::Tile() : sprite(), isInvisible(false), canBlock(false)
 Tile::Tile(bool isInvisible, bool blocks, sf::Sprite sprite, sf::Color color)
      : isInvisible(isInvisible), canBlock(blocks)
 {
-    this->setTile(sprite, color);
+    this->SetTexture(sprite, color);
     this->setSize(sf::Vector2f(C_TILE_IN_GAME_SIZE, C_TILE_IN_GAME_SIZE));
-    
 }
 
 Tile::Tile(bool blocks) : sprite(), isInvisible(true)
@@ -33,31 +32,36 @@ Tile::Tile(bool isInvisible, bool blocks) : isInvisible(isInvisible), canBlock(b
     
 }
 
+Tile::Tile(TileSprite tileSpriteEnumVal, bool isInvisible, bool blocks, sf::Color color, const std::vector<sf::Sprite> spritesVector) : isInvisible(isInvisible), canBlock(blocks)
+{
+    sf::Sprite sprite = spritesVector.at(static_cast<int>(tileSpriteEnumVal));
+    this->SetTexture(sprite, color);
+    this->setSize(sf::Vector2f(C_TILE_IN_GAME_SIZE, C_TILE_IN_GAME_SIZE));
+}
+
 Tile::~Tile()
 {
 }
 
 /* setTile sets a colored sprite to the tile and sets the alpha mask of it */
 
-void Tile::setTile(sf::Sprite& _sprite, sf::Color color)
+void Tile::SetTexture(sf::Sprite& _sprite, sf::Color color)
 {
-    
     if (this->isInvisible)
     {
         _sprite.setColor(sf::Color::Transparent);
-        
     } else
     {
         _sprite.setColor(color);
-        
     }
 #warning Instruments will show this as a memory leak. This memory allocated here as 't' is available later and is freed in the Tileset destructor.
-    const sf::Texture* t = new sf::Texture();
+    const sf::Texture* t = new sf::Texture(); // TODO: try to use unique_ptr here.
     t = _sprite.getTexture();
 
     this->setTexture(t);
 //    assert(t == this->getTexture());  //true
     this->setFillColor(color);
+#warning We lose access to allocated memory pointed by t here!
 }
 
 

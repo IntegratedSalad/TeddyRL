@@ -1,4 +1,5 @@
 #include "app.hpp"
+#include "td_serializers.hpp"
 #include "constants.hpp"
 
 #if DEBUG && __APPLE__
@@ -40,22 +41,39 @@ void App::run()
     
     /* Load or Setup New Game */
     
-    if (pathToSavedGameFile.empty())
+    if (0) // if (pathToSavedGameFile.empty())
     {
         CreateSaveGameFolder();
         engine.SetupNewGameMap(spritesVector);
     } else
     {
         Map* mp = new Map(spritesVector);
-        
-        // Maybe we have to initialize everything here? Bad access seems to occur because every field in map class has not have allocated memory
-        
-        // Or we have to be more specific and save and restore every entity individually.
-        
+
         std::filesystem::path execPath = std::filesystem::path(executableDirPath);
         std::ifstream ifs(GET_PATH_STR_WORKDIR_MACOS(execPath) + "/" + SAVE_DIR_NAME + "/" + "save.td", std::ios::binary);
         boost::archive::binary_iarchive i(ifs);
-        i >> *mp; // BAD ACCESS
+        
+        /* TESTING LOADING */
+        
+        /* Here initialize every entity's Tile before assigning moving them to their appopriate position */
+        
+        td_serialization_collection collectionToLoad;
+        i >> collectionToLoad;
+        
+        Map loadedMap = collectionToLoad.serializedMap;
+
+        for (int i = 0; i < loadedMap.GetNumberOfEntitiesOfCurrentLevel(); i++)
+        {
+            Entity ec = collectionToLoad.entitySerializers[i].entity;
+            std::cout << "NAME OF RETRIEVED ENTITY: " << ec.getName() << std::endl;
+            
+        }
+        
+        /*
+         It tries to load tiles, which are not saved. Either we save everything, or we don't save tiles and we handle loading the tiles separately.
+         If there are multiple levels, each level can add up to the size of the save,  of the saved image
+         Perhaps we have to be more specific and save and restore every entity individually.
+         */
         engine.LoadGameMap(spritesVector, mp);
     }
     
@@ -77,9 +95,39 @@ void App::run()
             std::filesystem::path execPath = std::filesystem::path(executableDirPath);
             std::ofstream ofs(GET_PATH_STR_WORKDIR_MACOS(execPath) + "/" + SAVE_DIR_NAME + "/" + "save.td", std::ios::binary); // TODO: Extract path once and save it
             boost::archive::binary_oarchive o(ofs);
-            o << *(engine.GetGameMap());
+            
+            const Map* map_p = engine.GetGameMap();
+            unsigned int numOfEntities = map_p->GetNumberOfEntitiesOfCurrentLevel();
+            std::vector<td_entity_serializer> entitySerializers;
+            /* We don't save the entity vector. Although we only need number of entities while we deserialize each entity, we can iterate on that vector and create a serializer for each entity, let's keep things consistent. */
+
+            for (int i = 0; i < numOfEntities; i++)
+            {
+                Entity* e = map_p->blockingEntities[i]; // If we don;t pass a pointer, a copy is made that failes on destructor from td_serializer
+                const TileSprite ts = e->tile->GetSpriteEnumVal();
+                
+                Entity ec = *e;
+                
+                td_entity_serializer serializer{ec, ts};
+                entitySerializers.push_back(serializer);
+            }
+            
+            td_serialization_collection collection{*map_p, entitySerializers};
+            
+            std::cout << "SAVED ENTITIES: " << map_p->GetNumberOfEntitiesOfCurrentLevel() << std::endl;
+            
+            o << collection;
+
+            //o << // pass gameMaps's entity vector to td_entity_serializer
+            // it will serialize a vector of structs that have entity and its tilesprite.
+            // then deserializing entities and making Map's blockingEntities vector will be done manually.
+            // TODO: Write down this process
+             
+            // Iterate through levels and save num of entities for each level.
+            
             std::cout << "Game saved." << std::endl;
             window->close();
+            
             break;
         }
             

@@ -13,36 +13,13 @@
 #include <SFML/Graphics.hpp>
 #include "constants.hpp"
 
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+
 /* Tile is a structure that has a colored sprite.
    It inherits from sf::Rectangle Shape that allows it to be drawn and transformed.
  
  */
-
-typedef struct Tile : public sf::RectangleShape
-{
-    
-    bool canBlock;
-    bool isInvisible;
-    
-    Tile(bool isInvisible, bool blocks);
-    Tile(bool isInvisible, bool blocks, sf::Sprite sprite, sf::Color color);
-    Tile(bool blocks);
-    Tile();
-    
-    ~Tile();
-    
-    void makeVisible();
-    void makeHidden();
-    
-    void setSprite(sf::Sprite sprite) { this->sprite = sprite; };
-    void setTile(sf::Sprite& sprite, sf::Color color);
-
-private:
-    
-    sf::Sprite sprite;
-    sf::Color tileColor;
-    
-} Tile;
 
 enum class TileSprite
 {
@@ -56,7 +33,52 @@ enum class TileSprite
     STAIRS_UP = 139,
     
     CORPSE = 225,
-    
 };
+
+typedef struct Tile : public sf::RectangleShape
+{
+    
+    // TODO: We have to save everything but the sprite (not in this class), and make Tile from scratch when loading.
+    
+    bool canBlock;
+    bool isInvisible;
+    
+    Tile(bool isInvisible, bool blocks);
+    Tile(bool isInvisible, bool blocks, sf::Sprite sprite, sf::Color color);
+    Tile(bool blocks);
+    Tile();
+    
+    Tile(TileSprite, bool isInvisible, bool blocks, sf::Color, const std::vector<sf::Sprite> spritesVector); // make use of that
+    
+    ~Tile();
+    
+    void makeVisible();
+    void makeHidden();
+    
+    void setSprite(sf::Sprite sprite) { this->sprite = sprite; };
+    void SetTexture(sf::Sprite& sprite, sf::Color color);
+    
+    TileSprite GetSpriteEnumVal(void) { return this->spriteEnumVal; };
+
+private:
+    
+    TileSprite spriteEnumVal;
+    sf::Sprite sprite;
+    sf::Color tileColor;
+    
+} Tile;
+
+namespace boost {
+namespace serialization {
+
+template<class Archive>
+void serialize(Archive& ar, TileSprite ts, const unsigned int version)
+{
+    ar & ts;
+}
+
+} // namespace serialization
+} // namespace boost
+
 
 #endif /* tile_hpp */

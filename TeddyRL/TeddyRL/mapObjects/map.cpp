@@ -11,6 +11,10 @@
 #include "entity.hpp"
 #include "actor.hpp"
 
+Map::Map()
+{
+}
+
 Map::Map(const std::vector<sf::Sprite> sv) : spritesVector(sv)
 {
     for (int i = 0; i < C_MAP_SIZE; i++)
@@ -26,8 +30,6 @@ Map::Map(const std::vector<sf::Sprite> sv) : spritesVector(sv)
 
 Map::~Map()
 {
-#warning how and when are entities deleted?
-
 }
 
 // TODO: Make this return a boolean, depending if there is something at entityIntVec[x][y].
@@ -36,7 +38,11 @@ void Map::placeBlockingEntityOnMap(Entity* entity, int x, int y)
     this->blockingEntities.push_back(entity);
     entity->blockingEntitiesVectorPos = blockingEntities.size() - 1;
     this->blockingEntitiesInt2DVector[entity->getX()][entity->getY()] = entity->blockingEntitiesVectorPos;
-    entity->setPosition(x, y);
+    entity->setPosition(x, y); // TODO: here the bad memory access happens
+    
+    // TODO: increase current level's numOfEntities | There will be a vector of structs
+    
+    levelInformationStruct.numOfEntities++;
 }
 
 void Map::removeEntityFromMap(Entity* entity)
@@ -44,6 +50,9 @@ void Map::removeEntityFromMap(Entity* entity)
     //delete this->blockingEntities[entity->actorsVectorPos];
     this->blockingEntitiesInt2DVector[entity->getX()][entity->getY()] = -1;
     this->blockingEntities.erase(this->blockingEntities.begin() + entity->blockingEntitiesVectorPos); // erase from entities.
+    
+    if (levelInformationStruct.numOfEntities > 0)
+        levelInformationStruct.numOfEntities--;
 }
 
 void Map::KillEntity(Entity* entity)

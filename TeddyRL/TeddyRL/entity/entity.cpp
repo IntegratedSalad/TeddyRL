@@ -11,7 +11,9 @@
 
 Entity::Entity() : x(0), y(0), actorComponent(nullptr), blockingEntitiesVectorPos(0)
 {
-    this->setPosition(x, y);
+    
+    /* Do not set position! Setting position involves moving entity's tile, which may not have allocated memory. */
+    //this->setPosition(x, y);
 }
 
 Entity::Entity(Tile* _tile, std::string name, int _x, int _y) : x(_x), y(_y), tile(_tile), actorComponent(nullptr), blockingEntitiesVectorPos(0), name(name)
@@ -101,17 +103,17 @@ void Entity::die(sf::Sprite& corpseSprite)
     {            
         delete this->actorComponent;
         this->actorComponent = nullptr;
-        assert(this->actorComponent == nullptr);
+        assert(this->actorComponent == nullptr); // TODO: Move this assertions out of the working code.
     }
     delete this;
 }
 
 Entity::~Entity()
 {
-    this->tile->canBlock = false;
-    delete this->tile;
-    this->tile = nullptr;
-    assert(this->tile == nullptr);
+    //this->tile->canBlock = false;
+//    delete this->tile;
+//    this->tile = nullptr;
+//    assert(this->tile == nullptr);
 }
 
 Entity* Entity::createNewEntityFromSprite(sf::Sprite entitySprite, std::string name, bool isInvisible, bool blocks, sf::Color entityColor, int x, int y)
