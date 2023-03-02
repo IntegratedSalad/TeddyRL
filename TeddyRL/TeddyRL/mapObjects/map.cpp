@@ -73,6 +73,11 @@ void Map::drawEnclosingSquare(sf::Sprite wallSprite)
             if (j == 0 || i == 0 || j == C_MAP_SIZE - 1 || i == C_MAP_SIZE - 1)
             {
                 Tile* wallTile = new Tile{false, true, wallSprite, sf::Color::White};
+                
+                // TODO: Remove this as we use default constructor for Tile!
+                
+                wallTile->SetSpriteEnumVal(TileSprite::BRICK_WALL_1);
+                
                 Entity* wall = new Entity{wallTile, "Wall", i, j};
                 placeBlockingEntityOnMap(wall, i, j);
             }
@@ -97,21 +102,26 @@ void Map::generateLevel()
     const int randNumOfMonsters = rand_num(rng);
     
     sf::Sprite enemySprite = spritesVector[static_cast<int>(TileSprite::SNAKE)];
-    
     sf::Sprite wallSprite = spritesVector[128];
 
     drawEnclosingSquare(wallSprite);
     
     for (int i = 0; i < randNumOfMonsters; i++)
     {
-       Entity* e = Entity::createNewEntityFromSprite(enemySprite, "Worm", false, true, sf::Color::White, rand_pos(rng), rand_pos(rng));
+       Entity* e = Entity::createNewEntityFromSprite(enemySprite, "Worm", false, true, sf::Color::White, rand_pos(rng), rand_pos(rng)); // TODO: change this function to have TileSprite as an argument
         placeBlockingEntityOnMap(e, e->getX(), e->getY());
+        
+        // TODO: Remove this after using default constructor for Tile
+        
+        e->tile->SetSpriteEnumVal(TileSprite::SNAKE);
+        
+        // TODO: Use new method for setting up AI.
         
         Actor* acp = new Actor();
         RandomAI* raip = new RandomAI();
         acp->setAI(raip);
         e->setActorComponent(acp);
-        acp->setType(AIType::RANDOM);
+        acp->setAIType(AIType::RANDOM);
     }
 }
 

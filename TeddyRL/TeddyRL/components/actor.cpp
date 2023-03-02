@@ -17,10 +17,32 @@ Actor::Actor() : ai(nullptr)
 
 Actor::~Actor()
 {
-    if (this->ai != nullptr)
-    {
-        delete this->ai;
-    }
+//    if (this->ai != nullptr)
+//    {
+//        delete this->ai;
+//    }
+    
+    // Maybe AI has been destroyed previously?
     this->ai = nullptr;
     assert(this->ai == nullptr);
+}
+
+void Actor::SetupAI(AIType t)
+{
+    AI* newAIp = nullptr;
+    switch (t)
+    {
+        case AIType::RANDOM:
+        {
+            RandomAI* raip = new RandomAI();
+            newAIp = raip;
+        }
+        case AIType::NONE:
+        {
+        }
+        default:
+        {
+        }
+    }
+    this->setAI(newAIp);
 }

@@ -59,6 +59,7 @@ typedef struct Tile : public sf::RectangleShape
     void SetTexture(sf::Sprite& sprite, sf::Color color);
     
     TileSprite GetSpriteEnumVal(void) { return this->spriteEnumVal; };
+    void SetSpriteEnumVal(TileSprite ts) {this->spriteEnumVal = ts; };
 
 private:
     

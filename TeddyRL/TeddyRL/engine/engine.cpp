@@ -370,6 +370,9 @@ EngineState Engine::RenderGameOver(sf::RenderWindow* window) const
 
 void Engine::SetupNewGameMap(const std::vector<sf::Sprite> spritesVector)
 {
+    // TODO: Huge thing to do is to standardize creation of entities. Do not set manually class' fields after using a constructor. Constructor should handle all the initialization and setup.
+    
+    
     Map* mp = new Map(spritesVector);
     mp->SetupLevelInformation();
     
@@ -382,8 +385,11 @@ void Engine::SetupNewGameMap(const std::vector<sf::Sprite> spritesVector)
     // maybe create a class that has a vector as a private member, and you can append sprites and get by overloading [] operator,
     
     Tile* playerTile = new Tile{false, true, playerSprite, sf::Color::White}; // TODO: Make static method or constructor. Or add .Create() method, which utilizes given TileSprite and options
+    playerTile->SetSpriteEnumVal(TileSprite::TEDDY);
     
     Actor* pacp = new Actor{};
+    pacp->setAI(nullptr); // TODO: This has to be done automatically in a constructor of an Actor
+    pacp->setAIType(AIType::NONE); // player is a special entity that has an actor component but doesn't have an AI.
     
     Entity* player = new Entity{playerTile, "Teddy", 4, 4};
     player->setActorComponent(pacp);

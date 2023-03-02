@@ -48,12 +48,11 @@ void App::run()
     } else
     {
         Map* mp = new Map(spritesVector);
+        Entity* _player;
 
         std::filesystem::path execPath = std::filesystem::path(executableDirPath);
         std::ifstream ifs(GET_PATH_STR_WORKDIR_MACOS(execPath) + "/" + SAVE_DIR_NAME + "/" + "save.td", std::ios::binary);
         boost::archive::binary_iarchive i(ifs);
-        
-        /* TESTING LOADING */
         
         /* Here initialize every entity's Tile before assigning moving them to their appopriate position */
         
@@ -61,19 +60,54 @@ void App::run()
         i >> collectionToLoad;
         
         Map loadedMap = collectionToLoad.serializedMap;
+        std::vector<Entity* > newVectorOfBlockingEntities;
 
         for (int i = 0; i < loadedMap.GetNumberOfEntitiesOfCurrentLevel(); i++)
         {
+            Entity* newEntityp = new Entity();
+            Actor* acp = new Actor{};
+            
             Entity ec = collectionToLoad.entitySerializers[i].entity;
-            std::cout << "NAME OF RETRIEVED ENTITY: " << ec.getName() << std::endl;
+            
+            unsigned int tileID = collectionToLoad.entitySerializers[i].spriteIntEnumVal;
+            TileSprite tileSpriteEnum = UIntToTileSprite(tileID);
+            sf::Sprite sprite = spritesVector.at(static_cast<int>(tileSpriteEnum));
+            Actor ac = collectionToLoad.entitySerializers[i].actor;
+            
+            Tile* restoredEntityTile = new Tile{false, true, sprite, sf::Color::White}; // TODO: Make static method or constructor. Or add .Create() method, which utilizes given TileSprite and options
+            
+            ec.SetTile(restoredEntityTile);
+            // ac. setup AI
+            
+            acp = &ac;
+            ec.setActorComponent(acp);
+            
+            newEntityp = &ec;
+            if (ec.blockingEntitiesVectorPos == 0) // we have the player
+            {
+                engine.SetPlayer(newEntityp);
+            }
+            
+            /* Setup */
+            
+            /*
+             1. Set all Entities:
+             
+                1. Get Entity copy
+                2. Get TileID
+                3. Get TileSprite
+                4. Get Sprite
+                5. Get Actor
+                6. Set Tile
+                7. Set Actor and AI based on AIType.
+                8. Push entity to newVectorOfBlockingEntities at position of blockingEntitiesVectorPos
+             
+             2. Push entity to vector.
+             3. Set newVectorOfBlockingEntities as loadedMap's blockingEntities
+             4. Point mp to loadedMap.
+             */
             
         }
-        
-        /*
-         It tries to load tiles, which are not saved. Either we save everything, or we don't save tiles and we handle loading the tiles separately.
-         If there are multiple levels, each level can add up to the size of the save,  of the saved image
-         Perhaps we have to be more specific and save and restore every entity individually.
-         */
         engine.LoadGameMap(spritesVector, mp);
     }
     
@@ -105,10 +139,20 @@ void App::run()
             {
                 Entity* e = map_p->blockingEntities[i]; // If we don;t pass a pointer, a copy is made that failes on destructor from td_serializer
                 const TileSprite ts = e->tile->GetSpriteEnumVal();
-                
                 Entity ec = *e;
                 
-                td_entity_serializer serializer{ec, ts};
+                td_entity_serializer serializer;
+                serializer.SetEntityToSerialize(ec);
+                serializer.SetTileSpriteToSerialize(ts);
+                if (ec.getActorComponent() != nullptr)
+                {
+                    serializer.SetActorToSerialize(*ec.getActorComponent());
+                } else
+                {
+                    Actor a;
+                    a.setAIType(AIType::NONE); // Walls don't have an actor component
+                    serializer.SetActorToSerialize(a);
+                }
                 entitySerializers.push_back(serializer);
             }
             

@@ -13,13 +13,26 @@
 #include <boost/archive/binary_iarchive.hpp>
 #include "entity.hpp"
 #include "map.hpp"
-//#include <boost/archive/binary_object.hpp>
+
+enum class AIType;
+
+inline unsigned int AITypeToUInt(AIType ait)
+{
+    return static_cast<unsigned int>(ait);
+}
 
 // Make template if more enums will be needed to be serialized
-static inline unsigned int TileSpriteToInt(TileSprite enumVal)
+static inline unsigned int TileSpriteToUInt(TileSprite enumVal)
 {
-    return static_cast<int>(enumVal);
+    return static_cast<unsigned int>(enumVal);
 }
+
+inline TileSprite UIntToTileSprite(unsigned int id)
+{
+    return static_cast<TileSprite>(id);
+}
+
+// TODO: think of a function that restores entity.
 
 struct td_actor_serializer
 {
@@ -32,32 +45,30 @@ struct td_entity_serializer
     friend class boost::serialization::access;
     Entity entity;
     unsigned int spriteIntEnumVal;
+    Actor actor;
     
     template<class Archive>
     void serialize(Archive& ar, const unsigned int version)
     {
         ar & entity;
         ar & spriteIntEnumVal;
+        ar & actor;
     }
     
-    td_entity_serializer(Entity e, TileSprite ts) : entity(e)
+    td_entity_serializer(Entity e, TileSprite ts, Actor a) : entity(e), actor(a)
     {
-        this->spriteIntEnumVal = TileSpriteToInt(ts);
+        this->spriteIntEnumVal = TileSpriteToUInt(ts);
     };
     
     // TODO: Make custom deserialization if needed
     
     td_entity_serializer() { };
     
+    void SetEntityToSerialize(Entity e) { this->entity = e;}
+    void SetTileSpriteToSerialize(TileSprite ts) { this->spriteIntEnumVal = TileSpriteToUInt(ts);}
+    void SetActorToSerialize(Actor a) { this->actor = a;}
+    
 };
-
-namespace boost {
-namespace serialization {
-
-
-} // namespace serialization
-} // namespace boost
-
 
 struct td_serialization_collection
 {
@@ -92,8 +103,5 @@ struct td_serialization_collection
     BOOST_SERIALIZATION_SPLIT_MEMBER(); // in case there's future need for differentiating between saving and loading collection
     
 };
-
-// SPLITTING SAVING AND LOADING:
-
 
 #endif /* td_serializers_hpp */

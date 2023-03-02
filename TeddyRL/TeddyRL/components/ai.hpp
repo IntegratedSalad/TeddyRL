@@ -20,7 +20,8 @@ class Entity;
 
 enum class AIType // for serialization
 {
-    RANDOM = 0,
+    NONE = 0xFF,
+    RANDOM = 0xAA,
 };
 
 /* TODO: We do not serialize the AI class. Somehow we will have to remember the AI decision after saving.

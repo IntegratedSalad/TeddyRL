@@ -69,6 +69,8 @@ public:
     {
         return this->gameMap;
     }
+    
+    void SetPlayer(Entity* e) {this->player = e;}
 
     void renderAll(Int2DVec, std::vector<Entity* > entityVector, sf::RenderWindow* window, const Map&) const;
     EngineState RenderGameOver(sf::RenderWindow* window) const;

@@ -32,6 +32,11 @@ private:
     AI* ai;
     AIType type;
     
+    /*
+     Serialization block.
+     AI pointer is NOT serialized (its value).
+     */
+    
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive& ar, const unsigned int version)
@@ -46,10 +51,18 @@ public:
     ~Actor();
     
     void setAI(AI* aip) {this->ai = aip;}
-    void setType(AIType t) {this->type = t;}
+    void setAIType(AIType t) {this->type = t;}
+    void SetupAI(AIType t);
+    
+    AIType GetType(void) {return this->type;}
     AI* getAI(void) {return this->ai;}
     
     ActionResult attack(const Actor&) const; // attack method doesn't affect Actor directly.
+
+#warning Remember this, when designing entity that has FSM.
+    /*
+      Serializing Actor's AI has to serialize its next move if he has any strategy!
+     */
 };
 
 #endif /* actor_hpp */
