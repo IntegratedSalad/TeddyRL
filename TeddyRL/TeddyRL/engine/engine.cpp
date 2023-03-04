@@ -406,6 +406,6 @@ void Engine::SetupNewGameMap(const std::vector<sf::Sprite> spritesVector)
 
 void Engine::LoadGameMap(const std::vector<sf::Sprite> spritesVector, Map* mp)
 {
+    // TODO: Move setting up from app.cpp here.
     this->gameMap = mp;
 }
-// spritesVector of mp ceases to exist (won't stay in memory)

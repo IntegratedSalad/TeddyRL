@@ -32,7 +32,6 @@ class AI
 {
 private:
 public:
-    
     AI();
     
     virtual ~AI() = 0;
@@ -44,7 +43,6 @@ public:
 class RandomAI : public AI
 {
 private:
-    
 public:
     RandomAI();
     ~RandomAI();

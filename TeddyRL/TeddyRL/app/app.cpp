@@ -41,7 +41,7 @@ void App::run()
     
     /* Load or Setup New Game */
     
-    if (1) // if (pathToSavedGameFile.empty())
+    if (0) // if (pathToSavedGameFile.empty())
     {
         CreateSaveGameFolder();
         engine.SetupNewGameMap(spritesVector);
@@ -64,13 +64,18 @@ void App::run()
             TileSprite tileSpriteEnum = UIntToTileSprite(tileID);
             sf::Sprite sprite = spritesVector.at(static_cast<int>(tileSpriteEnum)); // why do we change it here to int? TODO: Make a method that just accepts an enum
             Tile* restoredEntityTile = new Tile{false, true, sprite, sf::Color::White};
+            
+            
             Actor* newActorComponentp = new Actor(collectionToLoadp->entitySerializers[i].actor); // AI set up in the copy constructor
+            
+            
             Entity* newEntityp = new Entity(collectionToLoadp->entitySerializers[i].entity);
             newEntityp->SetTile(restoredEntityTile);
             newEntityp->setActorComponent(newActorComponentp);
             newEntityp->setPosition(newEntityp->getX(), newEntityp->getY());
             if (newEntityp->blockingEntitiesVectorPos == 0)
             {
+                /* If something doesn't have an AI set and isn't player it doesn't have the Actor component */
                 engine.SetPlayer(newEntityp);
             }
             std::vector<Entity *>::iterator it;
@@ -78,6 +83,11 @@ void App::run()
             loadedMap->blockingEntities.insert(it, newEntityp);
             
             std::cout << "Entity: " << newEntityp->getName() << " Set on (" << newEntityp->getX() << " " << newEntityp->getY() << ")" << std::endl;
+            
+            if (newEntityp->getName() == "Worm")
+            {
+                std::cout << "Worm!" << std::endl;
+            }
         }
 //
 //        std::vector<Entity* > newVectorOfBlockingEntities; // this makes a copy!!!
@@ -193,7 +203,7 @@ void App::run()
                 td_entity_serializer serializer;
                 serializer.SetEntityToSerialize(ec);
                 serializer.SetTileSpriteToSerialize(ts);
-                if (ec.getActorComponent() != nullptr && ec.getActorComponent()->GetType() != AIType::NONE)
+                if (ec.getActorComponent() != nullptr && ec.getActorComponent()->GetAIType() != AIType::NONE)
                 {
                     serializer.SetActorToSerialize(*ec.getActorComponent());
                 } else

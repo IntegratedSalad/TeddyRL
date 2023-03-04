@@ -24,14 +24,12 @@ private:
     void DestroySavedGameFile(void);
     
 public:
-    
     App(const std::string execPath);
     
     ~App();
     void run();
     Tileset setTileset(const std::string tilesetPath);
 };
-
 
 // TODO:
 // Manage resource path ifdef...

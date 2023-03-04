@@ -55,7 +55,7 @@ public:
     void setAIType(AIType t) {this->typeOfAI = t;}
     void SetupAI(AIType t);
     
-    AIType GetType(void) {return this->typeOfAI;}
+    AIType GetAIType(void) {return this->typeOfAI;}
     AI* getAI(void) {return this->ai;}
     
     ActionResult attack(const Actor&) const; // attack method doesn't affect Actor directly.
