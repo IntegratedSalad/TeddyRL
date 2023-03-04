@@ -60,15 +60,15 @@ void App::run()
         
         for (int i = 0; i < loadedMap->GetNumberOfEntitiesOfCurrentLevel(); i++)
         {
+            Actor* newActorComponentp = nullptr;
             unsigned int tileID = collectionToLoadp->entitySerializers[i].spriteIntEnumVal;
             TileSprite tileSpriteEnum = UIntToTileSprite(tileID);
             sf::Sprite sprite = spritesVector.at(static_cast<int>(tileSpriteEnum)); // why do we change it here to int? TODO: Make a method that just accepts an enum
             Tile* restoredEntityTile = new Tile{false, true, sprite, sf::Color::White};
-            
-            
-            Actor* newActorComponentp = new Actor(collectionToLoadp->entitySerializers[i].actor); // AI set up in the copy constructor
-            
-            
+            if (collectionToLoadp->entitySerializers[i].actor.GetAIType() != AIType::NONE)
+            {
+                newActorComponentp = new Actor(collectionToLoadp->entitySerializers[i].actor); // AI set up in the copy constructor
+            }
             Entity* newEntityp = new Entity(collectionToLoadp->entitySerializers[i].entity);
             newEntityp->SetTile(restoredEntityTile);
             newEntityp->setActorComponent(newActorComponentp);
@@ -76,6 +76,9 @@ void App::run()
             if (newEntityp->blockingEntitiesVectorPos == 0)
             {
                 /* If something doesn't have an AI set and isn't player it doesn't have the Actor component */
+                Actor* playerActorComponent = new Actor();
+                playerActorComponent->SetupAI(AIType::NONE);
+                newEntityp->setActorComponent(playerActorComponent);
                 engine.SetPlayer(newEntityp);
             }
             std::vector<Entity *>::iterator it;
@@ -181,6 +184,14 @@ void App::run()
         case EngineState::STATE_EXITING:
             window->close();
             break;
+        
+        case EngineState::STATE_GAME_OVER:
+        {
+            window->close();
+            DestroySavedGameFile();
+            std::cout << "Game save file erased" << std::endl;
+            break;
+        }
             
         case EngineState::STATE_SAVING:
         {
@@ -230,7 +241,6 @@ void App::run()
             
             std::cout << "Game saved." << std::endl;
             window->close();
-            
             break;
         }
             

@@ -192,6 +192,7 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, std::mt19937& rng)
         // destroy save file(s)
         this->RenderGameOver(window);
         std::cout << "dupa" << std::endl;
+        return EngineState::STATE_GAME_OVER;
     }
 }
 #warning entityVector should be a const reference.
