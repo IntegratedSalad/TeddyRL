@@ -28,6 +28,10 @@ Map::Map(const std::vector<sf::Sprite> sv) : spritesVector(sv)
     }
 }
 
+Map::Map(const Map& cm, const std::vector<sf::Sprite> sv) : levelInformationStruct(cm.levelInformationStruct), spritesVector(sv), blockingEntitiesInt2DVector(cm.blockingEntitiesInt2DVector)
+{
+}
+
 Map::~Map()
 {
 }

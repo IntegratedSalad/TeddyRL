@@ -10,7 +10,7 @@
 #define GET_PATH_STR_WORKDIR_MACOS(x) x.parent_path().string()
 #endif
 
-const std::string SAVE_DIR_NAME = "MisioSaves";
+static const std::string SAVE_DIR_NAME = "MisioSaves";
 
 App::App(const std::string execPath) : executableDirPath(execPath)
 {
@@ -41,74 +41,122 @@ void App::run()
     
     /* Load or Setup New Game */
     
-    if (0) // if (pathToSavedGameFile.empty())
+    if (1) // if (pathToSavedGameFile.empty())
     {
         CreateSaveGameFolder();
         engine.SetupNewGameMap(spritesVector);
     } else
     {
-        Map* mp = new Map(spritesVector);
-        Entity* _player;
-
         std::filesystem::path execPath = std::filesystem::path(executableDirPath);
         std::ifstream ifs(GET_PATH_STR_WORKDIR_MACOS(execPath) + "/" + SAVE_DIR_NAME + "/" + "save.td", std::ios::binary);
         boost::archive::binary_iarchive i(ifs);
         
         /* Here initialize every entity's Tile before assigning moving them to their appopriate position */
         
-        td_serialization_collection collectionToLoad;
-        i >> collectionToLoad;
+        td_serialization_collection* collectionToLoadp = new td_serialization_collection();
+        i >> *collectionToLoadp;
         
-        Map loadedMap = collectionToLoad.serializedMap;
-        std::vector<Entity* > newVectorOfBlockingEntities;
-
-        for (int i = 0; i < loadedMap.GetNumberOfEntitiesOfCurrentLevel(); i++)
+        Map* loadedMap = new Map(collectionToLoadp->serializedMap, spritesVector); // this is our new map!
+        
+        for (int i = 0; i < loadedMap->GetNumberOfEntitiesOfCurrentLevel(); i++)
         {
-            Entity* newEntityp = new Entity();
-            Actor* acp = new Actor{};
-            
-            Entity ec = collectionToLoad.entitySerializers[i].entity;
-            
-            unsigned int tileID = collectionToLoad.entitySerializers[i].spriteIntEnumVal;
+            unsigned int tileID = collectionToLoadp->entitySerializers[i].spriteIntEnumVal;
             TileSprite tileSpriteEnum = UIntToTileSprite(tileID);
-            sf::Sprite sprite = spritesVector.at(static_cast<int>(tileSpriteEnum));
-            Actor ac = collectionToLoad.entitySerializers[i].actor;
-            
-            Tile* restoredEntityTile = new Tile{false, true, sprite, sf::Color::White}; // TODO: Make static method or constructor. Or add .Create() method, which utilizes given TileSprite and options
-            
-            ec.SetTile(restoredEntityTile);
-            // ac. setup AI
-            
-            acp = &ac;
-            ec.setActorComponent(acp);
-            
-            newEntityp = &ec;
-            if (ec.blockingEntitiesVectorPos == 0) // we have the player
+            sf::Sprite sprite = spritesVector.at(static_cast<int>(tileSpriteEnum)); // why do we change it here to int? TODO: Make a method that just accepts an enum
+            Tile* restoredEntityTile = new Tile{false, true, sprite, sf::Color::White};
+            Actor* newActorComponentp = new Actor(collectionToLoadp->entitySerializers[i].actor); // AI set up in the copy constructor
+            Entity* newEntityp = new Entity(collectionToLoadp->entitySerializers[i].entity);
+            newEntityp->SetTile(restoredEntityTile);
+            newEntityp->setActorComponent(newActorComponentp);
+            newEntityp->setPosition(newEntityp->getX(), newEntityp->getY());
+            if (newEntityp->blockingEntitiesVectorPos == 0)
             {
                 engine.SetPlayer(newEntityp);
             }
+            std::vector<Entity *>::iterator it;
+            it = loadedMap->blockingEntities.begin() + newEntityp->blockingEntitiesVectorPos;
+            loadedMap->blockingEntities.insert(it, newEntityp);
             
-            /* Setup */
-            
-            /*
-             1. Set all Entities:
-             
-                1. Get Entity copy
-                2. Get TileID
-                3. Get TileSprite
-                4. Get Sprite
-                5. Get Actor
-                6. Set Tile
-                7. Set Actor and AI based on AIType.
-                8. Push entity to newVectorOfBlockingEntities at position of blockingEntitiesVectorPos
-             
-             2. Push entity to vector.
-             3. Set newVectorOfBlockingEntities as loadedMap's blockingEntities
-             4. Point mp to loadedMap.
-             */
-            
+            std::cout << "Entity: " << newEntityp->getName() << " Set on (" << newEntityp->getX() << " " << newEntityp->getY() << ")" << std::endl;
         }
-        engine.LoadGameMap(spritesVector, mp);
+//
+//        std::vector<Entity* > newVectorOfBlockingEntities; // this makes a copy!!!
+//
+//        for (int i = 0; i < loadedMap->GetNumberOfEntitiesOfCurrentLevel(); i++)
+//        {
+//            /* Use copy constructors */
+////            Entity* newEntityp = new Entity{};
+////            Actor* acp = new Actor{};
+//
+//            /* Get entity copy */
+//            Entity ec = collectionToLoad.entitySerializers[i].entity;
+//            /* Get tile ID */
+//            unsigned int tileID = collectionToLoad.entitySerializers[i].spriteIntEnumVal;
+//            /* Get tile sprite */
+//            TileSprite tileSpriteEnum = UIntToTileSprite(tileID);
+//            sf::Sprite sprite = spritesVector.at(static_cast<int>(tileSpriteEnum));
+//            /*  Get actor copy */
+//            Actor ac = collectionToLoad.entitySerializers[i].actor;
+//            /* Set tile */
+//            Tile* restoredEntityTile = new Tile{false, true, sprite, sf::Color::White}; // TODO: Make static method or constructor. Or add .Create() method, which utilizes given TileSprite and options
+//            ec.SetTile(restoredEntityTile);
+//            /* Set actor and AI based on AIType */
+//            ac.SetupAI(collectionToLoad.entitySerializers[i].actor.GetType());
+//            ec.setActorComponent(&ac);
+//
+//            //acp = &ac; // points always to the same place in memory
+//
+//            //ec.setActorComponent(acp);
+//            /* Point to entity copy */
+//
+//            //newEntityp = &ec;
+//
+//            Actor* newActorp = new Actor();
+//            Entity* newEntityp = new Entity();
+//
+//            // Let's try to manually set fields of these objects
+//
+//            newActorp->SetupAI(ac.GetType());
+//            newEntityp->SetTile(restoredEntityTile);
+//            newEntityp->setActorComponent(newActorp);
+//
+//            /*                      */
+//            if (ec.blockingEntitiesVectorPos == 0) // we have the player
+//            {
+//                engine.SetPlayer(newEntityp);
+//            }
+//            /* Push entity to newVectorOfBlockingEntities at position of blockingEntitiesVectorPos */
+//            std::vector<Entity* >::iterator it;
+//            it = newVectorOfBlockingEntities.begin() + newEntityp->blockingEntitiesVectorPos;
+//            newVectorOfBlockingEntities.insert(it, newEntityp);
+//            /* */
+//
+//            /* Setup */
+//
+//            /*
+//             1. Set all Entities:
+//
+//                1. Get Entity copy
+//                2. Get TileID
+//                3. Get TileSprite
+//                4. Get Sprite
+//                5. Get Actor
+//                6. Set Tile
+//                7. Set Actor and AI based on AIType.
+//                8. Push entity to newVectorOfBlockingEntities at position of blockingEntitiesVectorPos
+//
+//             2. Set newVectorOfBlockingEntities as loadedMap's blockingEntities
+//             3. Point mp to loadedMap.
+//             */
+//
+//        }
+//        //loadedMap->blockingEntities = newVectorOfBlockingEntities;
+//
+//        Map* mp = new Map(*loadedMap);
+//        mp->blockingEntities = newVectorOfBlockingEntities;
+//        //mp = &loadedMap; // maybe try to make a copy constructor
+        
+        engine.LoadGameMap(spritesVector, loadedMap); // move everything here
     }
     
     // Show main menu <- not needed for NOW as it just adds something that takes time
@@ -140,11 +188,12 @@ void App::run()
                 Entity* e = map_p->blockingEntities[i]; // If we don;t pass a pointer, a copy is made that failes on destructor from td_serializer
                 const TileSprite ts = e->tile->GetSpriteEnumVal();
                 Entity ec = *e;
+                ec.setActorComponent(e->getActorComponent());
                 
                 td_entity_serializer serializer;
                 serializer.SetEntityToSerialize(ec);
                 serializer.SetTileSpriteToSerialize(ts);
-                if (ec.getActorComponent() != nullptr)
+                if (ec.getActorComponent() != nullptr && ec.getActorComponent()->GetType() != AIType::NONE)
                 {
                     serializer.SetActorToSerialize(*ec.getActorComponent());
                 } else

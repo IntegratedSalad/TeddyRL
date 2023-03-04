@@ -30,7 +30,7 @@ private:
     int hp;
     int mana;
     AI* ai;
-    AIType type;
+    AIType typeOfAI;
     
     /*
      Serialization block.
@@ -43,18 +43,19 @@ private:
     {
         ar & hp;
         ar & mana;
-        ar & type;
+        ar & typeOfAI;
     }
     
 public:
     Actor();
+    Actor(const Actor&);
     ~Actor();
     
     void setAI(AI* aip) {this->ai = aip;}
-    void setAIType(AIType t) {this->type = t;}
+    void setAIType(AIType t) {this->typeOfAI = t;}
     void SetupAI(AIType t);
     
-    AIType GetType(void) {return this->type;}
+    AIType GetType(void) {return this->typeOfAI;}
     AI* getAI(void) {return this->ai;}
     
     ActionResult attack(const Actor&) const; // attack method doesn't affect Actor directly.

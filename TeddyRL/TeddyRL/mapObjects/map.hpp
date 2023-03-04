@@ -78,7 +78,7 @@ private:
     
     void drawEnclosingSquare(sf::Sprite);
     
-    const std::vector<sf::Sprite> spritesVector;
+    std::vector<sf::Sprite> spritesVector; // canot be const, but whenever accessed, has to be accessed as a const!
     LevelInfo levelInformationStruct; // TODO vector of these.
     
 public:
@@ -88,6 +88,8 @@ public:
     
     Map(const std::vector<sf::Sprite> sv);
     Map();
+    Map(const Map& cm, const std::vector<sf::Sprite> sv);
+    
     ~Map();
     
     void removeEntityFromMap(Entity* entity);
@@ -107,6 +109,7 @@ public:
     }
     
     void SetRoomsNum(unsigned int r) { this->roomsNum = r;}
+    void SetSpritesVector(const std::vector<sf::Sprite> sv) {this->spritesVector = sv;}
     
     void SetupLevelInformation(void) {this->levelInformationStruct = LevelInfo{0, 0, 0};}
     

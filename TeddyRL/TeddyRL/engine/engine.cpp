@@ -387,7 +387,7 @@ void Engine::SetupNewGameMap(const std::vector<sf::Sprite> spritesVector)
     Tile* playerTile = new Tile{false, true, playerSprite, sf::Color::White}; // TODO: Make static method or constructor. Or add .Create() method, which utilizes given TileSprite and options
     playerTile->SetSpriteEnumVal(TileSprite::TEDDY);
     
-    Actor* pacp = new Actor{};
+    Actor* pacp = new Actor();
     pacp->setAI(nullptr); // TODO: This has to be done automatically in a constructor of an Actor
     pacp->setAIType(AIType::NONE); // player is a special entity that has an actor component but doesn't have an AI.
     
@@ -406,22 +406,6 @@ void Engine::SetupNewGameMap(const std::vector<sf::Sprite> spritesVector)
 
 void Engine::LoadGameMap(const std::vector<sf::Sprite> spritesVector, Map* mp)
 {
-    
-    // Not place entity but recreate entity
-    //mp->placeBlockingEntityOnMap(player, 0, 0); // instead of placing blocking entity on map, make custom deserialization. What happens here, is that memory for tile is not yet initialized, yet we operate on it so it shows BAD_ACCESS
-    
-    // mp is a pointer to map that has been deserialized.
-    
-    /*
-     
-     
-     */
-    
-//    for (Entity* ep : mp->blockingEntities)
-//    {
-//        
-//    }
-    
-    
     this->gameMap = mp;
 }
+// spritesVector of mp ceases to exist (won't stay in memory)

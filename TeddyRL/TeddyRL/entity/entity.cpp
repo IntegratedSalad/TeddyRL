@@ -26,6 +26,11 @@ Entity::Entity(Tile* _tile, std::string name, int _x, int _y, Actor* comp) : x(_
     this->setPosition(x, y);
 }
 
+Entity::Entity(const Entity& ec) : x(ec.x), y(ec.y), name(ec.name), blockingEntitiesVectorPos(ec.blockingEntitiesVectorPos)
+{
+    // TODO: Maybe set tile here?
+}
+
 #warning Maybe we shouldn't use map structures to perform logic on entities but built in methods for distance etc. We should use rects for collision.
 // TODO: TurnExecutor class.
 

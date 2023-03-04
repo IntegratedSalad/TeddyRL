@@ -56,6 +56,8 @@ public:
     Entity(Tile* _tile, std::string name, int _x, int _y);
     Entity(Tile* _tile, std::string name, int _x, int _y, Actor*);
     
+    Entity(const Entity&); // Not making it const throws - "The specified type does not meet the requirements of Cpp17MoveInsertable"
+    
     ~Entity();
 
     ActionResult moveOrBump(int moveX, int moveY, Int2DVec&, std::vector<Entity* > entityVector);

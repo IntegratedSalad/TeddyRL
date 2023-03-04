@@ -13,6 +13,12 @@ Actor::Actor() : ai(nullptr)
     /* We have to set the ai pointer to nullptr, because player also has an actor component.
        Actor component has a pointer to an AI, that ISN'T AUTOMATICALLY SET TO NULLPTR!
      */
+    // TODO: Setup of the ai here
+}
+
+Actor::Actor(const Actor& ac) : hp(ac.hp), mana(ac.mana), typeOfAI(ac.typeOfAI)
+{
+    this->SetupAI(this->typeOfAI);
 }
 
 Actor::~Actor()
@@ -36,12 +42,18 @@ void Actor::SetupAI(AIType t)
         {
             RandomAI* raip = new RandomAI();
             newAIp = raip;
+            setAIType(AIType::RANDOM);
+            break;
         }
         case AIType::NONE:
         {
+            setAIType(AIType::NONE);
+            break;
         }
         default:
         {
+            setAIType(AIType::NONE);
+            break;
         }
     }
     this->setAI(newAIp);
