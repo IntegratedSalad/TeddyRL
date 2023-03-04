@@ -96,83 +96,6 @@ void App::run()
                 std::cout << "Worm!" << std::endl;
             }
         }
-//
-//        std::vector<Entity* > newVectorOfBlockingEntities; // this makes a copy!!!
-//
-//        for (int i = 0; i < loadedMap->GetNumberOfEntitiesOfCurrentLevel(); i++)
-//        {
-//            /* Use copy constructors */
-////            Entity* newEntityp = new Entity{};
-////            Actor* acp = new Actor{};
-//
-//            /* Get entity copy */
-//            Entity ec = collectionToLoad.entitySerializers[i].entity;
-//            /* Get tile ID */
-//            unsigned int tileID = collectionToLoad.entitySerializers[i].spriteIntEnumVal;
-//            /* Get tile sprite */
-//            TileSprite tileSpriteEnum = UIntToTileSprite(tileID);
-//            sf::Sprite sprite = spritesVector.at(static_cast<int>(tileSpriteEnum));
-//            /*  Get actor copy */
-//            Actor ac = collectionToLoad.entitySerializers[i].actor;
-//            /* Set tile */
-//            Tile* restoredEntityTile = new Tile{false, true, sprite, sf::Color::White}; // TODO: Make static method or constructor. Or add .Create() method, which utilizes given TileSprite and options
-//            ec.SetTile(restoredEntityTile);
-//            /* Set actor and AI based on AIType */
-//            ac.SetupAI(collectionToLoad.entitySerializers[i].actor.GetType());
-//            ec.setActorComponent(&ac);
-//
-//            //acp = &ac; // points always to the same place in memory
-//
-//            //ec.setActorComponent(acp);
-//            /* Point to entity copy */
-//
-//            //newEntityp = &ec;
-//
-//            Actor* newActorp = new Actor();
-//            Entity* newEntityp = new Entity();
-//
-//            // Let's try to manually set fields of these objects
-//
-//            newActorp->SetupAI(ac.GetType());
-//            newEntityp->SetTile(restoredEntityTile);
-//            newEntityp->setActorComponent(newActorp);
-//
-//            /*                      */
-//            if (ec.blockingEntitiesVectorPos == 0) // we have the player
-//            {
-//                engine.SetPlayer(newEntityp);
-//            }
-//            /* Push entity to newVectorOfBlockingEntities at position of blockingEntitiesVectorPos */
-//            std::vector<Entity* >::iterator it;
-//            it = newVectorOfBlockingEntities.begin() + newEntityp->blockingEntitiesVectorPos;
-//            newVectorOfBlockingEntities.insert(it, newEntityp);
-//            /* */
-//
-//            /* Setup */
-//
-//            /*
-//             1. Set all Entities:
-//
-//                1. Get Entity copy
-//                2. Get TileID
-//                3. Get TileSprite
-//                4. Get Sprite
-//                5. Get Actor
-//                6. Set Tile
-//                7. Set Actor and AI based on AIType.
-//                8. Push entity to newVectorOfBlockingEntities at position of blockingEntitiesVectorPos
-//
-//             2. Set newVectorOfBlockingEntities as loadedMap's blockingEntities
-//             3. Point mp to loadedMap.
-//             */
-//
-//        }
-//        //loadedMap->blockingEntities = newVectorOfBlockingEntities;
-//
-//        Map* mp = new Map(*loadedMap);
-//        mp->blockingEntities = newVectorOfBlockingEntities;
-//        //mp = &loadedMap; // maybe try to make a copy constructor
-        
         engine.LoadGameMap(spritesVector, loadedMap); // move everything here
     }
     
@@ -209,12 +132,11 @@ void App::run()
             const Map* map_p = engine.GetGameMap();
             unsigned int numOfEntities = map_p->GetNumberOfEntitiesOfCurrentLevel();
             std::vector<td_entity_serializer> entitySerializers;
-            /* We don't save the entity vector. Although we only need number of entities while we deserialize each entity, we can iterate on that vector and create a serializer for each entity, let's keep things consistent. */
             
             /* TODO: Saving immediately after killing the worm doesn't work */
             for (int i = 0; i < numOfEntities; i++)
             {
-                Entity* e = map_p->blockingEntities[i]; // If we don;t pass a pointer, a copy is made that failes on destructor from td_serializer
+                Entity* e = map_p->blockingEntities[i]; // If we don't pass a pointer, a copy is made that failes on destructor from td_serializer
                 const TileSprite ts = e->tile->GetSpriteEnumVal();
                 Entity ec = *e;
                 ec.setActorComponent(e->getActorComponent());
@@ -229,16 +151,11 @@ void App::run()
                 entitySerializers.push_back(serializer);
             }
             
-            td_serialization_collection collection{*map_p, entitySerializers};
+            td_serialization_collection collection{*map_p, entitySerializers}; // when setting up breakpoint here, it !sometimes! crashes, claiming it cannot serialize some data regarding to wall actor fields
             
             std::cout << "SAVED ENTITIES: " << map_p->GetNumberOfEntitiesOfCurrentLevel() << std::endl;
             
             o << collection;
-
-            //o << // pass gameMaps's entity vector to td_entity_serializer
-            // it will serialize a vector of structs that have entity and its tilesprite.
-            // then deserializing entities and making Map's blockingEntities vector will be done manually.
-             
             // TODO: Iterate through levels and save num of entities for each level.
             
             std::cout << "Game saved." << std::endl;
