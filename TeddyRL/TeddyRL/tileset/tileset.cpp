@@ -6,7 +6,7 @@
 //  Copyright © 2021 Dev. All rights reserved.
 //
 
-#include "Tileset.hpp"
+#include "tileset.hpp"
 
 Tileset::Tileset()
 {
@@ -52,11 +52,11 @@ Tileset::Tileset(const std::string _fileName, const int _tileSize)
  
  */
 
+/* We should probably make copies if we want to customize the sprites. */
 
+#warning sprite vec should be a reference
 void Tileset::getSpritesFromTilesetImage(std::vector<sf::Sprite>* vec, const int tileSize)
 {
-
-    
     std::cout << "Tileset image dimensions:" << std::endl;
     std::cout << tilesetImage.getSize().x << tilesetImage.getSize().y << std::endl;
 
@@ -69,7 +69,7 @@ void Tileset::getSpritesFromTilesetImage(std::vector<sf::Sprite>* vec, const int
             sf::Texture* texture = new sf::Texture();
             texture->loadFromImage(tilesetImage, sf::IntRect(_x, _y, tileSize, tileSize));
             sf::Sprite sprite;
-            
+#warning are these texture pointers copied? How do we manage Textures in Entities' sprites?
             sprite.setTexture(*texture);
             
             vec->push_back(sprite);

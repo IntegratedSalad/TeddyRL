@@ -1,6 +1,9 @@
 #include <SFML/Graphics.hpp>
-#include "../engine/engine.hpp"
-#include "Tileset.hpp"
+#include "engine.hpp"
+#include "tileset.hpp"
+#include <filesystem>
+#include <iostream>
+#include <fstream>
 
 class App
 {
@@ -8,19 +11,25 @@ class App
 
 private:
     sf::RenderWindow* window;
+    sf::Font* font;
+    
+    const std::string executableDirPath;
     
     const std::vector<sf::Sprite> tilesetVector;
     const std::vector<sf::Sprite> setTileSetVector(Tileset tileset);
     
-public:
+    void CreateSaveGameFolder(void);
+    void HandleExit();
+    const std::string ReturnSavedGameFilePath(void) const;
+    bool DestroySavedGameFile(void);
     
-    App();
+public:
+    App(const std::string execPath);
+    
     ~App();
     void run();
     Tileset setTileset(const std::string tilesetPath);
-
 };
-
 
 // TODO:
 // Manage resource path ifdef...

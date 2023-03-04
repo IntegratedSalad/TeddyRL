@@ -22,7 +22,8 @@ private:
     int tileSize;
     
     std::vector<sf::Sprite> spriteVector;
-
+    
+    /* Image to load the tileset from */
     sf::Image tilesetImage;
     
     void getSpritesFromTilesetImage(std::vector<sf::Sprite>* vec, const int tileSize);
@@ -30,9 +31,9 @@ private:
 public:
 
     Tileset();
-    ~Tileset();
-    
     Tileset(const std::string _fileName, const int _tileSize);
+    
+    ~Tileset();
     
     const int getTileSize(void)
     {
@@ -54,19 +55,22 @@ public:
         fileName = fN;
     }
     
-    const std::vector<sf::Sprite> getTiles(void)
+    const std::vector<sf::Sprite> getSprites(void) // TODO: Is this should be a pointer? we essentialy are making copies of sf::Sprites that have allocated textures
     {
         return spriteVector;
     }
     
     void removeBackgroundFromTilesetImage(sf::Image& img, const sf::Color color);
     
-    
 };
 
-enum class TileSprite
+class SpriteCollection
 {
+private:
+    static std::vector<sf::Sprite> spriteVector;
     
+public:
+    static sf::Sprite Get();
 };
 
 #endif /* Tileset_hpp */
