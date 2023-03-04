@@ -11,9 +11,7 @@
 
 Entity::Entity() : x(0), y(0), actorComponent(nullptr), blockingEntitiesVectorPos(0)
 {
-    
     /* Do not set position! Setting position involves moving entity's tile, which may not have allocated memory. */
-    //this->setPosition(x, y);
 }
 
 Entity::Entity(Tile* _tile, std::string name, int _x, int _y) : x(_x), y(_y), tile(_tile), actorComponent(nullptr), blockingEntitiesVectorPos(0), name(name)

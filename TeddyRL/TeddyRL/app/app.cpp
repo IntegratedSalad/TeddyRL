@@ -41,7 +41,7 @@ void App::run()
     
     /* Load or Setup New Game */
     
-    if (1) // if (pathToSavedGameFile.empty())
+    if (0) // if (pathToSavedGameFile.empty())
     {
         CreateSaveGameFolder();
         engine.SetupNewGameMap(spritesVector);
@@ -66,6 +66,7 @@ void App::run()
             sf::Sprite sprite = spritesVector.at(static_cast<int>(tileSpriteEnum)); // why do we change it here to int? TODO: Make a method that just accepts an enum
             Tile* restoredEntityTile = new Tile{false, true, sprite, sf::Color::White};
             restoredEntityTile->SetSpriteEnumVal(tileSpriteEnum);
+            //if (collectionToLoadp->entitySerializers[i].actor.GetAIType() != AIType::NONE)
             if (collectionToLoadp->entitySerializers[i].actor.GetAIType() != AIType::NONE)
             {
                 newActorComponentp = new Actor(collectionToLoadp->entitySerializers[i].actor); // AI set up in the copy constructor
@@ -76,7 +77,9 @@ void App::run()
             newEntityp->setPosition(newEntityp->getX(), newEntityp->getY());
             if (newEntityp->blockingEntitiesVectorPos == 0)
             {
-                /* If something doesn't have an AI set and isn't player it doesn't have the Actor component */
+                /* If something doesn't have an AI set and isn't player it doesn't have the Actor component
+                   In other words: only player has an Actor component but doesn't have an AI
+                 */
                 Actor* playerActorComponent = new Actor();
                 playerActorComponent->SetupAI(AIType::NONE);
                 newEntityp->setActorComponent(playerActorComponent);
@@ -208,7 +211,7 @@ void App::run()
             std::vector<td_entity_serializer> entitySerializers;
             /* We don't save the entity vector. Although we only need number of entities while we deserialize each entity, we can iterate on that vector and create a serializer for each entity, let's keep things consistent. */
             
-            /* TODO: Saving twice doesn't work! */
+            /* TODO: Saving immediately after killing the worm doesn't work */
             for (int i = 0; i < numOfEntities; i++)
             {
                 Entity* e = map_p->blockingEntities[i]; // If we don;t pass a pointer, a copy is made that failes on destructor from td_serializer
@@ -219,14 +222,9 @@ void App::run()
                 td_entity_serializer serializer;
                 serializer.SetEntityToSerialize(ec);
                 serializer.SetTileSpriteToSerialize(ts);
-                if (ec.getActorComponent() != nullptr && ec.getActorComponent()->GetAIType() != AIType::NONE)
+                if (ec.getActorComponent() != nullptr)
                 {
                     serializer.SetActorToSerialize(*ec.getActorComponent());
-                } else
-                {
-                    Actor a;
-                    a.setAIType(AIType::NONE); // Walls don't have an actor component
-                    serializer.SetActorToSerialize(a);
                 }
                 entitySerializers.push_back(serializer);
             }
@@ -240,15 +238,13 @@ void App::run()
             //o << // pass gameMaps's entity vector to td_entity_serializer
             // it will serialize a vector of structs that have entity and its tilesprite.
             // then deserializing entities and making Map's blockingEntities vector will be done manually.
-            // TODO: Write down this process
              
-            // Iterate through levels and save num of entities for each level.
+            // TODO: Iterate through levels and save num of entities for each level.
             
             std::cout << "Game saved." << std::endl;
             window->close();
             break;
         }
-            
         default:
             break;
     }
@@ -297,6 +293,11 @@ const std::string App::ReturnSavedGameFilePath(void) const
 bool App::DestroySavedGameFile(void)
 {
     const std::string filePath = ReturnSavedGameFilePath();
-    std::remove(filePath.c_str());
-    return (!std::ifstream(filePath));
+    if (std::remove(filePath.c_str()) == 0)
+    {
+        return true;
+    } else
+    {
+        std::cout << "Couldn't remove file! :" << strerror(errno) << std::endl;
+    }
 }

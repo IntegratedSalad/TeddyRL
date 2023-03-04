@@ -88,20 +88,28 @@ struct td_serialization_collection
     td_serialization_collection() { };
     
     template<class Archive>
-    void save(Archive& ar, const unsigned int version) const
-    {
-        ar & entitySerializers;
-        ar & serializedMap; // calls constructor with spritesVector
-    }
-
-    template<class Archive>
-    void load(Archive& ar, const unsigned int version)
+    void serialize(Archive& ar, const unsigned int version)
     {
         ar & entitySerializers;
         ar & serializedMap;
     }
-    BOOST_SERIALIZATION_SPLIT_MEMBER(); // in case there's future need for differentiating between saving and loading collection
     
+//
+//    template<class Archive>
+//    void save(Archive& ar, const unsigned int version) const
+//    {
+//        ar & entitySerializers;
+//        ar & serializedMap; // calls constructor with spritesVector
+//    }
+//
+//    template<class Archive>
+//    void load(Archive& ar, const unsigned int version)
+//    {
+//        ar & entitySerializers;
+//        ar & serializedMap;
+//    }
+//    BOOST_SERIALIZATION_SPLIT_MEMBER(); // in case there's future need for differentiating between saving and loading collection
+//
 };
 
 #endif /* td_serializers_hpp */

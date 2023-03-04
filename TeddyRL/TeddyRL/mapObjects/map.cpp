@@ -62,7 +62,7 @@ void Map::removeEntityFromMap(Entity* entity)
 void Map::KillEntity(Entity* entity)
 {
     sf::Sprite corpseSprite = spritesVector.at(static_cast<int>(TileSprite::CORPSE));
-    entity->die(corpseSprite); // TODO: spawn an item! 
+    entity->die(corpseSprite); // TODO: spawn an item!
     entity = nullptr;
 #warning Assert is optimized if optimization is on. Apart from tests, assertion shouldn't be used.
     assert(entity == nullptr);
