@@ -21,7 +21,7 @@ private:
     void CreateSaveGameFolder(void);
     void HandleExit();
     const std::string ReturnSavedGameFilePath(void) const;
-    void DestroySavedGameFile(void);
+    bool DestroySavedGameFile(void);
     
 public:
     App(const std::string execPath);

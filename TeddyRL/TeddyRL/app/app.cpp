@@ -41,7 +41,7 @@ void App::run()
     
     /* Load or Setup New Game */
     
-    if (0) // if (pathToSavedGameFile.empty())
+    if (1) // if (pathToSavedGameFile.empty())
     {
         CreateSaveGameFolder();
         engine.SetupNewGameMap(spritesVector);
@@ -65,6 +65,7 @@ void App::run()
             TileSprite tileSpriteEnum = UIntToTileSprite(tileID);
             sf::Sprite sprite = spritesVector.at(static_cast<int>(tileSpriteEnum)); // why do we change it here to int? TODO: Make a method that just accepts an enum
             Tile* restoredEntityTile = new Tile{false, true, sprite, sf::Color::White};
+            restoredEntityTile->SetSpriteEnumVal(tileSpriteEnum);
             if (collectionToLoadp->entitySerializers[i].actor.GetAIType() != AIType::NONE)
             {
                 newActorComponentp = new Actor(collectionToLoadp->entitySerializers[i].actor); // AI set up in the copy constructor
@@ -188,13 +189,16 @@ void App::run()
         case EngineState::STATE_GAME_OVER:
         {
             window->close();
-            DestroySavedGameFile();
-            std::cout << "Game save file erased" << std::endl;
+            if (DestroySavedGameFile())
+            {
+                std::cout << "Game save file erased" << std::endl;
+            }
             break;
         }
             
         case EngineState::STATE_SAVING:
         {
+            DestroySavedGameFile(); // the information whether there was a previous save file is useless here.
             std::filesystem::path execPath = std::filesystem::path(executableDirPath);
             std::ofstream ofs(GET_PATH_STR_WORKDIR_MACOS(execPath) + "/" + SAVE_DIR_NAME + "/" + "save.td", std::ios::binary); // TODO: Extract path once and save it
             boost::archive::binary_oarchive o(ofs);
@@ -203,7 +207,8 @@ void App::run()
             unsigned int numOfEntities = map_p->GetNumberOfEntitiesOfCurrentLevel();
             std::vector<td_entity_serializer> entitySerializers;
             /* We don't save the entity vector. Although we only need number of entities while we deserialize each entity, we can iterate on that vector and create a serializer for each entity, let's keep things consistent. */
-
+            
+            /* TODO: Saving twice doesn't work! */
             for (int i = 0; i < numOfEntities; i++)
             {
                 Entity* e = map_p->blockingEntities[i]; // If we don;t pass a pointer, a copy is made that failes on destructor from td_serializer
@@ -289,7 +294,9 @@ const std::string App::ReturnSavedGameFilePath(void) const
     return toReturn;
 }
 
-void App::DestroySavedGameFile(void)
+bool App::DestroySavedGameFile(void)
 {
-    
+    const std::string filePath = ReturnSavedGameFilePath();
+    std::remove(filePath.c_str());
+    return (!std::ifstream(filePath));
 }

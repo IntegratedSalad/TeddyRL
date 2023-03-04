@@ -78,8 +78,7 @@ void Map::drawEnclosingSquare(sf::Sprite wallSprite)
             {
                 Tile* wallTile = new Tile{false, true, wallSprite, sf::Color::White};
                 
-                // TODO: Remove this as we use default constructor for Tile!
-                
+                // TODO: Remove this when we use default constructor for Tile!
                 wallTile->SetSpriteEnumVal(TileSprite::BRICK_WALL_1);
                 
                 Entity* wall = new Entity{wallTile, "Wall", i, j};
