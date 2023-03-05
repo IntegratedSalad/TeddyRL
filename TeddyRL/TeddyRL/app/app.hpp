@@ -28,7 +28,7 @@ public:
     
     ~App();
     void run();
-    Tileset setTileset(const std::string tilesetPath);
+    Tileset SetTileset(const std::string tilesetPath);
 };
 
 // TODO:

@@ -68,14 +68,14 @@ void Tile::SetTexture(sf::Sprite& _sprite, sf::Color color)
 }
 
 
-void Tile::makeVisible()
+void Tile::MakeVisible()
 {
     this->isInvisible = false;
     this->sprite.setColor(this->tileColor);
 }
 
 
-void Tile::makeHidden()
+void Tile::MakeHidden()
 {
     this->isInvisible = true;
     this->sprite.setColor(sf::Color::Transparent);

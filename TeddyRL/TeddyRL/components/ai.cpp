@@ -24,7 +24,7 @@ RandomAI::~RandomAI()
 {
 }
 
-ActionResult RandomAI::make_turn(Map& m, Entity* player, std::mt19937& rd)
+ActionResult RandomAI::MakeTurn(Map& m, Entity* player, std::mt19937& rd)
 {
 #warning Using Marsenne Twister for random movement is very inefficient!
     std::uniform_int_distribution<std::mt19937::result_type> randDir(0, 8);

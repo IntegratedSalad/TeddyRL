@@ -92,16 +92,16 @@ public:
     
     ~Map();
     
-    void removeEntityFromMap(Entity* entity);
+    void RemoveEntityFromMap(Entity* entity);
     void KillEntity(Entity* entity);
     
-    void placeBlockingEntityOnMap(Entity*, int x, int y);
-    int getBlockingEntityIndexFromLocation(int, int) const;
+    void PlaceBlockingEntityOnMap(Entity*, int x, int y);
+    int GetBlockingEntityIndexFromLocation(int, int) const;
     
-    void generateLevel();
+    void GenerateLevel();
     
-    Entity* getBlockingEntityPointerFromLocation(int, int) const;
-    Entity* getBlockingEntityPointerFromEntityVectorPos(int) const;
+    Entity* GetBlockingEntityPointerFromLocation(int, int) const;
+    Entity* GetBlockingEntityPointerFromEntityVectorPos(int) const;
     
     unsigned int GetNumberOfEntitiesOfCurrentLevel(void) const
     {

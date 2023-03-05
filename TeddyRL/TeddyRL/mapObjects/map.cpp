@@ -37,22 +37,22 @@ Map::~Map()
 }
 
 // TODO: Make this return a boolean, depending if there is something at entityIntVec[x][y].
-void Map::placeBlockingEntityOnMap(Entity* entity, int x, int y)
+void Map::PlaceBlockingEntityOnMap(Entity* entity, int x, int y)
 {
     this->blockingEntities.push_back(entity);
     entity->blockingEntitiesVectorPos = blockingEntities.size() - 1;
-    this->blockingEntitiesInt2DVector[entity->getX()][entity->getY()] = entity->blockingEntitiesVectorPos;
-    entity->setPosition(x, y); // TODO: here the bad memory access happens
+    this->blockingEntitiesInt2DVector[entity->GetX()][entity->GetY()] = entity->blockingEntitiesVectorPos;
+    entity->SetPosition(x, y); // TODO: here the bad memory access happens
     
     // TODO: increase current level's numOfEntities | There will be a vector of structs
     
     levelInformationStruct.numOfEntities++;
 }
 
-void Map::removeEntityFromMap(Entity* entity)
+void Map::RemoveEntityFromMap(Entity* entity)
 {
     //delete this->blockingEntities[entity->actorsVectorPos];
-    this->blockingEntitiesInt2DVector[entity->getX()][entity->getY()] = -1;
+    this->blockingEntitiesInt2DVector[entity->GetX()][entity->GetY()] = -1;
     this->blockingEntities.erase(this->blockingEntities.begin() + entity->blockingEntitiesVectorPos); // erase from entities.
     
     if (levelInformationStruct.numOfEntities > 0)
@@ -62,7 +62,7 @@ void Map::removeEntityFromMap(Entity* entity)
 void Map::KillEntity(Entity* entity)
 {
     sf::Sprite corpseSprite = spritesVector.at(static_cast<int>(TileSprite::CORPSE));
-    entity->die(corpseSprite); // TODO: spawn an item!
+    entity->Die(corpseSprite); // TODO: spawn an item!
     entity = nullptr;
 #warning Assert is optimized if optimization is on. Apart from tests, assertion shouldn't be used.
     assert(entity == nullptr);
@@ -82,13 +82,13 @@ void Map::drawEnclosingSquare(sf::Sprite wallSprite)
                 wallTile->SetSpriteEnumVal(TileSprite::BRICK_WALL_1);
                 
                 Entity* wall = new Entity{wallTile, "Wall", i, j};
-                placeBlockingEntityOnMap(wall, i, j);
+                PlaceBlockingEntityOnMap(wall, i, j);
             }
         }
     }
 }
 
-void Map::generateLevel()
+void Map::GenerateLevel()
 {
     // Each wall can have the same pointer to the tile. It won't get destructed, so why have different pointers?
     
@@ -111,8 +111,8 @@ void Map::generateLevel()
     
     for (int i = 0; i < randNumOfMonsters; i++)
     {
-       Entity* e = Entity::createNewEntityFromSprite(enemySprite, "Worm", false, true, sf::Color::White, rand_pos(rng), rand_pos(rng)); // TODO: change this function to have TileSprite as an argument
-        placeBlockingEntityOnMap(e, e->getX(), e->getY());
+       Entity* e = Entity::CreateNewEntityFromSprite(enemySprite, "Worm", false, true, sf::Color::White, rand_pos(rng), rand_pos(rng)); // TODO: change this function to have TileSprite as an argument
+        PlaceBlockingEntityOnMap(e, e->GetX(), e->GetY());
         
         // TODO: Remove this after using default constructor for Tile
         
@@ -122,13 +122,13 @@ void Map::generateLevel()
         
         Actor* acp = new Actor();
         RandomAI* raip = new RandomAI();
-        acp->setAI(raip);
-        e->setActorComponent(acp);
-        acp->setAIType(AIType::RANDOM);
+        acp->SetAI(raip);
+        e->SetActorComponent(acp);
+        acp->SetAIType(AIType::RANDOM);
     }
 }
 
-Entity* Map::getBlockingEntityPointerFromLocation(int x, int y) const
+Entity* Map::GetBlockingEntityPointerFromLocation(int x, int y) const
 {
     int index = blockingEntitiesInt2DVector[x][y];
     if (index >= 0)
@@ -140,12 +140,12 @@ Entity* Map::getBlockingEntityPointerFromLocation(int x, int y) const
     }
 }
 
-Entity* Map::getBlockingEntityPointerFromEntityVectorPos(int vectorPos) const
+Entity* Map::GetBlockingEntityPointerFromEntityVectorPos(int vectorPos) const
 {
     return blockingEntities[vectorPos];
 }
 
-int Map::getBlockingEntityIndexFromLocation(int x, int y) const
+int Map::GetBlockingEntityIndexFromLocation(int x, int y) const
 {
     return blockingEntitiesInt2DVector[x][y];
 }

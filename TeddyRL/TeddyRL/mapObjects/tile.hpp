@@ -52,10 +52,10 @@ typedef struct Tile : public sf::RectangleShape
     
     ~Tile();
     
-    void makeVisible();
-    void makeHidden();
+    void MakeVisible();
+    void MakeHidden();
     
-    void setSprite(sf::Sprite sprite) { this->sprite = sprite; };
+    void SetSprite(sf::Sprite sprite) { this->sprite = sprite; };
     void SetTexture(sf::Sprite& sprite, sf::Color color);
     
     TileSprite GetSpriteEnumVal(void) { return this->spriteEnumVal; };

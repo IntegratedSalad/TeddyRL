@@ -38,6 +38,6 @@ const KeyActionMap inGameBindings =
 #endif
 };
 
-PlayerAction returnActionFromInput(const KeyActionMap bindingsMap, Keyboard::Key key_code);
+PlayerAction ReturnActionFromInput(const KeyActionMap bindingsMap, Keyboard::Key key_code);
 
 #endif /* handleKeys_hpp */

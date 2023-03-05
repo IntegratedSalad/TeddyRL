@@ -72,7 +72,7 @@ public:
     
     void SetPlayer(Entity* e) {this->player = e;}
 
-    void renderAll(Int2DVec, std::vector<Entity* > entityVector, sf::RenderWindow* window, const Map&) const;
+    void RenderAll(Int2DVec, std::vector<Entity* > entityVector, sf::RenderWindow* window, const Map&) const;
     EngineState RenderGameOver(sf::RenderWindow* window) const;
     
     /* Scale map coordinates to screen coordinates */
@@ -82,8 +82,8 @@ public:
 //    }
 //    
     
-    GameState handlePlayerAction(Entity* player, PlayerAction playerAction, Int2DVec&, std::vector<Entity* > entityVector, ActionResult&);
-    void renderDebugInfo(const Map&, const Entity* player, sf::RenderWindow* window) const;
+    GameState HandlePlayerAction(Entity* player, PlayerAction playerAction, Int2DVec&, std::vector<Entity* > entityVector, ActionResult&);
+    void RenderDebugInfo(const Map&, const Entity* player, sf::RenderWindow* window) const;
     
     void SetupNewGameMap(const std::vector<sf::Sprite> spritesVector);
     void LoadGameMap(const std::vector<sf::Sprite> spritesVector, Map* mp);

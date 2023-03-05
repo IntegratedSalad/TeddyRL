@@ -40,7 +40,7 @@ Tileset::Tileset(const std::string _fileName, const int _tileSize)
     tileSize = _tileSize;
     fileName = _fileName;
     
-    getSpritesFromTilesetImage(&spriteVector, _tileSize);
+    GetSpritesFromTilesetImage(&spriteVector, _tileSize);
     
 }
 
@@ -55,7 +55,7 @@ Tileset::Tileset(const std::string _fileName, const int _tileSize)
 /* We should probably make copies if we want to customize the sprites. */
 
 #warning sprite vec should be a reference
-void Tileset::getSpritesFromTilesetImage(std::vector<sf::Sprite>* vec, const int tileSize)
+void Tileset::GetSpritesFromTilesetImage(std::vector<sf::Sprite>* vec, const int tileSize)
 {
     std::cout << "Tileset image dimensions:" << std::endl;
     std::cout << tilesetImage.getSize().x << tilesetImage.getSize().y << std::endl;

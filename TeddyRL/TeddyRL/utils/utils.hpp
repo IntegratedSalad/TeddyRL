@@ -14,5 +14,5 @@
 #include <fstream>
 
 typedef std::vector<std::vector<int>> Int2DVec;
-void debugPrintInt2dVector(const Int2DVec& vec, const std::string& name);
+void DebugPrintInt2dVector(const Int2DVec& vec, const std::string& name);
 #endif /* utils_hpp */

@@ -42,19 +42,19 @@ void Actor::SetupAI(AIType t)
         {
             RandomAI* raip = new RandomAI();
             newAIp = raip;
-            setAIType(AIType::RANDOM);
+            SetAIType(AIType::RANDOM);
             break;
         }
         case AIType::NONE:
         {
-            setAIType(AIType::NONE);
+            SetAIType(AIType::NONE);
             break;
         }
         default:
         {
-            setAIType(AIType::NONE);
+            SetAIType(AIType::NONE);
             break;
         }
     }
-    this->setAI(newAIp);
+    this->SetAI(newAIp);
 }

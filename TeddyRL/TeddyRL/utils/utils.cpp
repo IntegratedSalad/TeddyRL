@@ -8,7 +8,7 @@
 
 #include "utils.hpp"
 
-void debugPrintInt2dVector(const Int2DVec& vec, const std::string& name)
+void DebugPrintInt2dVector(const Int2DVec& vec, const std::string& name)
 {
     std::cout << ">>>> " << name << " vec contents: <<<<" << std::endl;
     for (Int2DVec::const_iterator it = vec.begin(); it != vec.end(); it++)

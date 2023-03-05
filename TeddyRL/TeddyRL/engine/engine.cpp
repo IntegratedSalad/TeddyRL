@@ -74,7 +74,7 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, std::mt19937& rng)
                 }
                 case sf::Event::KeyPressed:
                 {
-                    playerAction = returnActionFromInput(bindings, event.key.code);
+                    playerAction = ReturnActionFromInput(bindings, event.key.code);
                     break;
                 }
                 default:
@@ -91,21 +91,21 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, std::mt19937& rng)
         ActionResult playerActionResult;
         if (turn == GameState::PLAYER_AND_FRIENDS_TURN)
         {
-            turn = handlePlayerAction(player, playerAction, gameMap->blockingEntitiesInt2DVector, gameMap->blockingEntities, playerActionResult); // turn results are written in function, in a variable passed by reference.
+            turn = HandlePlayerAction(player, playerAction, gameMap->blockingEntitiesInt2DVector, gameMap->blockingEntities, playerActionResult); // turn results are written in function, in a variable passed by reference.
             
             // Player starts first!
                 
             if (playerActionResult.type == ActionType::ACTIONTYPE_ATTACK)
             {
                 // always the player
-                Entity* attackerEntityPointer =  gameMap->getBlockingEntityPointerFromEntityVectorPos(playerActionResult.entityPerformingActionVectorPos);
-                Entity* targetEntityPointer = gameMap->getBlockingEntityPointerFromEntityVectorPos(playerActionResult.entityTargetOfActionVectorPos);
+                Entity* attackerEntityPointer =  gameMap->GetBlockingEntityPointerFromEntityVectorPos(playerActionResult.entityPerformingActionVectorPos);
+                Entity* targetEntityPointer = gameMap->GetBlockingEntityPointerFromEntityVectorPos(playerActionResult.entityTargetOfActionVectorPos);
                 
-                std::cout << attackerEntityPointer->getName() + " attacks " << targetEntityPointer->getName() << std::endl;
+                std::cout << attackerEntityPointer->GetName() + " attacks " << targetEntityPointer->GetName() << std::endl;
                 
-                gameMap->removeEntityFromMap(targetEntityPointer);
+                gameMap->RemoveEntityFromMap(targetEntityPointer);
                 gameMap->KillEntity(targetEntityPointer);
-                std::cout << targetEntityPointer->getName() << " dies!" << std::endl;
+                std::cout << targetEntityPointer->GetName() << " dies!" << std::endl;
             }
         }
         /* Friends turn */
@@ -118,7 +118,7 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, std::mt19937& rng)
             for (int i = 1; i < gameMap->blockingEntities.size(); i++)
             {
                 Entity* ep = gameMap->blockingEntities[i];
-                Actor* actorp = ep->getActorComponent();
+                Actor* actorp = ep->GetActorComponent();
                 
                 /* AI makes a turn - returns turn result that should be applied.
                    If it moves - it applies changes to the Entity object.
@@ -129,18 +129,18 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, std::mt19937& rng)
                 if (actorp != nullptr)
                 {
                     /* AI makes turn */
-                    AI* aip = actorp->getAI();
-                    aiActionResult = aip->make_turn(*gameMap, player, rng);
+                    AI* aip = actorp->GetAI();
+                    aiActionResult = aip->MakeTurn(*gameMap, player, rng);
                     if (aiActionResult.type == ActionType::ACTIONTYPE_MOVE)
                     {
                         // Move.
                         
                         // use switch here
                         Direction dirData = static_cast<Direction>(aiActionResult.m_ActionData["direction"]);
-                        std::tuple<int, int> directions = mapDirectionToCoordinates(dirData);
+                        std::tuple<int, int> directions = MapDirectionToCoordinates(dirData);
                         int x = std::get<0>(directions);
                         int y = std::get<1>(directions);
-                        ActionResult moveActionResult = ep->moveOrBump(x, y, gameMap->blockingEntitiesInt2DVector, gameMap->blockingEntities);
+                        ActionResult moveActionResult = ep->MoveOrBump(x, y, gameMap->blockingEntitiesInt2DVector, gameMap->blockingEntities);
                         
                         if (moveActionResult.type == ActionType::ACTIONTYPE_ATTACK)
                         {
@@ -148,14 +148,14 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, std::mt19937& rng)
                             int performerVecPos = moveActionResult.entityPerformingActionVectorPos; // always current ep
                             int targetVecPos = moveActionResult.entityTargetOfActionVectorPos;
                             
-                            Entity* performerEntityPointer = gameMap->getBlockingEntityPointerFromEntityVectorPos(performerVecPos);
-                            Entity* targetEntityPointer = gameMap->getBlockingEntityPointerFromEntityVectorPos(targetVecPos);
+                            Entity* performerEntityPointer = gameMap->GetBlockingEntityPointerFromEntityVectorPos(performerVecPos);
+                            Entity* targetEntityPointer = gameMap->GetBlockingEntityPointerFromEntityVectorPos(targetVecPos);
                             
-                            std::cout << performerEntityPointer->getName() << " attacks: " << targetEntityPointer->getName() << std::endl;
+                            std::cout << performerEntityPointer->GetName() << " attacks: " << targetEntityPointer->GetName() << std::endl;
                             
-                            gameMap->removeEntityFromMap(targetEntityPointer);
+                            gameMap->RemoveEntityFromMap(targetEntityPointer);
                             gameMap->KillEntity(targetEntityPointer);
-                            std::cout << targetEntityPointer->getName() << " dies!" << std::endl;
+                            std::cout << targetEntityPointer->GetName() << " dies!" << std::endl;
                             this->setEngineState(EngineState::STATE_GAME_OVER);
                         }
                     }
@@ -167,7 +167,7 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, std::mt19937& rng)
         
         /* DRAW */
         
-        this->renderAll(gameMap->blockingEntitiesInt2DVector, gameMap->blockingEntities, window, *gameMap);
+        this->RenderAll(gameMap->blockingEntitiesInt2DVector, gameMap->blockingEntities, window, *gameMap);
 
         currentTime = clock.getElapsedTime();
         fps = 1.0f / previousTime.asSeconds() - currentTime.asSeconds();
@@ -175,7 +175,7 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, std::mt19937& rng)
         
         if (debugModeOn)
         {
-            drawTextOnRectangle(window, sf::Color::Black, sf::Color::White, 32, fpsString, 0, (C_MAP_SIZE - 1) * C_TILE_IN_GAME_SIZE, *gameFont);
+            DrawTextOnRectangle(window, sf::Color::Black, sf::Color::White, 32, fpsString, 0, (C_MAP_SIZE - 1) * C_TILE_IN_GAME_SIZE, *gameFont);
         }
         window->display();
         
@@ -197,7 +197,7 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, std::mt19937& rng)
 }
 #warning entityVector should be a const reference.
 #warning remember about pixel array.
-void Engine::renderAll(Int2DVec intVec, std::vector<Entity* > blockingEntities, sf::RenderWindow* window, const Map& map) const
+void Engine::RenderAll(Int2DVec intVec, std::vector<Entity* > blockingEntities, sf::RenderWindow* window, const Map& map) const
 {
     /* Render Game Map */
     
@@ -210,7 +210,7 @@ void Engine::renderAll(Int2DVec intVec, std::vector<Entity* > blockingEntities, 
         }
     
     if (debugModeOn)
-        renderDebugInfo(map, this->player, window);
+        RenderDebugInfo(map, this->player, window);
     
     /* Render Panels */
     /* Panel will be a section of the Window e.g. GUI */
@@ -218,40 +218,40 @@ void Engine::renderAll(Int2DVec intVec, std::vector<Entity* > blockingEntities, 
 }
 
 /* It should return something */
-GameState Engine::handlePlayerAction(Entity* player, PlayerAction playerAction, Int2DVec& intVec, std::vector<Entity* > actorsVector, ActionResult& turnAction)
+GameState Engine::HandlePlayerAction(Entity* player, PlayerAction playerAction, Int2DVec& intVec, std::vector<Entity* > actorsVector, ActionResult& turnAction)
 {
     switch (playerAction)
     {
         case PlayerAction::PLR_ACTION_MOVE_N:
-            turnAction = player->moveOrBump(0, -1, intVec, actorsVector);
+            turnAction = player->MoveOrBump(0, -1, intVec, actorsVector);
             return GameState::ENEMY_TURN;
             
         case PlayerAction::PLR_ACTION_MOVE_NE:
-            turnAction = player->moveOrBump(1, -1, intVec, actorsVector);
+            turnAction = player->MoveOrBump(1, -1, intVec, actorsVector);
             return GameState::ENEMY_TURN;
         
         case PlayerAction::PLR_ACTION_MOVE_E:
-            turnAction = player->moveOrBump(1, 0, intVec, actorsVector);
+            turnAction = player->MoveOrBump(1, 0, intVec, actorsVector);
             return GameState::ENEMY_TURN;
             
         case PlayerAction::PLR_ACTION_MOVE_SE:
-            turnAction = player->moveOrBump(1, 1, intVec, actorsVector);
+            turnAction = player->MoveOrBump(1, 1, intVec, actorsVector);
             return GameState::ENEMY_TURN;
             
         case PlayerAction::PLR_ACTION_MOVE_S:
-            turnAction = player->moveOrBump(0, 1, intVec, actorsVector);
+            turnAction = player->MoveOrBump(0, 1, intVec, actorsVector);
             return GameState::ENEMY_TURN;
             
         case PlayerAction::PLR_ACTION_MOVE_SW:
-            turnAction = player->moveOrBump(-1, 1, intVec, actorsVector);
+            turnAction = player->MoveOrBump(-1, 1, intVec, actorsVector);
             return GameState::ENEMY_TURN;
             
         case PlayerAction::PLR_ACTION_MOVE_W:
-            turnAction = player->moveOrBump(-1, 0, intVec, actorsVector);
+            turnAction = player->MoveOrBump(-1, 0, intVec, actorsVector);
             return GameState::ENEMY_TURN;
             
         case PlayerAction::PLR_ACTION_MOVE_NW:
-            turnAction = player->moveOrBump(-1, -1, intVec, actorsVector);
+            turnAction = player->MoveOrBump(-1, -1, intVec, actorsVector);
             return GameState::ENEMY_TURN;
             
         case PlayerAction::PLR_ACTION_PASS_TURN:
@@ -285,14 +285,14 @@ GameState Engine::handlePlayerAction(Entity* player, PlayerAction playerAction, 
     }
 }
 
-void Engine::renderDebugInfo(const Map& map, const Entity* player, sf::RenderWindow* window) const
+void Engine::RenderDebugInfo(const Map& map, const Entity* player, sf::RenderWindow* window) const
 {
     /* TODO: Move rendering to another class ?Renderer?
        Maybe renderer will also take care of the camera? e.g. returns a portion of screen to draw.
      
      
      */
-    drawTextOnRectangle(window, sf::Color::Black, sf::Color::White, 32, "DEBUG", 0, -8, *this->gameFont);
+    DrawTextOnRectangle(window, sf::Color::Black, sf::Color::White, 32, "DEBUG", 0, -8, *this->gameFont);
 
     int mouseXPositionRelative = sf::Mouse::getPosition(*window).x;
     int mouseYPositionRelative = sf::Mouse::getPosition(*window).y;
@@ -307,31 +307,31 @@ void Engine::renderDebugInfo(const Map& map, const Entity* player, sf::RenderWin
             int debugTextPosX = mouseXPositionRelative;
             int debugTextPosY = mouseYPositionRelative;
             
-            Entity* ep = map.getBlockingEntityPointerFromLocation(mouseXPositionScaled, mouseYPositionScaled);
+            Entity* ep = map.GetBlockingEntityPointerFromLocation(mouseXPositionScaled, mouseYPositionScaled);
             
             if (ep != nullptr)
             {
-                drawTextOnRectangle(window, sf::Color::Black, sf::Color::White, 16, std::to_string(map.getBlockingEntityIndexFromLocation(mouseXPositionScaled, mouseYPositionScaled)), debugTextPosX, debugTextPosY + 32, *gameFont);
+                DrawTextOnRectangle(window, sf::Color::Black, sf::Color::White, 16, std::to_string(map.GetBlockingEntityIndexFromLocation(mouseXPositionScaled, mouseYPositionScaled)), debugTextPosX, debugTextPosY + 32, *gameFont);
                 
                 debugTextPosY += 64;
-                const std::string positionText = "x: " + std::to_string(ep->getX()) + " y: " + std::to_string(ep->getY());
+                const std::string positionText = "x: " + std::to_string(ep->GetX()) + " y: " + std::to_string(ep->GetY());
                 
-                drawTextOnRectangle(window, sf::Color::Black, sf::Color::White, 16, positionText, debugTextPosX, debugTextPosY, *gameFont);
+                DrawTextOnRectangle(window, sf::Color::Black, sf::Color::White, 16, positionText, debugTextPosX, debugTextPosY, *gameFont);
                 
                 debugTextPosY += 32;
-                const std::string nameText = "Name: " + ep->getName();
+                const std::string nameText = "Name: " + ep->GetName();
                 
-                drawTextOnRectangle(window, sf::Color::Black, sf::Color::White, 16, nameText, debugTextPosX, debugTextPosY, *gameFont);
+                DrawTextOnRectangle(window, sf::Color::Black, sf::Color::White, 16, nameText, debugTextPosX, debugTextPosY, *gameFont);
                 
                 debugTextPosY += 32;
                 const std::string canBlockText = "Can block :" + std::to_string(ep->tile->canBlock);
                 
-                drawTextOnRectangle(window, sf::Color::Black, sf::Color::White, 16, canBlockText, debugTextPosX, debugTextPosY, *gameFont);
+                DrawTextOnRectangle(window, sf::Color::Black, sf::Color::White, 16, canBlockText, debugTextPosX, debugTextPosY, *gameFont);
                 
                 debugTextPosY += 32;
                 
-                const std::string actorComponentText = "Actor component: " + std::to_string(!(ep->getActorComponent() == nullptr));
-                drawTextOnRectangle(window, sf::Color::Black, sf::Color::White, 16, actorComponentText, debugTextPosX, debugTextPosY, *gameFont);
+                const std::string actorComponentText = "Actor component: " + std::to_string(!(ep->GetActorComponent() == nullptr));
+                DrawTextOnRectangle(window, sf::Color::Black, sf::Color::White, 16, actorComponentText, debugTextPosX, debugTextPosY, *gameFont);
             }
         }
     }
@@ -389,17 +389,17 @@ void Engine::SetupNewGameMap(const std::vector<sf::Sprite> spritesVector)
     playerTile->SetSpriteEnumVal(TileSprite::TEDDY);
     
     Actor* pacp = new Actor();
-    pacp->setAI(nullptr); // TODO: This has to be done automatically in a constructor of an Actor
-    pacp->setAIType(AIType::NONE); // player is a special entity that has an actor component but doesn't have an AI.
+    pacp->SetAI(nullptr); // TODO: This has to be done automatically in a constructor of an Actor
+    pacp->SetAIType(AIType::NONE); // player is a special entity that has an actor component but doesn't have an AI.
     
     Entity* player = new Entity{playerTile, "Teddy", 4, 4};
-    player->setActorComponent(pacp);
+    player->SetActorComponent(pacp);
     /* player is manually added before every entity, its entityVectorPos is 0. */
 
-    mp->placeBlockingEntityOnMap(player, player->getX(), player->getY());
+    mp->PlaceBlockingEntityOnMap(player, player->GetX(), player->GetY());
     this->player = player;
     
-    mp->generateLevel(); // this is only a method to intialize a new game, not for loading the map!
+    mp->GenerateLevel(); // this is only a method to intialize a new game, not for loading the map!
     
     std::cout << mp->blockingEntities.size() << std::endl;
     this->gameMap = mp;

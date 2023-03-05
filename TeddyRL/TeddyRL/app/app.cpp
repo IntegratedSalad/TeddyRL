@@ -73,8 +73,8 @@ void App::run()
             }
             Entity* newEntityp = new Entity(collectionToLoadp->entitySerializers[i].entity);
             newEntityp->SetTile(restoredEntityTile);
-            newEntityp->setActorComponent(newActorComponentp);
-            newEntityp->setPosition(newEntityp->getX(), newEntityp->getY());
+            newEntityp->SetActorComponent(newActorComponentp);
+            newEntityp->SetPosition(newEntityp->GetX(), newEntityp->GetY());
             if (newEntityp->blockingEntitiesVectorPos == 0)
             {
                 /* If something doesn't have an AI set and isn't player it doesn't have the Actor component
@@ -82,16 +82,16 @@ void App::run()
                  */
                 Actor* playerActorComponent = new Actor();
                 playerActorComponent->SetupAI(AIType::NONE);
-                newEntityp->setActorComponent(playerActorComponent);
+                newEntityp->SetActorComponent(playerActorComponent);
                 engine.SetPlayer(newEntityp);
             }
             std::vector<Entity *>::iterator it;
             it = loadedMap->blockingEntities.begin() + newEntityp->blockingEntitiesVectorPos;
             loadedMap->blockingEntities.insert(it, newEntityp);
             
-            std::cout << "Entity: " << newEntityp->getName() << " Set on (" << newEntityp->getX() << " " << newEntityp->getY() << ")" << std::endl;
+            std::cout << "Entity: " << newEntityp->GetName() << " Set on (" << newEntityp->GetX() << " " << newEntityp->GetY() << ")" << std::endl;
             
-            if (newEntityp->getName() == "Worm")
+            if (newEntityp->GetName() == "Worm")
             {
                 std::cout << "Worm!" << std::endl;
             }
@@ -139,14 +139,14 @@ void App::run()
                 Entity* e = map_p->blockingEntities[i]; // If we don't pass a pointer, a copy is made that failes on destructor from td_serializer
                 const TileSprite ts = e->tile->GetSpriteEnumVal();
                 Entity ec = *e;
-                ec.setActorComponent(e->getActorComponent());
+                ec.SetActorComponent(e->GetActorComponent());
                 
                 td_entity_serializer serializer;
                 serializer.SetEntityToSerialize(ec);
                 serializer.SetTileSpriteToSerialize(ts);
-                if (ec.getActorComponent() != nullptr)
+                if (ec.GetActorComponent() != nullptr)
                 {
-                    serializer.SetActorToSerialize(*ec.getActorComponent());
+                    serializer.SetActorToSerialize(*ec.GetActorComponent());
                 }
                 entitySerializers.push_back(serializer);
             }

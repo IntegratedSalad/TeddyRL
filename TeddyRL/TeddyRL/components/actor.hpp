@@ -51,14 +51,14 @@ public:
     Actor(const Actor&);
     ~Actor();
     
-    void setAI(AI* aip) {this->ai = aip;}
-    void setAIType(AIType t) {this->typeOfAI = t;}
+    void SetAI(AI* aip) {this->ai = aip;}
+    void SetAIType(AIType t) {this->typeOfAI = t;}
     void SetupAI(AIType t);
     
     AIType GetAIType(void) {return this->typeOfAI;}
-    AI* getAI(void) {return this->ai;}
+    AI* GetAI(void) {return this->ai;}
     
-    ActionResult attack(const Actor&) const; // attack method doesn't affect Actor directly.
+    ActionResult Attack(const Actor&) const; // attack method doesn't affect Actor directly.
 
 #warning Remember this, when designing entity that has FSM.
     /*

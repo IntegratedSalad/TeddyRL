@@ -26,7 +26,7 @@ private:
     /* Image to load the tileset from */
     sf::Image tilesetImage;
     
-    void getSpritesFromTilesetImage(std::vector<sf::Sprite>* vec, const int tileSize);
+    void GetSpritesFromTilesetImage(std::vector<sf::Sprite>* vec, const int tileSize);
     
 public:
 

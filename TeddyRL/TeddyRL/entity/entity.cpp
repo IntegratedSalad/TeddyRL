@@ -16,12 +16,12 @@ Entity::Entity() : x(0), y(0), actorComponent(nullptr), blockingEntitiesVectorPo
 
 Entity::Entity(Tile* _tile, std::string name, int _x, int _y) : x(_x), y(_y), tile(_tile), actorComponent(nullptr), blockingEntitiesVectorPos(0), name(name)
 {
-    this->setPosition(x, y);
+    this->SetPosition(x, y);
 }
 
 Entity::Entity(Tile* _tile, std::string name, int _x, int _y, Actor* comp) : x(_x), y(_y), tile(_tile), actorComponent(comp), blockingEntitiesVectorPos(0), name(name)
 {
-    this->setPosition(x, y);
+    this->SetPosition(x, y);
 }
 
 Entity::Entity(const Entity& ec) : x(ec.x), y(ec.y), name(ec.name), blockingEntitiesVectorPos(ec.blockingEntitiesVectorPos)
@@ -34,7 +34,7 @@ Entity::Entity(const Entity& ec) : x(ec.x), y(ec.y), name(ec.name), blockingEnti
 
 /* Bumping into something counts as performing action. */
 // TODO: pass const map reference, not intvec and entity vector.
-ActionResult Entity::moveOrBump(int moveX, int moveY, Int2DVec& intVec, std::vector<Entity* > entityVector)
+ActionResult Entity::MoveOrBump(int moveX, int moveY, Int2DVec& intVec, std::vector<Entity* > entityVector)
 {
     int indexAtPositionOfMove = intVec[this->x + moveX][this->y + moveY];
     Entity* playerPointer = entityVector[0];
@@ -92,14 +92,14 @@ ActionResult Entity::moveOrBump(int moveX, int moveY, Int2DVec& intVec, std::vec
     return moveResult;
 }
 
-void Entity::setPosition(int _x, int _y)
+void Entity::SetPosition(int _x, int _y)
 {
     this->x = _x;
     this->y = _y;
     this->tile->setPosition(_x * C_TILE_IN_GAME_SIZE, _y * C_TILE_IN_GAME_SIZE);
 }
 
-void Entity::die(sf::Sprite& corpseSprite)
+void Entity::Die(sf::Sprite& corpseSprite)
 {
     //this->tile->setTile(corpseSprite, sf::Color(100, 100, 100));
     if (this->actorComponent != nullptr)
@@ -119,14 +119,14 @@ Entity::~Entity()
 //    assert(this->tile == nullptr);
 }
 
-Entity* Entity::createNewEntityFromSprite(sf::Sprite entitySprite, std::string name, bool isInvisible, bool blocks, sf::Color entityColor, int x, int y)
+Entity* Entity::CreateNewEntityFromSprite(sf::Sprite entitySprite, std::string name, bool isInvisible, bool blocks, sf::Color entityColor, int x, int y)
 {
     Tile* entityTile = new Tile{isInvisible, blocks, entitySprite, entityColor};
     Entity* entity = new Entity{entityTile, name, x, y};
     return entity;
 }
 
-void Entity::setActorComponent(Actor* acp)
+void Entity::SetActorComponent(Actor* acp)
 {
     this->actorComponent = acp;
 }

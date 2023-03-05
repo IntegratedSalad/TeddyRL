@@ -11,7 +11,7 @@
 
 /* KEY_PRESSED:ACTION_ENUM */
 
-PlayerAction returnActionFromInput(const std::map<sf::Keyboard::Key, PlayerAction> bindingsMap, sf::Keyboard::Key key_code)
+PlayerAction ReturnActionFromInput(const std::map<sf::Keyboard::Key, PlayerAction> bindingsMap, sf::Keyboard::Key key_code)
 {
     PlayerAction action;
     try
