@@ -21,6 +21,5 @@ PlayerAction ReturnActionFromInput(const std::map<sf::Keyboard::Key, PlayerActio
     {
       action = PlayerAction::PLR_ACTION_IDLE;
     }
-    
     return action;
 }

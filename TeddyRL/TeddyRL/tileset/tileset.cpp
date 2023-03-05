@@ -23,8 +23,6 @@ Tileset::~Tileset()
 
 Tileset::Tileset(const std::string _fileName, const int _tileSize)
 {
-    std::cout << _fileName << std::endl;
-    
     const sf::Color backgroundColor = sf::Color(17, 17, 51);
     const sf::Color dotBackgroundColor = sf::Color(51, 51, 85);
     
@@ -33,15 +31,12 @@ Tileset::Tileset(const std::string _fileName, const int _tileSize)
         std::cout << "Couldn't load tileset file " << _fileName << std::endl;
         exit(-1);
     }
-
     removeBackgroundFromTilesetImage(tilesetImage, backgroundColor);
     removeBackgroundFromTilesetImage(tilesetImage, dotBackgroundColor);
-    
     tileSize = _tileSize;
     fileName = _fileName;
     
     GetSpritesFromTilesetImage(&spriteVector, _tileSize);
-    
 }
 
 /*

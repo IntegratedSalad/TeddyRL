@@ -12,7 +12,6 @@
 #include "TurnActions.hpp"
 #include "tile.hpp"
 
-/* TODO: all caps */
 enum class EngineState
 {
     STATE_RUNNING = 0,
@@ -40,8 +39,6 @@ private:
     bool saveGame = false;
     
     void PrepareToExit(void);
-    
-    //std::string saveDirPath;
 
 public:
     sf::Font* gameFont;
@@ -49,11 +46,6 @@ public:
     Engine();
     ~Engine();
     EngineState mainLoop(sf::RenderWindow* window, std::mt19937& rng);
-    
-//    void setDirPath(const std::string& p)
-//    {
-//        saveDirPath = p;
-//    }
     
     EngineState getEngineState(void)
     {
@@ -92,5 +84,4 @@ public:
 
 class TurnExecutor
 {
-    
 };

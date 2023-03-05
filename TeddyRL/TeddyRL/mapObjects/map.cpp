@@ -51,7 +51,6 @@ void Map::PlaceBlockingEntityOnMap(Entity* entity, int x, int y)
 
 void Map::RemoveEntityFromMap(Entity* entity)
 {
-    //delete this->blockingEntities[entity->actorsVectorPos];
     this->blockingEntitiesInt2DVector[entity->GetX()][entity->GetY()] = -1;
     this->blockingEntities.erase(this->blockingEntities.begin() + entity->blockingEntitiesVectorPos); // erase from entities.
     
@@ -65,7 +64,7 @@ void Map::KillEntity(Entity* entity)
     entity->Die(corpseSprite); // TODO: spawn an item!
     entity = nullptr;
 #warning Assert is optimized if optimization is on. Apart from tests, assertion shouldn't be used.
-    assert(entity == nullptr);
+    //assert(entity == nullptr);
 }
 
 void Map::drawEnclosingSquare(sf::Sprite wallSprite)

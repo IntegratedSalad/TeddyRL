@@ -41,7 +41,7 @@ void App::run()
     
     /* Load or Setup New Game */
     
-    if (0) // if (pathToSavedGameFile.empty())
+    if (1) // if (pathToSavedGameFile.empty())
     {
         CreateSaveGameFolder();
         engine.SetupNewGameMap(spritesVector);
@@ -90,11 +90,6 @@ void App::run()
             loadedMap->blockingEntities.insert(it, newEntityp);
             
             std::cout << "Entity: " << newEntityp->GetName() << " Set on (" << newEntityp->GetX() << " " << newEntityp->GetY() << ")" << std::endl;
-            
-            if (newEntityp->GetName() == "Worm")
-            {
-                std::cout << "Worm!" << std::endl;
-            }
         }
         engine.LoadGameMap(spritesVector, loadedMap); // move everything here
     }
@@ -217,4 +212,6 @@ bool App::DestroySavedGameFile(void)
     {
         std::cout << "Couldn't remove file! :" << strerror(errno) << std::endl;
     }
+    
+    // TODO: Return only std::remove
 }

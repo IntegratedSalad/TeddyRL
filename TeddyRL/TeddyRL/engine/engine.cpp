@@ -373,7 +373,6 @@ void Engine::SetupNewGameMap(const std::vector<sf::Sprite> spritesVector)
 {
     // TODO: Huge thing to do is to standardize creation of entities. Do not set manually class' fields after using a constructor. Constructor should handle all the initialization and setup.
     
-    
     Map* mp = new Map(spritesVector);
     mp->SetupLevelInformation();
     

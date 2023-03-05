@@ -17,5 +17,4 @@ Entity GetPlayerFromCollection(td_serialization_collection collection)
             return s.entity;
         }
     }
-    // Shouldn't reach here
 }
