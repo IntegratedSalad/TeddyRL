@@ -64,7 +64,7 @@ public:
     
     void SetPlayer(Entity* e) {this->player = e;}
 
-    void RenderAll(Int2DVec, std::vector<Entity* > entityVector, sf::RenderWindow* window, const Map&) const;
+    void RenderAll(Int2DVec, std::vector<Entity* > entityVector, sf::RenderWindow* window, const Map&, const Entity* cameraPointer) const;
     EngineState RenderGameOver(sf::RenderWindow* window) const;
     
     /* Scale map coordinates to screen coordinates */
@@ -79,6 +79,9 @@ public:
     
     void SetupNewGameMap(const std::vector<sf::Sprite> spritesVector);
     void LoadGameMap(const std::vector<sf::Sprite> spritesVector, Map* mp);
+    void ManageCamera(Entity* cameraPointer, const sf::RenderWindow& window);
+    std::vector<Entity* > FindEntitiesInCameraRange(const std::vector<Entity*> entities, const Entity *cameraPointer) const;
+    
     
 };
 

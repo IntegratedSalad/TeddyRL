@@ -86,6 +86,8 @@ public:
     
     void SetTile(Tile* t) { this->tile = t;}
     
+    void SetName(const std::string& nameString) { this->name = nameString;}
+    
     static Entity* CreateNewEntityFromSprite(sf::Sprite entitySprite, std::string name, bool isInvisible, bool blocks, sf::Color entityColor, int x, int y);
     
     unsigned int blockingEntitiesVectorPos;

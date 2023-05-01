@@ -12,7 +12,12 @@
 #include <iostream>
 #include <vector>
 #include <fstream>
+#include <math.h>
+#include "entity.hpp"
+#include <SFML/Graphics.hpp>
 
 typedef std::vector<std::vector<int>> Int2DVec;
 void DebugPrintInt2dVector(const Int2DVec& vec, const std::string& name);
+int DistanceBetweenTwoEntities(const Entity& e1, const Entity& e2);
+
 #endif /* utils_hpp */
