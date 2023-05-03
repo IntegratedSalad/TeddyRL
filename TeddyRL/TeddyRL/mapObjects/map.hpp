@@ -95,7 +95,7 @@ public:
     void RemoveEntityFromMap(Entity* entity);
     void KillEntity(Entity* entity);
     
-    void PlaceBlockingEntityOnMap(Entity*, int x, int y);
+    bool PlaceBlockingEntityOnMap(Entity*, int x, int y);
     int GetBlockingEntityIndexFromLocation(int, int) const;
     
     void GenerateLevel();

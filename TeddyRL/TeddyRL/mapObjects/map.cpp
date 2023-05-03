@@ -37,16 +37,16 @@ Map::~Map()
 }
 
 // TODO: Make this return a boolean, depending if there is something at entityIntVec[x][y].
-void Map::PlaceBlockingEntityOnMap(Entity* entity, int x, int y)
+bool Map::PlaceBlockingEntityOnMap(Entity* entity, int x, int y)
 {
+    if (!(this->blockingEntitiesInt2DVector[x][y] == -1)) return false;
     this->blockingEntities.push_back(entity);
     entity->blockingEntitiesVectorPos = blockingEntities.size() - 1;
     this->blockingEntitiesInt2DVector[entity->GetX()][entity->GetY()] = entity->blockingEntitiesVectorPos;
     entity->SetPosition(x, y); // TODO: here the bad memory access happens
-    
     // TODO: increase current level's numOfEntities | There will be a vector of structs
-    
     levelInformationStruct.numOfEntities++;
+    return true;
 }
 
 void Map::RemoveEntityFromMap(Entity* entity)
@@ -101,8 +101,8 @@ void Map::GenerateLevel()
     
 #warning if memory gets bloated by any of this, we will have to redesign tile memory management.
     
-    std::uniform_int_distribution<std::mt19937::result_type> rand_pos(1, C_MAP_SIZE);
-    std::uniform_int_distribution<std::mt19937::result_type> rand_num(30, 100);
+    std::uniform_int_distribution<std::mt19937::result_type> rand_pos(1, C_MAP_SIZE - 1);
+    std::uniform_int_distribution<std::mt19937::result_type> rand_num(100, 200);
     
     const int randNumOfMonsters = rand_num(rng);
     
