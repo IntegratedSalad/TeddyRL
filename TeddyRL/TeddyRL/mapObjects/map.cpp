@@ -52,8 +52,11 @@ void Map::PlaceBlockingEntityOnMap(Entity* entity, int x, int y)
 void Map::RemoveEntityFromMap(Entity* entity)
 {
     this->blockingEntitiesInt2DVector[entity->GetX()][entity->GetY()] = -1;
-    this->blockingEntities.erase(this->blockingEntities.begin() + entity->blockingEntitiesVectorPos); // erase from entities.
     
+    // Do not erase() this vector, because effectively it changes the size, creating problems.
+    // Setting to nullptr maybe keeps the size unchanged, but its easy to manage (just check if the entity isn't a nullptr.
+    //this->blockingEntities.erase(this->blockingEntities.begin() + entity->blockingEntitiesVectorPos); // erase from entities.
+    this->blockingEntities[entity->blockingEntitiesVectorPos] = nullptr;
     if (levelInformationStruct.numOfEntities > 0)
         levelInformationStruct.numOfEntities--;
 }
@@ -98,9 +101,8 @@ void Map::GenerateLevel()
     
 #warning if memory gets bloated by any of this, we will have to redesign tile memory management.
     
-    std::uniform_int_distribution<std::mt19937::result_type> rand_pos(1, 38);
-    std::uniform_int_distribution<std::mt19937::result_type> rand_num(1, 30);
-    // TODO: Enemy attacking enemy interpreted as game over.
+    std::uniform_int_distribution<std::mt19937::result_type> rand_pos(1, C_MAP_SIZE);
+    std::uniform_int_distribution<std::mt19937::result_type> rand_num(30, 100);
     
     const int randNumOfMonsters = rand_num(rng);
     

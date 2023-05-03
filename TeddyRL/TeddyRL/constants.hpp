@@ -20,5 +20,6 @@
 
 #define C_MAP_SIZE 80 // RECTANGLE x*x
 #define C_CAMERA_RANGE 45
+#define C_CAMERA_SHIFT_OFFSET 2
 
 #endif /* constants_h */

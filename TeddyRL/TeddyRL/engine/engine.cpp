@@ -8,11 +8,9 @@
 #include "drawing_utils.hpp"
 #include <random>
 
-bool debugModeOn = false;
-static int mouseCursorOriginClickRightXScreen = 0;
-static int mouseCursorOriginClickRightYScreen = 0;
-static bool mouseRightJustPressed = false;
-static bool cameraMoved = true;
+static bool debugModeOn = false;
+static bool isShiftPressed = false; // only because on macOS whitelisting input monitoring doesn't work...
+static bool cameraMoved = false;
 Engine::Engine()
 {
     engineState = EngineState::STATE_RUNNING;
@@ -74,6 +72,13 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, std::mt19937& rng)
                 }
                 case sf::Event::KeyPressed:
                 {
+                    if (event.key.shift)
+                    {
+                        isShiftPressed = true;
+                    } else
+                    {
+                        cameraMoved = false;
+                    }
                     playerAction = ReturnActionFromInput(bindings, event.key.code);
                     break;
                 }
@@ -91,7 +96,7 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, std::mt19937& rng)
         ActionResult playerActionResult;
         if (turn == GameState::PLAYER_AND_FRIENDS_TURN)
         {
-            turn = HandlePlayerAction(player, playerAction, gameMap->blockingEntitiesInt2DVector, gameMap->blockingEntities, playerActionResult); // turn results are written in function, in a variable passed by reference.
+            turn = HandlePlayerAction(player, playerAction, gameMap->blockingEntitiesInt2DVector, gameMap->blockingEntities, playerActionResult, cpointer); // turn results are written in function, in a variable passed by reference.
             
             // Player starts first!
                 
@@ -118,7 +123,10 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, std::mt19937& rng)
             for (int i = 1; i < gameMap->blockingEntities.size(); i++)
             {
                 Entity* ep = gameMap->blockingEntities[i];
-                Actor* actorp = ep->GetActorComponent();
+                Actor* actorp = nullptr;
+                
+                if (ep != nullptr)
+                    actorp = ep->GetActorComponent();
                 
                 /* AI makes a turn - returns turn result that should be applied.
                    If it moves - it applies changes to the Entity object.
@@ -126,7 +134,7 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, std::mt19937& rng)
                    tied to an Actor component.
                    
                  */
-                if (actorp != nullptr)
+                if (actorp != nullptr) // Somehow the actorp still points to something
                 {
                     /* AI makes turn */
                     AI* aip = actorp->GetAI();
@@ -187,9 +195,13 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, std::mt19937& rng)
             delete cpointer;
             return EngineState::STATE_SAVING;
         }
-        
-        cpointer->SetX(player->GetX());
-        cpointer->SetY(player->GetY());
+
+        if (!isShiftPressed && !cameraMoved)
+        {
+            cpointer->SetX(player->GetX());
+            cpointer->SetY(player->GetY());
+        }
+        isShiftPressed = false;
     }
     
     if (this->engineState == EngineState::STATE_GAME_OVER)
@@ -213,8 +225,8 @@ void Engine::RenderAll(Int2DVec intVec, std::vector<Entity* > blockingEntities, 
      */
     
     sf::View gameView;
-    gameView.reset(sf::FloatRect( (player->GetX() - (C_CAMERA_RANGE  / 2)) * C_TILE_IN_GAME_SIZE,
-                                  (player->GetY() - (C_CAMERA_RANGE  / 2)) * C_TILE_IN_GAME_SIZE,
+    gameView.reset(sf::FloatRect( (cameraPointer->GetX() - (C_CAMERA_RANGE  / 2)) * C_TILE_IN_GAME_SIZE,
+                                  (cameraPointer->GetY() - (C_CAMERA_RANGE  / 2)) * C_TILE_IN_GAME_SIZE,
                                   C_CAMERA_RANGE * C_TILE_IN_GAME_SIZE,
                                   C_CAMERA_RANGE * C_TILE_IN_GAME_SIZE)); // + offsets
     
@@ -244,39 +256,91 @@ void Engine::RenderAll(Int2DVec intVec, std::vector<Entity* > blockingEntities, 
 }
 
 /* It should return something */
-GameState Engine::HandlePlayerAction(Entity* player, PlayerAction playerAction, Int2DVec& intVec, std::vector<Entity* > actorsVector, ActionResult& turnAction)
+GameState Engine::HandlePlayerAction(Entity* player, PlayerAction playerAction, Int2DVec& intVec, std::vector<Entity* > actorsVector, ActionResult& turnAction, Entity* camera)
 {
     switch (playerAction)
     {
         case PlayerAction::PLR_ACTION_MOVE_N:
+            if (isShiftPressed)
+            {
+                camera->SetY(camera->GetY() - C_CAMERA_SHIFT_OFFSET);
+                cameraMoved = true;
+                return GameState::PLAYER_AND_FRIENDS_TURN;
+            }
             turnAction = player->MoveOrBump(0, -1, intVec, actorsVector);
             return GameState::ENEMY_TURN;
             
         case PlayerAction::PLR_ACTION_MOVE_NE:
+            if (isShiftPressed)
+            {
+                camera->SetX(camera->GetX() + C_CAMERA_SHIFT_OFFSET);
+                camera->SetY(camera->GetY() - C_CAMERA_SHIFT_OFFSET);
+                cameraMoved = true;
+                return GameState::PLAYER_AND_FRIENDS_TURN;
+            }
             turnAction = player->MoveOrBump(1, -1, intVec, actorsVector);
             return GameState::ENEMY_TURN;
         
         case PlayerAction::PLR_ACTION_MOVE_E:
+            if (isShiftPressed)
+            {
+                camera->SetX(camera->GetX() + C_CAMERA_SHIFT_OFFSET);
+                cameraMoved = true;
+                return GameState::PLAYER_AND_FRIENDS_TURN;
+            }
             turnAction = player->MoveOrBump(1, 0, intVec, actorsVector);
             return GameState::ENEMY_TURN;
             
         case PlayerAction::PLR_ACTION_MOVE_SE:
+            if (isShiftPressed)
+            {
+                camera->SetX(camera->GetX() + C_CAMERA_SHIFT_OFFSET);
+                camera->SetY(camera->GetY() + C_CAMERA_SHIFT_OFFSET);
+                cameraMoved = true;
+                return GameState::PLAYER_AND_FRIENDS_TURN;
+            }
             turnAction = player->MoveOrBump(1, 1, intVec, actorsVector);
             return GameState::ENEMY_TURN;
             
         case PlayerAction::PLR_ACTION_MOVE_S:
+            if (isShiftPressed)
+            {
+                camera->SetY(camera->GetY() + C_CAMERA_SHIFT_OFFSET);
+                cameraMoved = true;
+                return GameState::PLAYER_AND_FRIENDS_TURN;
+            }
             turnAction = player->MoveOrBump(0, 1, intVec, actorsVector);
             return GameState::ENEMY_TURN;
             
         case PlayerAction::PLR_ACTION_MOVE_SW:
+            if (isShiftPressed)
+            {
+                camera->SetX(camera->GetX() - C_CAMERA_SHIFT_OFFSET);
+                camera->SetY(camera->GetY() + C_CAMERA_SHIFT_OFFSET);
+                cameraMoved = true;
+                return GameState::PLAYER_AND_FRIENDS_TURN;
+            }
             turnAction = player->MoveOrBump(-1, 1, intVec, actorsVector);
             return GameState::ENEMY_TURN;
             
         case PlayerAction::PLR_ACTION_MOVE_W:
+            if (isShiftPressed)
+            {
+                camera->SetX(camera->GetX() - C_CAMERA_SHIFT_OFFSET);
+                cameraMoved = true;
+                return GameState::PLAYER_AND_FRIENDS_TURN;
+            }
             turnAction = player->MoveOrBump(-1, 0, intVec, actorsVector);
             return GameState::ENEMY_TURN;
             
         case PlayerAction::PLR_ACTION_MOVE_NW:
+            if (isShiftPressed)
+            {
+                camera->SetX(camera->GetX() - C_CAMERA_SHIFT_OFFSET);
+                camera->SetY(camera->GetY() - C_CAMERA_SHIFT_OFFSET);
+                cameraMoved = true;
+                return GameState::PLAYER_AND_FRIENDS_TURN;
+            }
             turnAction = player->MoveOrBump(-1, -1, intVec, actorsVector);
             return GameState::ENEMY_TURN;
             
@@ -307,7 +371,6 @@ GameState Engine::HandlePlayerAction(Entity* player, PlayerAction playerAction, 
             saveGame = true;
             return GameState::PLAYER_AND_FRIENDS_TURN;
         }
-            
     }
 }
 
@@ -447,9 +510,12 @@ std::vector<Entity* > Engine::FindEntitiesInCameraRange(const std::vector<Entity
     
     for (Entity* bep: entities)
     {
-        if (DistanceBetweenTwoEntities(*bep, *cameraPointer) <= C_CAMERA_RANGE)
+        if (bep != nullptr)
         {
-            v.push_back(bep);
+            if (DistanceBetweenTwoEntities(*bep, *cameraPointer) <= C_CAMERA_RANGE)
+            {
+                v.push_back(bep);
+            }
         }
     }
     return v;

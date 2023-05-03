@@ -74,7 +74,7 @@ public:
 //    }
 //    
     
-    GameState HandlePlayerAction(Entity* player, PlayerAction playerAction, Int2DVec&, std::vector<Entity* > entityVector, ActionResult&);
+    GameState HandlePlayerAction(Entity* player, PlayerAction playerAction, Int2DVec&, std::vector<Entity* > entityVector, ActionResult&, Entity* camera);
     void RenderDebugInfo(const Map&, const Entity* player, sf::RenderWindow* window) const;
     
     void SetupNewGameMap(const std::vector<sf::Sprite> spritesVector);
