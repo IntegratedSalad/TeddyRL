@@ -79,7 +79,6 @@ public:
     
     void SetupNewGameMap(const std::vector<sf::Sprite> spritesVector);
     void LoadGameMap(const std::vector<sf::Sprite> spritesVector, Map* mp);
-    void ManageCamera(Entity* cameraPointer, const sf::RenderWindow& window);
     std::vector<Entity* > FindEntitiesInCameraRange(const std::vector<Entity*> entities, const Entity *cameraPointer) const;
     
     

@@ -121,7 +121,7 @@ void App::run()
         {
             DestroySavedGameFile(); // the information whether there was a previous save file is useless here.
             std::filesystem::path execPath = std::filesystem::path(executableDirPath);
-            std::ofstream ofs(GET_PATH_STR_WORKDIR_MACOS(execPath) + "/" + SAVE_DIR_NAME + "/" + "save.td", std::ios::binary); // TODO: Extract path once and save it
+            std::ofstream ofs(GET_PATH_STR_WORKDIR_MACOS(execPath) + "/" + SAVE_DIR_NAME + "/" + "save.td", std::ios::binary);
             boost::archive::binary_oarchive o(ofs);
             
             const Map* map_p = engine.GetGameMap();

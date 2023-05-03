@@ -15,11 +15,10 @@
 #define C_SCREEN_WIDTH 2000
 #define C_SCREEN_HEIGHT 1600
 
-
 #define C_TILE_TILESET_SIZE 16
 #define C_TILE_IN_GAME_SIZE 32
 
-#define C_MAP_SIZE 40
+#define C_MAP_SIZE 80 // RECTANGLE x*x
 #define C_CAMERA_RANGE 45
 
 #endif /* constants_h */

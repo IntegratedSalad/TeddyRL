@@ -9,8 +9,6 @@
 #ifndef drawing_utils_hpp
 #define drawing_utils_hpp
 
-// TODO: Refactor name
-
 #include <SFML/Graphics.hpp>
 
 void DrawTextOnRectangle(sf::RenderWindow* window, sf::Color rectColor, sf::Color TextColor, const unsigned int textSize, const std::string& text, int x, int y, sf::Font& fontr);

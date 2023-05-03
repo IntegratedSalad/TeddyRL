@@ -99,7 +99,8 @@ void Map::GenerateLevel()
 #warning if memory gets bloated by any of this, we will have to redesign tile memory management.
     
     std::uniform_int_distribution<std::mt19937::result_type> rand_pos(1, 38);
-    std::uniform_int_distribution<std::mt19937::result_type> rand_num(1, 1);
+    std::uniform_int_distribution<std::mt19937::result_type> rand_num(1, 30);
+    // TODO: Enemy attacking enemy interpreted as game over.
     
     const int randNumOfMonsters = rand_num(rng);
     

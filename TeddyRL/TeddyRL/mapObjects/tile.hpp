@@ -37,9 +37,7 @@ enum class TileSprite
 
 typedef struct Tile : public sf::RectangleShape
 {
-    
-    // TODO: We have to save everything but the sprite (not in this class), and make Tile from scratch when loading.
-    
+
     bool canBlock;
     bool isInvisible;
     

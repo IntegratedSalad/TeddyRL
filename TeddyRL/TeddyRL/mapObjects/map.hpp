@@ -113,8 +113,6 @@ public:
     
     void SetupLevelInformation(void) {this->levelInformationStruct = LevelInfo{0, 0, 0};}
     
-    // TODO: Write setters and getters
-    
 };
 
 #endif /* map_hpp */

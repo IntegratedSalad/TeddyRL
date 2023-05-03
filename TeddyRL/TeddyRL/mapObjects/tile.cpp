@@ -58,7 +58,7 @@ void Tile::SetTexture(sf::Sprite& _sprite, sf::Color color)
         _sprite.setColor(color);
     }
 #warning Instruments will show this as a memory leak. This memory allocated here as 't' is available later and is freed in the Tileset destructor.
-    const sf::Texture* t = new sf::Texture(); // TODO: try to use unique_ptr here.
+    const sf::Texture* t = new sf::Texture();
     t = _sprite.getTexture();
 
     this->setTexture(t);

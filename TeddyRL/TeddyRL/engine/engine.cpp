@@ -77,15 +77,6 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, std::mt19937& rng)
                     playerAction = ReturnActionFromInput(bindings, event.key.code);
                     break;
                 }
-                case sf::Event::MouseButtonReleased:
-                {
-                    if (!Mouse::isButtonPressed(sf::Mouse::Button::Right))
-                    {
-                        mouseCursorOriginClickRightXScreen = 0;
-                        mouseCursorOriginClickRightYScreen = 0;
-                        mouseRightJustPressed = false;
-                    }
-                }
                 default:
                 {
                     break;
@@ -94,10 +85,6 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, std::mt19937& rng)
         }
 
         window->clear();
-        
-        /* Manage camera */
-        
-        ManageCamera(cpointer, *window);
         
         /* Player & friends turn */
         
@@ -169,7 +156,9 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, std::mt19937& rng)
                             gameMap->RemoveEntityFromMap(targetEntityPointer);
                             gameMap->KillEntity(targetEntityPointer);
                             std::cout << targetEntityPointer->GetName() << " dies!" << std::endl;
-                            this->setEngineState(EngineState::STATE_GAME_OVER);
+                            
+                            if (targetEntityPointer == player)
+                                this->setEngineState(EngineState::STATE_GAME_OVER);
                         }
                     }
                     // TODO: What if we'll design time system, and monster will deplete its energy, making player have two actions?
@@ -195,7 +184,6 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, std::mt19937& rng)
         if (saveGame) // Don't allow for save scumming exiting results in a save and you can only load from main menu
         {
             // also, saving exits the game <- exits to the main menu
-            // TODO: Saving in app class, not here
             delete cpointer;
             return EngineState::STATE_SAVING;
         }
@@ -206,7 +194,6 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, std::mt19937& rng)
     
     if (this->engineState == EngineState::STATE_GAME_OVER)
     {
-        // destroy save file(s)
         this->RenderGameOver(window);
         std::cout << "dupa" << std::endl;
         delete cpointer;
@@ -231,8 +218,12 @@ void Engine::RenderAll(Int2DVec intVec, std::vector<Entity* > blockingEntities, 
                                   C_CAMERA_RANGE * C_TILE_IN_GAME_SIZE,
                                   C_CAMERA_RANGE * C_TILE_IN_GAME_SIZE)); // + offsets
     
-    gameView.setViewport(sf::FloatRect(0.f, 0.0f, 0.5f, 1.f)); // maybe define
+    //gameView.setViewport(sf::FloatRect(0.135f, 0.15f, 0.65f, 0.65f)); // maybe define
+    gameView.setViewport(sf::FloatRect(0.f, 0.f, 0.65f, 1.f));
     window->setView(gameView);
+    
+    // TODO: Moving camera while presing shift + keys.
+    // TODO: Zooming out and in.
     
     const std::vector<Entity* > blockingEntitiesInCameraRange = FindEntitiesInCameraRange(blockingEntities, cameraPointer);
     
@@ -242,6 +233,8 @@ void Engine::RenderAll(Int2DVec intVec, std::vector<Entity* > blockingEntities, 
             window->draw(*bep->tile);
     }
 
+    //window->setView(window->getDefaultView());
+    
     if (debugModeOn)
         RenderDebugInfo(map, this->player, window);
     
@@ -320,16 +313,18 @@ GameState Engine::HandlePlayerAction(Entity* player, PlayerAction playerAction, 
 
 void Engine::RenderDebugInfo(const Map& map, const Entity* player, sf::RenderWindow* window) const
 {
-    /* TODO: Move rendering to another class ?Renderer?
-       Maybe renderer will also take care of the camera? e.g. returns a portion of screen to draw.
-     
+    /* TODO: Spawn a rectangle that will be a "cursor". This cursor then will directly point to
+             objects on screen.
      */
-    DrawTextOnRectangle(window, sf::Color::Black, sf::Color::White, 32, "DEBUG", 0, -8, *this->gameFont);
-
-    int mouseXPositionRelative = sf::Mouse::getPosition(*window).x; // TODO: Const
-    int mouseYPositionRelative = sf::Mouse::getPosition(*window).y; // TODO: Const
     
-    // TODO: Calculate the distance between nearest block and show it, not relay on anything in map
+    //DrawTextOnRectangle(window, sf::Color::Black, sf::Color::White, 32, "DEBUG", 0, -8, *this->gameFont);
+
+    /* TODO: Draw a grey rectangle on the bottom left corner with debug information */
+    
+    int mouseXPositionRelative = window->mapPixelToCoords(sf::Mouse::getPosition(*window)).x; // TODO: Const
+    int mouseYPositionRelative = window->mapPixelToCoords(sf::Mouse::getPosition(*window)).y; // TODO: Const
+
+    // TODO: Calculate the distance between nearest blocking entity and show it, not relay on anything in map logic
     
     if ((mouseXPositionRelative && mouseYPositionRelative >= 0))
     {
@@ -369,6 +364,8 @@ void Engine::RenderDebugInfo(const Map& map, const Entity* player, sf::RenderWin
             }
         }
     }
+    window->setView(window->getDefaultView());
+    DrawTextOnRectangle(window, sf::Color::Black, sf::Color::White, 32, "DEBUG", 0, -8, *this->gameFont);
 }
 
 void Engine::PrepareToExit(void)
@@ -444,36 +441,6 @@ void Engine::LoadGameMap(const std::vector<sf::Sprite> spritesVector, Map* mp)
     this->gameMap = mp;
 }
 
-void Engine::ManageCamera(Entity* cameraPointer, const sf::RenderWindow& window)
-{
-    if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right) && !mouseRightJustPressed)
-    {
-        mouseRightJustPressed = true;
-        mouseCursorOriginClickRightXScreen = sf::Mouse::getPosition(window).x;
-        mouseCursorOriginClickRightYScreen = sf::Mouse::getPosition(window).y;
-    }
-    
-    if (mouseRightJustPressed)
-    {
-        int currentMousePositionXScreen = sf::Mouse::getPosition(window).x;
-        int currentMousePositionYScreen = sf::Mouse::getPosition(window).y;
-        int currentMouseXPositionScaled = (int)floor(currentMousePositionXScreen / C_TILE_IN_GAME_SIZE);
-        int currentMouseYPositionScaled = (int)floor(currentMousePositionYScreen / C_TILE_IN_GAME_SIZE);
-        
-        int originMouseXPositionScaled = (int)floor(mouseCursorOriginClickRightXScreen / C_TILE_IN_GAME_SIZE);
-        int originMouseYPositionScaled = (int)floor(mouseCursorOriginClickRightYScreen / C_TILE_IN_GAME_SIZE);
-        
-        int moveX = originMouseXPositionScaled - currentMousePositionXScreen;
-        int moveY = originMouseYPositionScaled - currentMouseYPositionScaled;
-        cameraPointer->SetX(cameraPointer->GetX() + moveX);
-        cameraPointer->SetY(cameraPointer->GetY() + moveY);
-        
-    } else
-    {
-        cameraMoved = false;
-    }
-}
-
 std::vector<Entity* > Engine::FindEntitiesInCameraRange(const std::vector<Entity*> entities, const Entity *cameraPointer) const
 {
     std::vector<Entity* > v;
@@ -487,4 +454,3 @@ std::vector<Entity* > Engine::FindEntitiesInCameraRange(const std::vector<Entity
     }
     return v;
 }
-
