@@ -63,6 +63,7 @@ public:
     }
     
     void SetPlayer(Entity* e) {this->player = e;}
+    Entity* GetPlayer(void) {return this->player;}
 
     void RenderAll(Int2DVec, std::vector<Entity* > entityVector, sf::RenderWindow* window, const Map&, const Entity* cameraPointer) const;
     EngineState RenderGameOver(sf::RenderWindow* window) const;

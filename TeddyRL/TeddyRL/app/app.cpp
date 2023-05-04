@@ -41,7 +41,7 @@ void App::run()
     
     /* Load or Setup New Game */
     
-    if (1) // if (pathToSavedGameFile.empty())
+    if (0) // if (pathToSavedGameFile.empty())
     {
         CreateSaveGameFolder();
         engine.SetupNewGameMap(spritesVector);
@@ -57,9 +57,11 @@ void App::run()
         i >> *collectionToLoadp;
         
         Map* loadedMap = new Map(collectionToLoadp->serializedMap, spritesVector); // this is our new map!
-        
+        std::cout << "Retrieved ENTITIES: " << loadedMap->GetNumberOfEntitiesOfCurrentLevel() << std::endl;
         for (int i = 0; i < loadedMap->GetNumberOfEntitiesOfCurrentLevel(); i++)
         {
+            // Maybe make blank entity and set it's attributes?
+            
             Actor* newActorComponentp = nullptr;
             unsigned int tileID = collectionToLoadp->entitySerializers[i].spriteIntEnumVal;
             TileSprite tileSpriteEnum = UIntToTileSprite(tileID);
@@ -70,12 +72,13 @@ void App::run()
             if (collectionToLoadp->entitySerializers[i].actor.GetAIType() != AIType::NONE)
             {
                 newActorComponentp = new Actor(collectionToLoadp->entitySerializers[i].actor); // AI set up in the copy constructor
+                newActorComponentp->SetupAI(collectionToLoadp->entitySerializers[i].actor.GetAIType());
             }
             Entity* newEntityp = new Entity(collectionToLoadp->entitySerializers[i].entity);
             newEntityp->SetTile(restoredEntityTile);
             newEntityp->SetActorComponent(newActorComponentp);
             newEntityp->SetPosition(newEntityp->GetX(), newEntityp->GetY());
-            if (newEntityp->blockingEntitiesVectorPos == 0)
+            if (newEntityp->blockingEntitiesVectorPos == 0 && newEntityp->GetName() != "dead")
             {
                 /* If something doesn't have an AI set and isn't player it doesn't have the Actor component
                    In other words: only player has an Actor component but doesn't have an AI
@@ -87,8 +90,17 @@ void App::run()
             }
             std::vector<Entity *>::iterator it;
             it = loadedMap->blockingEntities.begin() + newEntityp->blockingEntitiesVectorPos;
+            if (newEntityp->GetName() == "dead")
+            {
+                std::cout << "WE HAVE A DEAD ENTITY HERE MEDIC XD" << std::endl;
+                std::cout << newEntityp->blockingEntitiesVectorPos << std::endl;
+                newEntityp->SetActorComponent(nullptr);
+            }
+//            if (newEntityp->GetActorComponent() != nullptr && newEntityp->GetActorComponent()->GetAI() == nullptr)
+//            {
+//                newEntityp->SetActorComponent(nullptr);
+//            }
             loadedMap->blockingEntities.insert(it, newEntityp);
-            
             std::cout << "Entity: " << newEntityp->GetName() << " Set on (" << newEntityp->GetX() << " " << newEntityp->GetY() << ")" << std::endl;
         }
         engine.LoadGameMap(spritesVector, loadedMap); // move everything here
@@ -132,18 +144,34 @@ void App::run()
             for (int i = 0; i < numOfEntities; i++)
             {
                 Entity* e = map_p->blockingEntities[i]; // If we don't pass a pointer, a copy is made that failes on destructor from td_serializer
-                const TileSprite ts = e->tile->GetSpriteEnumVal();
-                Entity ec = *e;
-                ec.SetActorComponent(e->GetActorComponent());
                 
-                td_entity_serializer serializer;
-                serializer.SetEntityToSerialize(ec);
-                serializer.SetTileSpriteToSerialize(ts);
-                if (ec.GetActorComponent() != nullptr)
+                if (e != nullptr)
                 {
-                    serializer.SetActorToSerialize(*ec.GetActorComponent());
+                    const TileSprite ts = e->tile->GetSpriteEnumVal();
+                    Entity ec = *e;
+                    ec.SetActorComponent(e->GetActorComponent());
+                    
+                    td_entity_serializer serializer;
+                    serializer.SetEntityToSerialize(ec);
+                    serializer.SetTileSpriteToSerialize(ts);
+                    if (ec.GetActorComponent() != nullptr)
+                    {
+                        serializer.SetActorToSerialize(*ec.GetActorComponent());
+                    }
+                    entitySerializers.push_back(serializer);
+                } else
+                {
+                    std::cout << "Dead entity, push serializer with dead entity!" << std::endl;
+                    td_entity_serializer serializer;
+                    Entity ec;
+                    Tile fakeTile{};
+                    fakeTile.SetSpriteEnumVal(TileSprite::STAIRS_DOWN);
+                    ec.SetTile(&fakeTile);
+                    ec.SetName("dead");
+                    serializer.SetEntityToSerialize(ec);
+                    serializer.SetTileSpriteToSerialize(TileSprite::BRICK_WALL_1);
+                    entitySerializers.push_back(serializer);
                 }
-                entitySerializers.push_back(serializer);
             }
             
             td_serialization_collection collection{*map_p, entitySerializers}; // when setting up breakpoint here, it !sometimes! crashes, claiming it cannot serialize some data regarding to wall actor fields
@@ -175,6 +203,7 @@ void App::CreateSaveGameFolder(void)
     if (!std::filesystem::exists(fullPath) || (!std::filesystem::is_directory(fullPath)))
     {
         std::filesystem::create_directory(fullPath);
+        std::cout << "Save directory created." << std::endl;
     }
 }
 

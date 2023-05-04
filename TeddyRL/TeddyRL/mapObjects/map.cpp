@@ -57,8 +57,8 @@ void Map::RemoveEntityFromMap(Entity* entity)
     // Setting to nullptr maybe keeps the size unchanged, but its easy to manage (just check if the entity isn't a nullptr.
     //this->blockingEntities.erase(this->blockingEntities.begin() + entity->blockingEntitiesVectorPos); // erase from entities.
     this->blockingEntities[entity->blockingEntitiesVectorPos] = nullptr;
-    if (levelInformationStruct.numOfEntities > 0)
-        levelInformationStruct.numOfEntities--;
+    //if (levelInformationStruct.numOfEntities > 0)
+    //   levelInformationStruct.numOfEntities--;
 }
 
 void Map::KillEntity(Entity* entity)

@@ -124,9 +124,8 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, std::mt19937& rng)
             {
                 Entity* ep = gameMap->blockingEntities[i];
                 Actor* actorp = nullptr;
-                
-                if (ep != nullptr)
-                    actorp = ep->GetActorComponent();
+                if (ep == nullptr) continue;
+                actorp = ep->GetActorComponent();
                 
                 /* AI makes a turn - returns turn result that should be applied.
                    If it moves - it applies changes to the Entity object.
@@ -138,6 +137,7 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, std::mt19937& rng)
                 {
                     /* AI makes turn */
                     AI* aip = actorp->GetAI();
+                    if (aip == nullptr) continue;
                     aiActionResult = aip->MakeTurn(*gameMap, player, rng);
                     if (aiActionResult.type == ActionType::ACTIONTYPE_MOVE)
                     {
@@ -220,10 +220,6 @@ void Engine::RenderAll(Int2DVec intVec, std::vector<Entity* > blockingEntities, 
     
     // TODO: Monsters have to have black background or background that means something (status or etc.)
     
-    /* TODO: Rendering entities only that are enclosed withing camera view.
-             Camera renders everything in a square C_CAMERA_RANGE x C_CAMERA_RANGE.
-     */
-    
     sf::View gameView;
     gameView.reset(sf::FloatRect( (cameraPointer->GetX() - (C_CAMERA_RANGE  / 2)) * C_TILE_IN_GAME_SIZE,
                                   (cameraPointer->GetY() - (C_CAMERA_RANGE  / 2)) * C_TILE_IN_GAME_SIZE,
@@ -234,7 +230,6 @@ void Engine::RenderAll(Int2DVec intVec, std::vector<Entity* > blockingEntities, 
     gameView.setViewport(sf::FloatRect(0.f, 0.f, 0.65f, 1.f));
     window->setView(gameView);
     
-    // TODO: Moving camera while presing shift + keys.
     // TODO: Zooming out and in.
     
     const std::vector<Entity* > blockingEntitiesInCameraRange = FindEntitiesInCameraRange(blockingEntities, cameraPointer);
@@ -244,8 +239,6 @@ void Engine::RenderAll(Int2DVec intVec, std::vector<Entity* > blockingEntities, 
         if (bep != nullptr)
             window->draw(*bep->tile);
     }
-
-    //window->setView(window->getDefaultView());
     
     if (debugModeOn)
         RenderDebugInfo(map, this->player, window);
