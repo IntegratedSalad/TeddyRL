@@ -126,3 +126,10 @@ void Entity::SetActorComponent(Actor* acp)
 {
     this->actorComponent = acp;
 }
+
+Entity* Entity::CreateBlankEntity(void)
+{
+    Entity* nep = new Entity{};
+    
+    return nep;
+}

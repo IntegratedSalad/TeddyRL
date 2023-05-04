@@ -1,6 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include "engine.hpp"
 #include "tileset.hpp"
+#include "entity.hpp"
 #include <filesystem>
 #include <iostream>
 #include <fstream>

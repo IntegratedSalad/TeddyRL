@@ -151,4 +151,3 @@ int Map::GetBlockingEntityIndexFromLocation(int x, int y) const
 {
     return blockingEntitiesInt2DVector[x][y];
 }
-

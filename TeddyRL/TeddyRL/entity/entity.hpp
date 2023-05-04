@@ -91,6 +91,8 @@ public:
     static Entity* CreateNewEntityFromSprite(sf::Sprite entitySprite, std::string name, bool isInvisible, bool blocks, sf::Color entityColor, int x, int y);
     
     unsigned int blockingEntitiesVectorPos;
+    
+    static Entity* CreateBlankEntity(void); // static method used to create an Entity to be loaded.
 };
 
 

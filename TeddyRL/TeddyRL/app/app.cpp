@@ -60,48 +60,8 @@ void App::run()
         std::cout << "Retrieved ENTITIES: " << loadedMap->GetNumberOfEntitiesOfCurrentLevel() << std::endl;
         for (int i = 0; i < loadedMap->GetNumberOfEntitiesOfCurrentLevel(); i++)
         {
-//            // Maybe make blank entity and set it's attributes?
-//
-//            Actor* newActorComponentp = nullptr;
-//            unsigned int tileID = collectionToLoadp->entitySerializers[i].spriteIntEnumVal;
-//            TileSprite tileSpriteEnum = UIntToTileSprite(tileID);
-//            sf::Sprite sprite = spritesVector.at(static_cast<int>(tileSpriteEnum)); // why do we change it here to int? TODO: Make a method that just accepts an enum
-//            Tile* restoredEntityTile = new Tile{false, true, sprite, sf::Color::White};
-//            restoredEntityTile->SetSpriteEnumVal(tileSpriteEnum);
-//            //if (collectionToLoadp->entitySerializers[i].actor.GetAIType() != AIType::NONE)
-//            if (collectionToLoadp->entitySerializers[i].actor.GetAIType() != AIType::NONE)
-//            {
-//                newActorComponentp = new Actor(collectionToLoadp->entitySerializers[i].actor); // AI set up in the copy constructor
-//                newActorComponentp->SetupAI(collectionToLoadp->entitySerializers[i].actor.GetAIType());
-//            }
-//            Entity* newEntityp = new Entity(collectionToLoadp->entitySerializers[i].entity);
-//            newEntityp->SetTile(restoredEntityTile);
-//            newEntityp->SetActorComponent(newActorComponentp);
-//            newEntityp->SetPosition(newEntityp->GetX(), newEntityp->GetY());
-//            if (newEntityp->blockingEntitiesVectorPos == 0 && newEntityp->GetName() != "dead")
-//            {
-//                /* If something doesn't have an AI set and isn't player it doesn't have the Actor component
-//                   In other words: only player has an Actor component but doesn't have an AI
-//                 */
-//                Actor* playerActorComponent = new Actor();
-//                playerActorComponent->SetupAI(AIType::NONE);
-//                newEntityp->SetActorComponent(playerActorComponent);
-//                engine.SetPlayer(newEntityp);
-//            }
-//            std::vector<Entity *>::iterator it;
-//            it = loadedMap->blockingEntities.begin() + newEntityp->blockingEntitiesVectorPos;
-//            if (newEntityp->GetName() == "dead")
-//            {
-//                std::cout << "WE HAVE A DEAD ENTITY HERE MEDIC XD" << std::endl;
-//                std::cout << newEntityp->blockingEntitiesVectorPos << std::endl;
-//                newEntityp->SetActorComponent(nullptr);
-//            }
-////            if (newEntityp->GetActorComponent() != nullptr && newEntityp->GetActorComponent()->GetAI() == nullptr)
-////            {
-////                newEntityp->SetActorComponent(nullptr);
-////            }
-//            loadedMap->blockingEntities.insert(it, newEntityp);
-//            std::cout << "Entity: " << newEntityp->GetName() << " Set on (" << newEntityp->GetX() << " " << newEntityp->GetY() << ")" << std::endl;
+         // TODO: Maybe make blank entity and set it's attributes?
+            Entity* newEntityp = Entity::CreateBlankEntity(); // this sets everything about entity to nullptr.
         }
         engine.LoadGameMap(spritesVector, loadedMap); // move everything here
     }
