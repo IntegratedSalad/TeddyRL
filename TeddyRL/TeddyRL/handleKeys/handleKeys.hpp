@@ -33,11 +33,11 @@ const KeyActionMap inGameBindings =
     {Keyboard::Key::B, PlayerAction::PLR_ACTION_MOVE_SW},
     {Keyboard::Key::Period, PlayerAction::PLR_ACTION_PASS_TURN},
     {Keyboard::Key::S, PlayerAction::PLR_ACTION_SAVE_GAME},
-#if 1 // TODO: Change that to #if DEBUG
+#if DEBUG
     {Keyboard::Key::F1, static_cast<PlayerAction>(DEBUG_ACTION)}
 #endif
 };
 
-PlayerAction returnActionFromInput(const KeyActionMap bindingsMap, Keyboard::Key key_code);
+PlayerAction ReturnActionFromInput(const KeyActionMap bindingsMap, Keyboard::Key key_code);
 
 #endif /* handleKeys_hpp */

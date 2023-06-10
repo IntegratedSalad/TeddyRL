@@ -35,7 +35,7 @@ public:
     AI();
     
     virtual ~AI() = 0;
-    virtual ActionResult make_turn(Map&, Entity* player, std::mt19937& rd) = 0;
+    virtual ActionResult MakeTurn(Map&, Entity* player, std::mt19937& rd) = 0;
     // I don't think that actor pointer should be accessible by other data.
     // For friends, player will be ignored (apart from entities that can help player) and for enemies it will be a target. Later there should be a friend vector.
 };
@@ -46,7 +46,7 @@ private:
 public:
     RandomAI();
     ~RandomAI();
-    ActionResult make_turn(Map&, Entity* player, std::mt19937& rd);
+    ActionResult MakeTurn(Map&, Entity* player, std::mt19937& rd);
 };
 
 #endif /* ai_hpp */

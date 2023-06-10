@@ -8,7 +8,7 @@
 
 #include "TurnActions.hpp"
 
-std::tuple<int, int> mapDirectionToCoordinates(Direction dir)
+std::tuple<int, int> MapDirectionToCoordinates(Direction dir)
 {
     int x = 0;
     int y = 0;

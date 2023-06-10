@@ -16,17 +16,19 @@ Entity::Entity() : x(0), y(0), actorComponent(nullptr), blockingEntitiesVectorPo
 
 Entity::Entity(Tile* _tile, std::string name, int _x, int _y) : x(_x), y(_y), tile(_tile), actorComponent(nullptr), blockingEntitiesVectorPos(0), name(name)
 {
-    this->setPosition(x, y);
+    this->SetPosition(x, y);
 }
 
 Entity::Entity(Tile* _tile, std::string name, int _x, int _y, Actor* comp) : x(_x), y(_y), tile(_tile), actorComponent(comp), blockingEntitiesVectorPos(0), name(name)
 {
-    this->setPosition(x, y);
+    this->SetPosition(x, y);
 }
 
 Entity::Entity(const Entity& ec) : x(ec.x), y(ec.y), name(ec.name), blockingEntitiesVectorPos(ec.blockingEntitiesVectorPos)
 {
-    // TODO: Maybe set tile here?
+    this->SetTile(ec.tile);
+    this->SetActorComponent(ec.actorComponent);
+    //this->tile->move(this->GetX(), this->GetY());
 }
 
 #warning Maybe we shouldn't use map structures to perform logic on entities but built in methods for distance etc. We should use rects for collision.
@@ -34,9 +36,10 @@ Entity::Entity(const Entity& ec) : x(ec.x), y(ec.y), name(ec.name), blockingEnti
 
 /* Bumping into something counts as performing action. */
 // TODO: pass const map reference, not intvec and entity vector.
-ActionResult Entity::moveOrBump(int moveX, int moveY, Int2DVec& intVec, std::vector<Entity* > entityVector)
+ActionResult Entity::MoveOrBump(int moveX, int moveY, Int2DVec& intVec, std::vector<Entity* > entityVector)
 {
     int indexAtPositionOfMove = intVec[this->x + moveX][this->y + moveY];
+
     Entity* playerPointer = entityVector[0];
     
     /* This method should be only about moving an entity */
@@ -44,6 +47,8 @@ ActionResult Entity::moveOrBump(int moveX, int moveY, Int2DVec& intVec, std::vec
     ActionResult moveResult;
     moveResult.type = ActionType::ACTIONTYPE_IDLE;
     moveResult.entityPerformingActionVectorPos = this->blockingEntitiesVectorPos;
+    
+    int sizeVector = static_cast<int>(entityVector.size());
     
     if (moveX == 0 && moveY == 0)
     {
@@ -66,7 +71,7 @@ ActionResult Entity::moveOrBump(int moveX, int moveY, Int2DVec& intVec, std::vec
         this->y = this->tile->getPosition().y / C_TILE_IN_GAME_SIZE;
         
         intVec[this->x][this->y] = this->blockingEntitiesVectorPos;
-        return moveResult;
+        return moveResult; // move this into a function
     }
     else // return entity and decide what to do with it.
     {
@@ -92,16 +97,16 @@ ActionResult Entity::moveOrBump(int moveX, int moveY, Int2DVec& intVec, std::vec
     return moveResult;
 }
 
-void Entity::setPosition(int _x, int _y)
+void Entity::SetPosition(int _x, int _y)
 {
     this->x = _x;
     this->y = _y;
     this->tile->setPosition(_x * C_TILE_IN_GAME_SIZE, _y * C_TILE_IN_GAME_SIZE);
 }
 
-void Entity::die(sf::Sprite& corpseSprite)
+void Entity::Die(sf::Sprite& corpseSprite)
 {
-    //this->tile->setTile(corpseSprite, sf::Color(100, 100, 100));
+    // TODO: Spawn object: corpse
     if (this->actorComponent != nullptr)
     {            
         delete this->actorComponent;
@@ -113,20 +118,16 @@ void Entity::die(sf::Sprite& corpseSprite)
 
 Entity::~Entity()
 {
-    //this->tile->canBlock = false;
-//    delete this->tile;
-//    this->tile = nullptr;
-//    assert(this->tile == nullptr);
 }
 
-Entity* Entity::createNewEntityFromSprite(sf::Sprite entitySprite, std::string name, bool isInvisible, bool blocks, sf::Color entityColor, int x, int y)
+Entity* Entity::CreateNewEntityFromSprite(sf::Sprite entitySprite, std::string name, bool isInvisible, bool blocks, sf::Color entityColor, int x, int y)
 {
     Tile* entityTile = new Tile{isInvisible, blocks, entitySprite, entityColor};
     Entity* entity = new Entity{entityTile, name, x, y};
     return entity;
 }
 
-void Entity::setActorComponent(Actor* acp)
+void Entity::SetActorComponent(Actor* acp)
 {
     this->actorComponent = acp;
 }

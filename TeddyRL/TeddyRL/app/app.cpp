@@ -51,54 +51,39 @@ void App::run()
         std::ifstream ifs(GET_PATH_STR_WORKDIR_MACOS(execPath) + "/" + SAVE_DIR_NAME + "/" + "save.td", std::ios::binary);
         boost::archive::binary_iarchive i(ifs);
         
-        /* Here initialize every entity's Tile before assigning moving them to their appopriate position */
-        
         td_serialization_collection* collectionToLoadp = new td_serialization_collection();
         i >> *collectionToLoadp;
         
         Map* loadedMap = new Map(collectionToLoadp->serializedMap, spritesVector); // this is our new map!
-        
-        for (int i = 0; i < loadedMap->GetNumberOfEntitiesOfCurrentLevel(); i++)
+        for (int i = 0; i < collectionToLoadp->entitySerializers.size(); i++)
         {
-            Actor* newActorComponentp = nullptr;
-            unsigned int tileID = collectionToLoadp->entitySerializers[i].spriteIntEnumVal;
-            TileSprite tileSpriteEnum = UIntToTileSprite(tileID);
-            sf::Sprite sprite = spritesVector.at(static_cast<int>(tileSpriteEnum)); // why do we change it here to int? TODO: Make a method that just accepts an enum
-            Tile* restoredEntityTile = new Tile{false, true, sprite, sf::Color::White};
-            restoredEntityTile->SetSpriteEnumVal(tileSpriteEnum);
-            //if (collectionToLoadp->entitySerializers[i].actor.GetAIType() != AIType::NONE)
-            if (collectionToLoadp->entitySerializers[i].actor.GetAIType() != AIType::NONE)
+            if (collectionToLoadp->entitySerializers[i].entity.blockingEntitiesVectorPos == 0)
             {
-                newActorComponentp = new Actor(collectionToLoadp->entitySerializers[i].actor); // AI set up in the copy constructor
+                std::cout << collectionToLoadp->entitySerializers[i].entity.GetName() << std::endl;
             }
-            Entity* newEntityp = new Entity(collectionToLoadp->entitySerializers[i].entity);
-            newEntityp->SetTile(restoredEntityTile);
-            newEntityp->setActorComponent(newActorComponentp);
-            newEntityp->setPosition(newEntityp->getX(), newEntityp->getY());
-            if (newEntityp->blockingEntitiesVectorPos == 0)
-            {
-                /* If something doesn't have an AI set and isn't player it doesn't have the Actor component
-                   In other words: only player has an Actor component but doesn't have an AI
-                 */
-                Actor* playerActorComponent = new Actor();
-                playerActorComponent->SetupAI(AIType::NONE);
-                newEntityp->setActorComponent(playerActorComponent);
-                engine.SetPlayer(newEntityp);
-            }
-            std::vector<Entity *>::iterator it;
-            it = loadedMap->blockingEntities.begin() + newEntityp->blockingEntitiesVectorPos;
-            loadedMap->blockingEntities.insert(it, newEntityp);
+
+            Actor* actorp = new Actor(collectionToLoadp->entitySerializers[i].actor);
+            Tile* tilep = new Tile(collectionToLoadp->entitySerializers[i].spriteIntEnumVal, false, true, sf::Color::White, spritesVector);
             
-            std::cout << "Entity: " << newEntityp->getName() << " Set on (" << newEntityp->getX() << " " << newEntityp->getY() << ")" << std::endl;
+            Entity recoveredEntity = collectionToLoadp->entitySerializers[i].entity;
+            Entity* newEntityp = new Entity(recoveredEntity);
             
-            if (newEntityp->getName() == "Worm")
+            if (collectionToLoadp->entitySerializers[i].FLAGS & TD_SER_NEEDS_ACTOR_COMP)
             {
-                std::cout << "Worm!" << std::endl;
+                newEntityp->SetActorComponent(actorp);
+            } else
+            {
+                delete actorp;
             }
+            newEntityp->SetTile(tilep);
+            newEntityp->tile->move(newEntityp->GetX() * C_TILE_IN_GAME_SIZE, newEntityp->GetY() * C_TILE_IN_GAME_SIZE);
+            loadedMap->LoadBlockingEntityBackOnMap(newEntityp);
         }
-        engine.LoadGameMap(spritesVector, loadedMap); // move everything here
+        engine.LoadGameMap(spritesVector, loadedMap);
+        engine.SetPlayer();
+        delete collectionToLoadp;
     }
-    
+
     // Show main menu <- not needed for NOW as it just adds something that takes time
     
     std::random_device rnd;
@@ -126,34 +111,41 @@ void App::run()
         {
             DestroySavedGameFile(); // the information whether there was a previous save file is useless here.
             std::filesystem::path execPath = std::filesystem::path(executableDirPath);
-            std::ofstream ofs(GET_PATH_STR_WORKDIR_MACOS(execPath) + "/" + SAVE_DIR_NAME + "/" + "save.td", std::ios::binary); // TODO: Extract path once and save it
+            std::ofstream ofs(GET_PATH_STR_WORKDIR_MACOS(execPath) + "/" + SAVE_DIR_NAME + "/" + "save.td", std::ios::binary);
             boost::archive::binary_oarchive o(ofs);
-            
+  
+            engine.ClearGameMap();
+
             const Map* map_p = engine.GetGameMap();
-            unsigned int numOfEntities = map_p->GetNumberOfEntitiesOfCurrentLevel();
             std::vector<td_entity_serializer> entitySerializers;
             
-            /* TODO: Saving immediately after killing the worm doesn't work */
-            for (int i = 0; i < numOfEntities; i++)
+            for (int i = 0; i < engine.GetGameMap()->blockingEntities.size(); i++)
             {
-                Entity* e = map_p->blockingEntities[i]; // If we don't pass a pointer, a copy is made that failes on destructor from td_serializer
-                const TileSprite ts = e->tile->GetSpriteEnumVal();
-                Entity ec = *e;
-                ec.setActorComponent(e->getActorComponent());
-                
-                td_entity_serializer serializer;
-                serializer.SetEntityToSerialize(ec);
-                serializer.SetTileSpriteToSerialize(ts);
-                if (ec.getActorComponent() != nullptr)
+                Entity* e = map_p->blockingEntities[i]; // If we don't pass a pointer, a copy is made that fails on destructor from td_serializer
+
+                if (e != nullptr)
                 {
-                    serializer.SetActorToSerialize(*ec.getActorComponent());
+                    const TileSprite ts = e->tile->GetSpriteEnumVal();
+                    Entity ec = *e;
+                    ec.SetActorComponent(e->GetActorComponent());
+                    
+                    td_entity_serializer serializer;
+                    serializer.SetEntityToSerialize(ec);
+                    serializer.SetTileSpriteToSerialize(ts);
+                    if (ec.GetActorComponent() != nullptr)
+                    {
+                        serializer.FLAGS |= TD_SER_NEEDS_ACTOR_COMP;
+                        serializer.SetActorToSerialize(*ec.GetActorComponent());
+                    }
+                    entitySerializers.push_back(serializer);
+                } else
+                {
+                    std::cout << "Fatal error - nullptr in blockingEntities after cleanup!" << std::endl;
+                    exit(0);
                 }
-                entitySerializers.push_back(serializer);
             }
             
             td_serialization_collection collection{*map_p, entitySerializers}; // when setting up breakpoint here, it !sometimes! crashes, claiming it cannot serialize some data regarding to wall actor fields
-            
-            std::cout << "SAVED ENTITIES: " << map_p->GetNumberOfEntitiesOfCurrentLevel() << std::endl;
             
             o << collection;
             // TODO: Iterate through levels and save num of entities for each level.
@@ -180,6 +172,7 @@ void App::CreateSaveGameFolder(void)
     if (!std::filesystem::exists(fullPath) || (!std::filesystem::is_directory(fullPath)))
     {
         std::filesystem::create_directory(fullPath);
+        std::cout << "Save directory created." << std::endl;
     }
 }
 
@@ -217,4 +210,6 @@ bool App::DestroySavedGameFile(void)
     {
         std::cout << "Couldn't remove file! :" << strerror(errno) << std::endl;
     }
+    
+    // TODO: Return only std::remove
 }

@@ -92,16 +92,18 @@ public:
     
     ~Map();
     
-    void removeEntityFromMap(Entity* entity);
+    void RemoveEntityFromMap(Entity* entity);
     void KillEntity(Entity* entity);
     
-    void placeBlockingEntityOnMap(Entity*, int x, int y);
-    int getBlockingEntityIndexFromLocation(int, int) const;
+    bool PlaceBlockingEntityOnMap(Entity*, int x, int y);
+    void LoadBlockingEntityBackOnMap(Entity*);
+    int GetBlockingEntityIndexFromLocation(int, int) const;
     
-    void generateLevel();
+    void GenerateLevel();
+    void Clear(void);
     
-    Entity* getBlockingEntityPointerFromLocation(int, int) const;
-    Entity* getBlockingEntityPointerFromEntityVectorPos(int) const;
+    Entity* GetBlockingEntityPointerFromLocation(int, int) const;
+    Entity* GetBlockingEntityPointerFromEntityVectorPos(int) const;
     
     unsigned int GetNumberOfEntitiesOfCurrentLevel(void) const
     {
@@ -112,8 +114,6 @@ public:
     void SetSpritesVector(const std::vector<sf::Sprite> sv) {this->spritesVector = sv;}
     
     void SetupLevelInformation(void) {this->levelInformationStruct = LevelInfo{0, 0, 0};}
-    
-    // TODO: Write setters and getters
     
 };
 

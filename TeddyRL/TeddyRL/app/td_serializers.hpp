@@ -14,6 +14,8 @@
 #include "entity.hpp"
 #include "map.hpp"
 
+#define TD_SER_NEEDS_ACTOR_COMP 0x1
+
 enum class AIType;
 
 inline unsigned int AITypeToUInt(AIType ait)
@@ -41,7 +43,6 @@ struct td_actor_serializer
 
 struct td_entity_serializer
 {
-    
     friend class boost::serialization::access;
     Entity entity;
     unsigned int spriteIntEnumVal;
@@ -53,6 +54,7 @@ struct td_entity_serializer
         ar & entity;
         ar & spriteIntEnumVal;
         ar & actor;
+        ar & FLAGS;
     }
     
     td_entity_serializer(Entity e, TileSprite ts, Actor a) : entity(e), actor(a)
@@ -68,6 +70,7 @@ struct td_entity_serializer
     void SetTileSpriteToSerialize(TileSprite ts) { this->spriteIntEnumVal = TileSpriteToUInt(ts);}
     void SetActorToSerialize(Actor a) { this->actor = a;}
     
+    unsigned char FLAGS = 0;
 };
 
 struct td_serialization_collection
@@ -93,23 +96,6 @@ struct td_serialization_collection
         ar & entitySerializers;
         ar & serializedMap;
     }
-    
-//
-//    template<class Archive>
-//    void save(Archive& ar, const unsigned int version) const
-//    {
-//        ar & entitySerializers;
-//        ar & serializedMap; // calls constructor with spritesVector
-//    }
-//
-//    template<class Archive>
-//    void load(Archive& ar, const unsigned int version)
-//    {
-//        ar & entitySerializers;
-//        ar & serializedMap;
-//    }
-//    BOOST_SERIALIZATION_SPLIT_MEMBER(); // in case there's future need for differentiating between saving and loading collection
-//
 };
 
 #endif /* td_serializers_hpp */

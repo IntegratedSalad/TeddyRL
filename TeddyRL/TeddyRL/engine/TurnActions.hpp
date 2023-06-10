@@ -44,6 +44,6 @@ enum class Direction
     DIR_IDLE
 };
 
-std::tuple<int, int> mapDirectionToCoordinates(Direction dir);
+std::tuple<int, int> MapDirectionToCoordinates(Direction dir);
 
 #endif /* TurnActions_h */

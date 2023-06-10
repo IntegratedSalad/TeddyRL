@@ -8,7 +8,7 @@
 
 #include "utils.hpp"
 
-void debugPrintInt2dVector(const Int2DVec& vec, const std::string& name)
+void DebugPrintInt2dVector(const Int2DVec& vec, const std::string& name)
 {
     std::cout << ">>>> " << name << " vec contents: <<<<" << std::endl;
     for (Int2DVec::const_iterator it = vec.begin(); it != vec.end(); it++)
@@ -19,4 +19,10 @@ void debugPrintInt2dVector(const Int2DVec& vec, const std::string& name)
         }
         std::cout << std::endl;
     }
+}
+
+/* TODO: Pass a vector or two points, not whole entities */
+int DistanceBetweenTwoEntities(const Entity& e1, const Entity& e2)
+{
+    return sqrt( pow(abs(e1.GetY() - e2.GetY()), 2.0) + pow(abs(e1.GetX() - e2.GetX()), 2.0) );
 }

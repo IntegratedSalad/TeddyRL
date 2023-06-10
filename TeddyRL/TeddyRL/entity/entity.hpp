@@ -60,35 +60,38 @@ public:
     
     ~Entity();
 
-    ActionResult moveOrBump(int moveX, int moveY, Int2DVec&, std::vector<Entity* > entityVector);
-    ActionResult pickUp(Int2DVec&, std::vector<Entity* >);
-    ActionResult openDoor(Int2DVec&, std::vector<Entity* >);
+    ActionResult MoveOrBump(int moveX, int moveY, Int2DVec&, std::vector<Entity* > entityVector);
+    ActionResult PickUp(Int2DVec&, std::vector<Entity* >);
+    ActionResult OpenDoor(Int2DVec&, std::vector<Entity* >);
     
-    void die(sf::Sprite& corpseSprite);
+    void Die(sf::Sprite& corpseSprite);
     // move
     
-    bool isEntityBlocking(void)
+    bool IsEntityBlocking(void)
     {
         return tile->canBlock;
     }
     
-    void setPosition(int _x, int _y);
+    void SetPosition(int _x, int _y);
     
-    void setX(int _x) { this->x = _x; }
-    void setY(int _y) { this->y = _y; }
+    void SetX(int _x) { this->x = _x; }
+    void SetY(int _y) { this->y = _y; }
     
-    int getX(void) const { return this->x; }
-    int getY(void) const { return this->y; }
-    const std::string& getName(void) const { return this->name; }
-    Actor* getActorComponent(void) const { return this->actorComponent; }
+    int GetX(void) const { return this->x; }
+    int GetY(void) const { return this->y; }
+    const std::string& GetName(void) const { return this->name; }
+    Actor* GetActorComponent(void) const { return this->actorComponent; }
     
-    void setActorComponent(Actor* acp);
+    void SetActorComponent(Actor* acp);
     
     void SetTile(Tile* t) { this->tile = t;}
     
-    static Entity* createNewEntityFromSprite(sf::Sprite entitySprite, std::string name, bool isInvisible, bool blocks, sf::Color entityColor, int x, int y);
+    void SetName(const std::string& nameString) { this->name = nameString;}
+    
+    static Entity* CreateNewEntityFromSprite(sf::Sprite entitySprite, std::string name, bool isInvisible, bool blocks, sf::Color entityColor, int x, int y);
     
     unsigned int blockingEntitiesVectorPos;
+    
 };
 
 

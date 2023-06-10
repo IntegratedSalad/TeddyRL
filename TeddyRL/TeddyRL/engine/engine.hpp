@@ -12,7 +12,6 @@
 #include "TurnActions.hpp"
 #include "tile.hpp"
 
-/* TODO: all caps */
 enum class EngineState
 {
     STATE_RUNNING = 0,
@@ -40,8 +39,6 @@ private:
     bool saveGame = false;
     
     void PrepareToExit(void);
-    
-    //std::string saveDirPath;
 
 public:
     sf::Font* gameFont;
@@ -49,11 +46,6 @@ public:
     Engine();
     ~Engine();
     EngineState mainLoop(sf::RenderWindow* window, std::mt19937& rng);
-    
-//    void setDirPath(const std::string& p)
-//    {
-//        saveDirPath = p;
-//    }
     
     EngineState getEngineState(void)
     {
@@ -70,9 +62,12 @@ public:
         return this->gameMap;
     }
     
-    void SetPlayer(Entity* e) {this->player = e;}
+    void ClearGameMap(void);
+    
+    void SetPlayer(void) {this->player = this->gameMap->blockingEntities[0];}
+    Entity* GetPlayer(void) {return this->player;}
 
-    void renderAll(Int2DVec, std::vector<Entity* > entityVector, sf::RenderWindow* window, const Map&) const;
+    void RenderAll(Int2DVec, std::vector<Entity* > entityVector, sf::RenderWindow* window, const Map&, const Entity* cameraPointer) const;
     EngineState RenderGameOver(sf::RenderWindow* window) const;
     
     /* Scale map coordinates to screen coordinates */
@@ -82,15 +77,16 @@ public:
 //    }
 //    
     
-    GameState handlePlayerAction(Entity* player, PlayerAction playerAction, Int2DVec&, std::vector<Entity* > entityVector, ActionResult&);
-    void renderDebugInfo(const Map&, const Entity* player, sf::RenderWindow* window) const;
+    GameState HandlePlayerAction(Entity* player, PlayerAction playerAction, Int2DVec&, std::vector<Entity* > entityVector, ActionResult&, Entity* camera);
+    void RenderDebugInfo(const Map&, const Entity* player, sf::RenderWindow* window) const;
     
     void SetupNewGameMap(const std::vector<sf::Sprite> spritesVector);
     void LoadGameMap(const std::vector<sf::Sprite> spritesVector, Map* mp);
+    std::vector<Entity* > FindEntitiesInCameraRange(const std::vector<Entity*> entities, const Entity *cameraPointer) const;
+    
     
 };
 
 class TurnExecutor
 {
-    
 };

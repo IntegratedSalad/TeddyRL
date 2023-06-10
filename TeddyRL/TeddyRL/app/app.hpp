@@ -1,6 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include "engine.hpp"
 #include "tileset.hpp"
+#include "entity.hpp"
 #include <filesystem>
 #include <iostream>
 #include <fstream>
@@ -27,8 +28,9 @@ public:
     App(const std::string execPath);
     
     ~App();
+    
     void run();
-    Tileset setTileset(const std::string tilesetPath);
+    Tileset SetTileset(const std::string tilesetPath);
 };
 
 // TODO:

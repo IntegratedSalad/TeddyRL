@@ -37,9 +37,6 @@ enum class TileSprite
 
 typedef struct Tile : public sf::RectangleShape
 {
-    
-    // TODO: We have to save everything but the sprite (not in this class), and make Tile from scratch when loading.
-    
     bool canBlock;
     bool isInvisible;
     
@@ -48,14 +45,15 @@ typedef struct Tile : public sf::RectangleShape
     Tile(bool blocks);
     Tile();
     
-    Tile(TileSprite, bool isInvisible, bool blocks, sf::Color, const std::vector<sf::Sprite> spritesVector); // make use of that
+#warning Default constructor for tile
+    Tile(const unsigned int, bool isInvisible, bool blocks, sf::Color, const std::vector<sf::Sprite> spritesVector); // make use of that
     
     ~Tile();
     
-    void makeVisible();
-    void makeHidden();
+    void MakeVisible();
+    void MakeHidden();
     
-    void setSprite(sf::Sprite sprite) { this->sprite = sprite; };
+    void SetSprite(sf::Sprite sprite) { this->sprite = sprite; };
     void SetTexture(sf::Sprite& sprite, sf::Color color);
     
     TileSprite GetSpriteEnumVal(void) { return this->spriteEnumVal; };

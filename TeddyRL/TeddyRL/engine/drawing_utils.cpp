@@ -7,7 +7,6 @@
 //
 
 #include "drawing_utils.hpp"
-// TODO: Refactor name
 
 void DrawText(sf::RenderWindow* window, sf::Color TextColor, const unsigned int textSize, const std::string& text, int x, int y, sf::Font& fontr)
 {
@@ -20,7 +19,7 @@ void DrawText(sf::RenderWindow* window, sf::Color TextColor, const unsigned int 
     window->draw(textToDraw);
 }
 
-void drawTextOnRectangle(sf::RenderWindow* window, sf::Color rectColor, sf::Color TextColor, const unsigned int textSize, const std::string& text, int x, int y, sf::Font& fontr)
+void DrawTextOnRectangle(sf::RenderWindow* window, sf::Color rectColor, sf::Color TextColor, const unsigned int textSize, const std::string& text, int x, int y, sf::Font& fontr)
 {
     sf::Text textToDraw;
     textToDraw.setFont(fontr);
