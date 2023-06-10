@@ -43,7 +43,6 @@ struct td_actor_serializer
 
 struct td_entity_serializer
 {
-    
     friend class boost::serialization::access;
     Entity entity;
     unsigned int spriteIntEnumVal;

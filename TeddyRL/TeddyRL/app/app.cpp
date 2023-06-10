@@ -58,42 +58,27 @@ void App::run()
         std::cout << "Retrieved ENTITIES: " << loadedMap->GetNumberOfEntitiesOfCurrentLevel() << std::endl;
         for (int i = 0; i < collectionToLoadp->entitySerializers.size(); i++)
         {
-         // TODO: We have to standardize object (Entity) creation and setting its fields in the constructor!
-            // Get and set AI.
-            // Get and set actor
-            // Get and set Tile
-            // TODO: Define a constructor that takes these three things and properly sets the Entity.
-            // Exactly : everything has to be done in a copy constructor.
-            // Copy constructor needs to be defined for map as well.
-            
             if (collectionToLoadp->entitySerializers[i].entity.blockingEntitiesVectorPos == 0)
             {
                 std::cout << collectionToLoadp->entitySerializers[i].entity.GetName() << std::endl;
             }
+
+            Actor* actorp = new Actor(collectionToLoadp->entitySerializers[i].actor);
+            Tile* tilep = new Tile(collectionToLoadp->entitySerializers[i].spriteIntEnumVal, false, true, sf::Color::White, spritesVector);
             
-            if (collectionToLoadp->entitySerializers[i].entity.GetName() != "dead") // delete this condition
+            Entity recoveredEntity = collectionToLoadp->entitySerializers[i].entity;
+            Entity* newEntityp = new Entity(recoveredEntity);
+            
+            if (collectionToLoadp->entitySerializers[i].FLAGS & TD_SER_NEEDS_ACTOR_COMP)
             {
-                Actor* actorp = new Actor(collectionToLoadp->entitySerializers[i].actor);
-                Tile* tilep = new Tile(collectionToLoadp->entitySerializers[i].spriteIntEnumVal, false, true, sf::Color::White, spritesVector);
-                
-                Entity recoveredEntity = collectionToLoadp->entitySerializers[i].entity;
-//                recoveredEntity.SetActorComponent(actorp);
-//                recoveredEntity.SetTile(tilep);
-                
-                Entity* newEntityp = new Entity(recoveredEntity);
-                
-                if (collectionToLoadp->entitySerializers[i].FLAGS & TD_SER_NEEDS_ACTOR_COMP)
-                {
-                    newEntityp->SetActorComponent(actorp);
-                } else
-                {
-                    delete actorp;
-                }
-                
-                newEntityp->SetTile(tilep);
-                newEntityp->tile->move(newEntityp->GetX() * C_TILE_IN_GAME_SIZE, newEntityp->GetY() * C_TILE_IN_GAME_SIZE);
-                loadedMap->LoadBlockingEntityBackOnMap(newEntityp);
+                newEntityp->SetActorComponent(actorp);
+            } else
+            {
+                delete actorp;
             }
+            newEntityp->SetTile(tilep);
+            newEntityp->tile->move(newEntityp->GetX() * C_TILE_IN_GAME_SIZE, newEntityp->GetY() * C_TILE_IN_GAME_SIZE);
+            loadedMap->LoadBlockingEntityBackOnMap(newEntityp);
         }
         engine.LoadGameMap(spritesVector, loadedMap);
         engine.SetPlayer();
@@ -148,13 +133,7 @@ void App::run()
             for (int i = 0; i < engine.GetGameMap()->blockingEntities.size(); i++)
             {
                 Entity* e = map_p->blockingEntities[i]; // If we don't pass a pointer, a copy is made that fails on destructor from td_serializer
-                
-                // TODO: Add td_entity_serializer's "needsActorComponent".
-                //       In that way, we know we should initialize it.
-                // Maybe this thing has something with handling how the monsters die?
-                // I think I didn't think through how the enemies are handled when they die.
-                // How they are handled in terms of beign wiped from the map.
-                
+
                 if (e != nullptr)
                 {
                     const TileSprite ts = e->tile->GetSpriteEnumVal();

@@ -42,7 +42,7 @@ bool Map::PlaceBlockingEntityOnMap(Entity* entity, int x, int y)
     this->blockingEntities.push_back(entity);
     entity->blockingEntitiesVectorPos = blockingEntities.size() - 1;
     this->blockingEntitiesInt2DVector[entity->GetX()][entity->GetY()] = entity->blockingEntitiesVectorPos;
-    entity->SetPosition(x, y); // TODO: here the bad memory access happens
+    entity->SetPosition(x, y);
     // TODO: increase current level's numOfEntities | There will be a vector of structs
     levelInformationStruct.numOfEntities++;
     return true;
@@ -110,7 +110,7 @@ void Map::GenerateLevel()
 #warning if memory gets bloated by any of this, we will have to redesign tile memory management.
     
     std::uniform_int_distribution<std::mt19937::result_type> rand_pos(1, C_MAP_SIZE - 1);
-    std::uniform_int_distribution<std::mt19937::result_type> rand_num(50, 150);
+    std::uniform_int_distribution<std::mt19937::result_type> rand_num(300, 500);
     
     const int randNumOfMonsters = rand_num(rng);
     
@@ -165,7 +165,6 @@ void Map::Clear(void)
     std::vector<Entity *>::iterator it;
     auto beginning = this->blockingEntities.begin();
     unsigned int deadEntities = 0;
-    
     unsigned int debugCounter = 0;
     
     std::cout << "blockingEntities size before cleanup: " << this->blockingEntities.size() << std::endl;
@@ -174,9 +173,7 @@ void Map::Clear(void)
     {
         if (*it == nullptr)
         {
-            std::cout << "Dead entity found" << std::endl;
             it = this->blockingEntities.erase(it); // return iterator to "the same" position
-            
             deadEntities++;
         } else
         {
@@ -188,24 +185,20 @@ void Map::Clear(void)
     
     beginning = this->blockingEntities.begin();
     auto end = this->blockingEntities.end();
-    Int2DVec map2DVector = this->blockingEntitiesInt2DVector;
-    debugCounter = 0;
-    
-    for (it = beginning + 1; it != end; ++it)
+    for (it = beginning + 1; it != end; it++)
     {
-        std::cout << debugCounter << std::endl;
         Entity* ep = *it;
         const Entity* previousEp = *(it - 1);
         const int ex = ep->GetX();
         const int ey = ep->GetY();
-        //const unsigned int previousVectorPos = ep->blockingEntitiesVectorPos;
-        
-        ep->blockingEntitiesVectorPos = previousEp->blockingEntitiesVectorPos + 1;
-        map2DVector[ex][ey] = ep->blockingEntitiesVectorPos;
-        
-        debugCounter++;
-    }
 
+        ep->blockingEntitiesVectorPos = previousEp->blockingEntitiesVectorPos + 1;
+        this->blockingEntitiesInt2DVector[ex][ey] = ep->blockingEntitiesVectorPos;
+        /* I previously made a copy of this vector, and it wasn't getting updated */
+    }
+    
+    // Sort out the end
+    
     // debug verify, can erase on release
     
     unsigned int positionInVector = 0;

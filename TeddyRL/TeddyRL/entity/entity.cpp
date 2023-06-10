@@ -39,6 +39,7 @@ Entity::Entity(const Entity& ec) : x(ec.x), y(ec.y), name(ec.name), blockingEnti
 ActionResult Entity::MoveOrBump(int moveX, int moveY, Int2DVec& intVec, std::vector<Entity* > entityVector)
 {
     int indexAtPositionOfMove = intVec[this->x + moveX][this->y + moveY];
+
     Entity* playerPointer = entityVector[0];
     
     /* This method should be only about moving an entity */
@@ -46,6 +47,8 @@ ActionResult Entity::MoveOrBump(int moveX, int moveY, Int2DVec& intVec, std::vec
     ActionResult moveResult;
     moveResult.type = ActionType::ACTIONTYPE_IDLE;
     moveResult.entityPerformingActionVectorPos = this->blockingEntitiesVectorPos;
+    
+    int sizeVector = static_cast<int>(entityVector.size());
     
     if (moveX == 0 && moveY == 0)
     {
@@ -68,10 +71,28 @@ ActionResult Entity::MoveOrBump(int moveX, int moveY, Int2DVec& intVec, std::vec
         this->y = this->tile->getPosition().y / C_TILE_IN_GAME_SIZE;
         
         intVec[this->x][this->y] = this->blockingEntitiesVectorPos;
-        return moveResult;
+        return moveResult; // move this into a function
     }
     else // return entity and decide what to do with it.
     {
+        if (indexAtPositionOfMove > sizeVector) // sometimes after saving, there are previous indexes on int2DVector.
+        {
+            /* Tile transformation */
+            intVec[this->x][this->y] = -1;
+            
+            moveX *= C_TILE_IN_GAME_SIZE;
+            moveY *= C_TILE_IN_GAME_SIZE;
+                
+            this->tile->move(moveX, moveY);
+            /*                     */
+            
+            /* Setting x and y. */
+            this->x = this->tile->getPosition().x / C_TILE_IN_GAME_SIZE;
+            this->y = this->tile->getPosition().y / C_TILE_IN_GAME_SIZE;
+            
+            intVec[this->x][this->y] = this->blockingEntitiesVectorPos;
+            return moveResult;
+        }
         Entity* ep = entityVector.at(indexAtPositionOfMove); // there is an entity
         if (ep != nullptr)
         {
