@@ -43,7 +43,7 @@ bool Map::PlaceBlockingEntityOnMap(Entity* entity, int x, int y)
     entity->blockingEntitiesVectorPos = blockingEntities.size() - 1;
     this->blockingEntitiesInt2DVector[entity->GetX()][entity->GetY()] = entity->blockingEntitiesVectorPos;
     entity->SetPosition(x, y);
-    // TODO: increase current level's numOfEntities | There will be a vector of structs
+    // TODO: There will be a vector of structs
     levelInformationStruct.numOfEntities++;
     return true;
 }
@@ -53,7 +53,6 @@ void Map::LoadBlockingEntityBackOnMap(Entity* entity)
 //    std::vector<Entity *>::iterator it;
 //    it = this->blockingEntities.begin() + entity->blockingEntitiesVectorPos;
 //    this->blockingEntities.insert(it, entity);
-    
     this->blockingEntities.push_back(entity); // they go ordered anyway.
 }
 
@@ -197,10 +196,7 @@ void Map::Clear(void)
         /* I previously made a copy of this vector, and it wasn't getting updated */
     }
     
-    // Sort out the end
-    
-    // debug verify, can erase on release
-    
+    // Debug verify, can erase on release
     unsigned int positionInVector = 0;
     for (size_t i = 0; i < this->blockingEntities.size() - 1; i++)
     {

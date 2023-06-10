@@ -55,7 +55,6 @@ void App::run()
         i >> *collectionToLoadp;
         
         Map* loadedMap = new Map(collectionToLoadp->serializedMap, spritesVector); // this is our new map!
-        std::cout << "Retrieved ENTITIES: " << loadedMap->GetNumberOfEntitiesOfCurrentLevel() << std::endl;
         for (int i = 0; i < collectionToLoadp->entitySerializers.size(); i++)
         {
             if (collectionToLoadp->entitySerializers[i].entity.blockingEntitiesVectorPos == 0)
@@ -116,19 +115,9 @@ void App::run()
             boost::archive::binary_oarchive o(ofs);
   
             engine.ClearGameMap();
-            
-//            std::cout << "numOfEntities" << numOfEntities << std::endl;
-//            std::cout << "size of blockingEntities" << map_p->blockingEntities.size() << std::endl;
-//
+
             const Map* map_p = engine.GetGameMap();
-            unsigned int numOfEntities = map_p->GetNumberOfEntitiesOfCurrentLevel(); // useless
             std::vector<td_entity_serializer> entitySerializers;
-            
-            /* TODO: Saving immediately after killing the worm doesn't work */
-            // check what entities are saved, and how many are there.
-            // check if any weirdly killed entities are saved.
-            
-            // TODO: Update blockingEntitiesVector and Int2DVector
             
             for (int i = 0; i < engine.GetGameMap()->blockingEntities.size(); i++)
             {
