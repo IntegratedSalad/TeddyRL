@@ -117,4 +117,14 @@ public:
     
 };
 
+class Algorithm
+{
+private:
+public:
+    Algorithm();
+    
+    virtual void GenerateLevel(Int2DVec&, std::vector<Entity* >&);
+    virtual ~Algorithm() = 0;
+};
+
 #endif /* map_hpp */
