@@ -96,9 +96,11 @@ public:
     void KillEntity(Entity* entity);
     
     bool PlaceBlockingEntityOnMap(Entity*, int x, int y);
+    void LoadBlockingEntityBackOnMap(Entity*);
     int GetBlockingEntityIndexFromLocation(int, int) const;
     
     void GenerateLevel();
+    void Clear(void);
     
     Entity* GetBlockingEntityPointerFromLocation(int, int) const;
     Entity* GetBlockingEntityPointerFromEntityVectorPos(int) const;

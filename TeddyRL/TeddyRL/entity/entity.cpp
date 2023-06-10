@@ -26,7 +26,9 @@ Entity::Entity(Tile* _tile, std::string name, int _x, int _y, Actor* comp) : x(_
 
 Entity::Entity(const Entity& ec) : x(ec.x), y(ec.y), name(ec.name), blockingEntitiesVectorPos(ec.blockingEntitiesVectorPos)
 {
-    // TODO: Maybe set tile here?
+    this->SetTile(ec.tile);
+    this->SetActorComponent(ec.actorComponent);
+    //this->tile->move(this->GetX(), this->GetY());
 }
 
 #warning Maybe we shouldn't use map structures to perform logic on entities but built in methods for distance etc. We should use rects for collision.
@@ -125,11 +127,4 @@ Entity* Entity::CreateNewEntityFromSprite(sf::Sprite entitySprite, std::string n
 void Entity::SetActorComponent(Actor* acp)
 {
     this->actorComponent = acp;
-}
-
-Entity* Entity::CreateBlankEntity(void)
-{
-    Entity* nep = new Entity{};
-    
-    return nep;
 }

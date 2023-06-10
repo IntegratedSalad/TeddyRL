@@ -36,7 +36,6 @@ Map::~Map()
 {
 }
 
-// TODO: Make this return a boolean, depending if there is something at entityIntVec[x][y].
 bool Map::PlaceBlockingEntityOnMap(Entity* entity, int x, int y)
 {
     if (!(this->blockingEntitiesInt2DVector[x][y] == -1)) return false;
@@ -49,6 +48,15 @@ bool Map::PlaceBlockingEntityOnMap(Entity* entity, int x, int y)
     return true;
 }
 
+void Map::LoadBlockingEntityBackOnMap(Entity* entity)
+{
+//    std::vector<Entity *>::iterator it;
+//    it = this->blockingEntities.begin() + entity->blockingEntitiesVectorPos;
+//    this->blockingEntities.insert(it, entity);
+    
+    this->blockingEntities.push_back(entity); // they go ordered anyway.
+}
+
 void Map::RemoveEntityFromMap(Entity* entity)
 {
     this->blockingEntitiesInt2DVector[entity->GetX()][entity->GetY()] = -1;
@@ -57,8 +65,8 @@ void Map::RemoveEntityFromMap(Entity* entity)
     // Setting to nullptr maybe keeps the size unchanged, but its easy to manage (just check if the entity isn't a nullptr.
     //this->blockingEntities.erase(this->blockingEntities.begin() + entity->blockingEntitiesVectorPos); // erase from entities.
     this->blockingEntities[entity->blockingEntitiesVectorPos] = nullptr;
-    //if (levelInformationStruct.numOfEntities > 0)
-    //   levelInformationStruct.numOfEntities--;
+//    if (levelInformationStruct.numOfEntities > 0)
+//       levelInformationStruct.numOfEntities--;
 }
 
 void Map::KillEntity(Entity* entity)
@@ -102,7 +110,7 @@ void Map::GenerateLevel()
 #warning if memory gets bloated by any of this, we will have to redesign tile memory management.
     
     std::uniform_int_distribution<std::mt19937::result_type> rand_pos(1, C_MAP_SIZE - 1);
-    std::uniform_int_distribution<std::mt19937::result_type> rand_num(100, 200);
+    std::uniform_int_distribution<std::mt19937::result_type> rand_num(50, 150);
     
     const int randNumOfMonsters = rand_num(rng);
     
@@ -150,4 +158,76 @@ Entity* Map::GetBlockingEntityPointerFromEntityVectorPos(int vectorPos) const
 int Map::GetBlockingEntityIndexFromLocation(int x, int y) const
 {
     return blockingEntitiesInt2DVector[x][y];
+}
+
+void Map::Clear(void)
+{
+    std::vector<Entity *>::iterator it;
+    auto beginning = this->blockingEntities.begin();
+    unsigned int deadEntities = 0;
+    
+    unsigned int debugCounter = 0;
+    
+    std::cout << "blockingEntities size before cleanup: " << this->blockingEntities.size() << std::endl;
+    
+    for (it = beginning; it != this->blockingEntities.end();) // remember, pointer to end should change!!
+    {
+        if (*it == nullptr)
+        {
+            std::cout << "Dead entity found" << std::endl;
+            it = this->blockingEntities.erase(it); // return iterator to "the same" position
+            
+            deadEntities++;
+        } else
+        {
+            ++it;
+        }
+    }
+    std::cout << "blockingEntities size after cleanup: " << this->blockingEntities.size() << std::endl;
+    std::cout << "Dead entities: " << deadEntities << std::endl;
+    
+    beginning = this->blockingEntities.begin();
+    auto end = this->blockingEntities.end();
+    Int2DVec map2DVector = this->blockingEntitiesInt2DVector;
+    debugCounter = 0;
+    
+    for (it = beginning + 1; it != end; ++it)
+    {
+        std::cout << debugCounter << std::endl;
+        Entity* ep = *it;
+        const Entity* previousEp = *(it - 1);
+        const int ex = ep->GetX();
+        const int ey = ep->GetY();
+        //const unsigned int previousVectorPos = ep->blockingEntitiesVectorPos;
+        
+        ep->blockingEntitiesVectorPos = previousEp->blockingEntitiesVectorPos + 1;
+        map2DVector[ex][ey] = ep->blockingEntitiesVectorPos;
+        
+        debugCounter++;
+    }
+    
+    
+    
+    // debug verify, can erase on release
+    
+    unsigned int positionInVector = 0;
+    for (size_t i = 0; i < this->blockingEntities.size() - 1; i++)
+    {
+        const Entity* ep1 = this->blockingEntities[i];
+        const unsigned int pos1 = ep1->blockingEntitiesVectorPos;
+        const Entity* ep2 = this->blockingEntities[i+1];
+        const unsigned int pos2 = ep2->blockingEntitiesVectorPos;
+        
+        if (pos1+1 != pos2)
+        {
+            std::cout << "Clearing hasn't been done properly" << std::endl;
+            std::cout << ep1->blockingEntitiesVectorPos << std::endl;
+            std::cout << ep2->blockingEntitiesVectorPos << std::endl;
+        }
+        if (ep1 == nullptr || ep2 == nullptr)
+        {
+            std::cout << "Fatal error - nullpointer after clearing map" << std::endl;
+            break;
+        }
+    }
 }

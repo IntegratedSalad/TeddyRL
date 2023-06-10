@@ -62,7 +62,9 @@ public:
         return this->gameMap;
     }
     
-    void SetPlayer(Entity* e) {this->player = e;}
+    void ClearGameMap(void);
+    
+    void SetPlayer(void) {this->player = this->gameMap->blockingEntities[0];}
     Entity* GetPlayer(void) {return this->player;}
 
     void RenderAll(Int2DVec, std::vector<Entity* > entityVector, sf::RenderWindow* window, const Map&, const Entity* cameraPointer) const;

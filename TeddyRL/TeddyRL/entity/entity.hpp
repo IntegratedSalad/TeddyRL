@@ -92,7 +92,6 @@ public:
     
     unsigned int blockingEntitiesVectorPos;
     
-    static Entity* CreateBlankEntity(void); // static method used to create an Entity to be loaded.
 };
 
 

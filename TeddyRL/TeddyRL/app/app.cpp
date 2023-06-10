@@ -51,21 +51,45 @@ void App::run()
         std::ifstream ifs(GET_PATH_STR_WORKDIR_MACOS(execPath) + "/" + SAVE_DIR_NAME + "/" + "save.td", std::ios::binary);
         boost::archive::binary_iarchive i(ifs);
         
-        /* Here initialize every entity's Tile before assigning moving them to their appopriate position */
-        
         td_serialization_collection* collectionToLoadp = new td_serialization_collection();
         i >> *collectionToLoadp;
         
         Map* loadedMap = new Map(collectionToLoadp->serializedMap, spritesVector); // this is our new map!
         std::cout << "Retrieved ENTITIES: " << loadedMap->GetNumberOfEntitiesOfCurrentLevel() << std::endl;
-        for (int i = 0; i < loadedMap->GetNumberOfEntitiesOfCurrentLevel(); i++)
+        for (int i = 0; i < collectionToLoadp->entitySerializers.size(); i++)
         {
-         // TODO: Maybe make blank entity and set it's attributes?
-            Entity* newEntityp = Entity::CreateBlankEntity(); // this sets everything about entity to nullptr.
+         // TODO: We have to standardize object (Entity) creation and setting its fields in the constructor!
+            // Get and set AI.
+            // Get and set actor
+            // Get and set Tile
+            // TODO: Define a constructor that takes these three things and properly sets the Entity.
+            // Exactly : everything has to be done in a copy constructor.
+            // Copy constructor needs to be defined for map as well.
+            
+            if (collectionToLoadp->entitySerializers[i].entity.blockingEntitiesVectorPos == 0)
+            {
+                std::cout << collectionToLoadp->entitySerializers[i].entity.GetName() << std::endl;
+            }
+            
+            if (collectionToLoadp->entitySerializers[i].entity.GetName() != "dead") // delete this condition
+            {
+                Actor* actorp = new Actor(collectionToLoadp->entitySerializers[i].actor);
+                Tile* tilep = new Tile(static_cast<TileSprite>(collectionToLoadp->entitySerializers[i].spriteIntEnumVal), false, true, sf::Color::White, spritesVector);
+                
+                Entity recoveredEntity = collectionToLoadp->entitySerializers[i].entity;
+                recoveredEntity.SetActorComponent(actorp);
+                recoveredEntity.SetTile(tilep);
+                
+                Entity* newEntityp = new Entity(recoveredEntity);
+                newEntityp->tile->move(newEntityp->GetX() * C_TILE_IN_GAME_SIZE, newEntityp->GetY() * C_TILE_IN_GAME_SIZE);
+                loadedMap->LoadBlockingEntityBackOnMap(newEntityp);
+            }
         }
-        engine.LoadGameMap(spritesVector, loadedMap); // move everything here
+        engine.LoadGameMap(spritesVector, loadedMap);
+        engine.SetPlayer();
+        delete collectionToLoadp;
     }
-    
+
     // Show main menu <- not needed for NOW as it just adds something that takes time
     
     std::random_device rnd;
@@ -95,15 +119,31 @@ void App::run()
             std::filesystem::path execPath = std::filesystem::path(executableDirPath);
             std::ofstream ofs(GET_PATH_STR_WORKDIR_MACOS(execPath) + "/" + SAVE_DIR_NAME + "/" + "save.td", std::ios::binary);
             boost::archive::binary_oarchive o(ofs);
+  
+            engine.ClearGameMap();
             
+//            std::cout << "numOfEntities" << numOfEntities << std::endl;
+//            std::cout << "size of blockingEntities" << map_p->blockingEntities.size() << std::endl;
+//
             const Map* map_p = engine.GetGameMap();
-            unsigned int numOfEntities = map_p->GetNumberOfEntitiesOfCurrentLevel();
+            unsigned int numOfEntities = map_p->GetNumberOfEntitiesOfCurrentLevel(); // useless
             std::vector<td_entity_serializer> entitySerializers;
             
             /* TODO: Saving immediately after killing the worm doesn't work */
-            for (int i = 0; i < numOfEntities; i++)
+            // check what entities are saved, and how many are there.
+            // check if any weirdly killed entities are saved.
+            
+            // TODO: Update blockingEntitiesVector and Int2DVector
+            
+            for (int i = 0; i < engine.GetGameMap()->blockingEntities.size(); i++)
             {
-                Entity* e = map_p->blockingEntities[i]; // If we don't pass a pointer, a copy is made that failes on destructor from td_serializer
+                Entity* e = map_p->blockingEntities[i]; // If we don't pass a pointer, a copy is made that fails on destructor from td_serializer
+                
+                // TODO: Add td_entity_serializer's "needsActorComponent".
+                //       In that way, we know we should initialize it.
+                // Maybe this thing has something with handling how the monsters die?
+                // I think I didn't think through how the enemies are handled when they die.
+                // How they are handled in terms of beign wiped from the map.
                 
                 if (e != nullptr)
                 {
@@ -121,22 +161,12 @@ void App::run()
                     entitySerializers.push_back(serializer);
                 } else
                 {
-                    std::cout << "Dead entity, push serializer with dead entity!" << std::endl;
-                    td_entity_serializer serializer;
-                    Entity ec;
-                    Tile fakeTile{};
-                    fakeTile.SetSpriteEnumVal(TileSprite::STAIRS_DOWN);
-                    ec.SetTile(&fakeTile);
-                    ec.SetName("dead");
-                    serializer.SetEntityToSerialize(ec);
-                    serializer.SetTileSpriteToSerialize(TileSprite::BRICK_WALL_1);
-                    entitySerializers.push_back(serializer);
+                    std::cout << "Fatal error - nullptr in blockingEntities after cleanup!" << std::endl;
+                    exit(0);
                 }
             }
             
             td_serialization_collection collection{*map_p, entitySerializers}; // when setting up breakpoint here, it !sometimes! crashes, claiming it cannot serialize some data regarding to wall actor fields
-            
-            std::cout << "SAVED ENTITIES: " << map_p->GetNumberOfEntitiesOfCurrentLevel() << std::endl;
             
             o << collection;
             // TODO: Iterate through levels and save num of entities for each level.

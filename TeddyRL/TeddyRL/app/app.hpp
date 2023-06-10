@@ -28,6 +28,7 @@ public:
     App(const std::string execPath);
     
     ~App();
+    
     void run();
     Tileset SetTileset(const std::string tilesetPath);
 };

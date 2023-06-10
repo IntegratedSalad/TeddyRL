@@ -108,7 +108,12 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, std::mt19937& rng)
                 
                 std::cout << attackerEntityPointer->GetName() + " attacks " << targetEntityPointer->GetName() << std::endl;
                 
+                /* Killing entities. */
+                
+                /* Free space in the blockingEntitiesInt2DVector */
+                /* Point the dead entity in blockingEntities to nullptr */
                 gameMap->RemoveEntityFromMap(targetEntityPointer);
+                /* Free memory of the entity and its components */
                 gameMap->KillEntity(targetEntityPointer);
                 std::cout << targetEntityPointer->GetName() << " dies!" << std::endl;
             }
@@ -160,8 +165,12 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, std::mt19937& rng)
                             Entity* targetEntityPointer = gameMap->GetBlockingEntityPointerFromEntityVectorPos(targetVecPos);
                             
                             std::cout << performerEntityPointer->GetName() << " attacks: " << targetEntityPointer->GetName() << std::endl;
+                            /* Killing entities. */
                             
+                            /* Free space in the blockingEntitiesInt2DVector */
+                            /* Point the dead entity in blockingEntities to nullptr */
                             gameMap->RemoveEntityFromMap(targetEntityPointer);
+                            /* Free memory of the entity and its components */
                             gameMap->KillEntity(targetEntityPointer);
                             std::cout << targetEntityPointer->GetName() << " dies!" << std::endl;
                             
@@ -512,4 +521,9 @@ std::vector<Entity* > Engine::FindEntitiesInCameraRange(const std::vector<Entity
         }
     }
     return v;
+}
+
+void Engine::ClearGameMap(void)
+{
+    this->gameMap->Clear();
 }

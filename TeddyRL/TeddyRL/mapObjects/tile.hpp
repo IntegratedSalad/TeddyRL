@@ -37,7 +37,6 @@ enum class TileSprite
 
 typedef struct Tile : public sf::RectangleShape
 {
-
     bool canBlock;
     bool isInvisible;
     
@@ -46,6 +45,7 @@ typedef struct Tile : public sf::RectangleShape
     Tile(bool blocks);
     Tile();
     
+#warning Default constructor for tile
     Tile(TileSprite, bool isInvisible, bool blocks, sf::Color, const std::vector<sf::Sprite> spritesVector); // make use of that
     
     ~Tile();
