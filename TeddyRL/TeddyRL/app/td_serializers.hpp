@@ -14,6 +14,8 @@
 #include "entity.hpp"
 #include "map.hpp"
 
+#define TD_SER_NEEDS_ACTOR_COMP 0x1
+
 enum class AIType;
 
 inline unsigned int AITypeToUInt(AIType ait)
@@ -53,6 +55,7 @@ struct td_entity_serializer
         ar & entity;
         ar & spriteIntEnumVal;
         ar & actor;
+        ar & FLAGS;
     }
     
     td_entity_serializer(Entity e, TileSprite ts, Actor a) : entity(e), actor(a)
@@ -68,6 +71,7 @@ struct td_entity_serializer
     void SetTileSpriteToSerialize(TileSprite ts) { this->spriteIntEnumVal = TileSpriteToUInt(ts);}
     void SetActorToSerialize(Actor a) { this->actor = a;}
     
+    unsigned char FLAGS = 0;
 };
 
 struct td_serialization_collection

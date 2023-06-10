@@ -205,9 +205,7 @@ void Map::Clear(void)
         
         debugCounter++;
     }
-    
-    
-    
+
     // debug verify, can erase on release
     
     unsigned int positionInVector = 0;

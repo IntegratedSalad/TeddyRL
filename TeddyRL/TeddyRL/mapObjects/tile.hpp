@@ -46,7 +46,7 @@ typedef struct Tile : public sf::RectangleShape
     Tile();
     
 #warning Default constructor for tile
-    Tile(TileSprite, bool isInvisible, bool blocks, sf::Color, const std::vector<sf::Sprite> spritesVector); // make use of that
+    Tile(const unsigned int, bool isInvisible, bool blocks, sf::Color, const std::vector<sf::Sprite> spritesVector); // make use of that
     
     ~Tile();
     

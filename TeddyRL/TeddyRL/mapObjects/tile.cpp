@@ -33,13 +33,13 @@ Tile::Tile(bool isInvisible, bool blocks) : isInvisible(isInvisible), canBlock(b
 }
 
 #warning Default constructor for Tile
-Tile::Tile(TileSprite tileSpriteEnumVal, bool isInvisible, bool blocks, sf::Color color, const std::vector<sf::Sprite> spritesVector) : isInvisible(isInvisible), canBlock(blocks)
+Tile::Tile(const unsigned int tileSpriteIntVal, bool isInvisible, bool blocks, sf::Color color, const std::vector<sf::Sprite> spritesVector) : isInvisible(isInvisible), canBlock(blocks)
 {
     // TODO: Use this constructor as a default
-    sf::Sprite sprite = spritesVector.at(static_cast<int>(tileSpriteEnumVal));
-    this->SetTexture(sprite, color);
+    sf::Sprite sprite = spritesVector.at(tileSpriteIntVal);
+    this->SetTexture(sprite, color); // changes the tileSpriteIntVal
     this->setSize(sf::Vector2f(C_TILE_IN_GAME_SIZE, C_TILE_IN_GAME_SIZE));
-    // TODO: set tileSpriteEnumVal
+    this->spriteEnumVal = static_cast<TileSprite>(tileSpriteIntVal);
 }
 
 Tile::~Tile()

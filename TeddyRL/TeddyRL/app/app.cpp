@@ -74,13 +74,23 @@ void App::run()
             if (collectionToLoadp->entitySerializers[i].entity.GetName() != "dead") // delete this condition
             {
                 Actor* actorp = new Actor(collectionToLoadp->entitySerializers[i].actor);
-                Tile* tilep = new Tile(static_cast<TileSprite>(collectionToLoadp->entitySerializers[i].spriteIntEnumVal), false, true, sf::Color::White, spritesVector);
+                Tile* tilep = new Tile(collectionToLoadp->entitySerializers[i].spriteIntEnumVal, false, true, sf::Color::White, spritesVector);
                 
                 Entity recoveredEntity = collectionToLoadp->entitySerializers[i].entity;
-                recoveredEntity.SetActorComponent(actorp);
-                recoveredEntity.SetTile(tilep);
+//                recoveredEntity.SetActorComponent(actorp);
+//                recoveredEntity.SetTile(tilep);
                 
                 Entity* newEntityp = new Entity(recoveredEntity);
+                
+                if (collectionToLoadp->entitySerializers[i].FLAGS & TD_SER_NEEDS_ACTOR_COMP)
+                {
+                    newEntityp->SetActorComponent(actorp);
+                } else
+                {
+                    delete actorp;
+                }
+                
+                newEntityp->SetTile(tilep);
                 newEntityp->tile->move(newEntityp->GetX() * C_TILE_IN_GAME_SIZE, newEntityp->GetY() * C_TILE_IN_GAME_SIZE);
                 loadedMap->LoadBlockingEntityBackOnMap(newEntityp);
             }
@@ -156,6 +166,7 @@ void App::run()
                     serializer.SetTileSpriteToSerialize(ts);
                     if (ec.GetActorComponent() != nullptr)
                     {
+                        serializer.FLAGS |= TD_SER_NEEDS_ACTOR_COMP;
                         serializer.SetActorToSerialize(*ec.GetActorComponent());
                     }
                     entitySerializers.push_back(serializer);
