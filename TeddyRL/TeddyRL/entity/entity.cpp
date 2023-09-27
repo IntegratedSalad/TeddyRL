@@ -39,6 +39,7 @@ Entity::Entity(const Entity& ec) : x(ec.x), y(ec.y), name(ec.name), blockingEnti
 ActionResult Entity::MoveOrBump(int moveX, int moveY, Int2DVec& intVec, std::vector<Entity* > entityVector)
 {
     int indexAtPositionOfMove = intVec[this->x + moveX][this->y + moveY];
+    std::cout << indexAtPositionOfMove << std::endl;
 
     Entity* playerPointer = entityVector[0];
     

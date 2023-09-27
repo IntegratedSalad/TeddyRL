@@ -10,6 +10,7 @@
 #include "tile.hpp"
 #include "entity.hpp"
 #include "actor.hpp"
+#include "utils.hpp"
 
 Map::Map()
 {
@@ -30,11 +31,20 @@ Map::Map(const std::vector<sf::Sprite> sv) : spritesVector(sv)
 
 Map::Map(const Map& cm, const std::vector<sf::Sprite> sv) : levelInformationStruct(cm.levelInformationStruct), spritesVector(sv), blockingEntitiesInt2DVector(cm.blockingEntitiesInt2DVector)
 {
+    const unsigned int toReserve = cm.levelInformationStruct.numOfEntities + 1;
+    this->blockingEntities.resize(toReserve);
 }
 
 Map::~Map()
 {
 }
+
+/*
+ The difference between PlaceBlockingEntityOnMap and LoadBlockingEntityBackOnMap
+ is that besides setting the position (thus in part-initializing the entity), Place...() pushes back
+ an entity pointer onto a new empty place at blockingEntities. Load...() doesn't place new pointer,
+ it changes the pointer in place.
+ */
 
 bool Map::PlaceBlockingEntityOnMap(Entity* entity, int x, int y)
 {
@@ -50,10 +60,9 @@ bool Map::PlaceBlockingEntityOnMap(Entity* entity, int x, int y)
 
 void Map::LoadBlockingEntityBackOnMap(Entity* entity)
 {
-//    std::vector<Entity *>::iterator it;
-//    it = this->blockingEntities.begin() + entity->blockingEntitiesVectorPos;
-//    this->blockingEntities.insert(it, entity);
-    this->blockingEntities.push_back(entity); // they go ordered anyway.
+    const unsigned int idx = entity->blockingEntitiesVectorPos;
+    this->blockingEntities.at(idx) = entity;
+    this->blockingEntitiesInt2DVector[entity->GetX()][entity->GetY()] = entity->blockingEntitiesVectorPos;
 }
 
 void Map::RemoveEntityFromMap(Entity* entity)
@@ -86,12 +95,16 @@ void Map::drawEnclosingSquare(sf::Sprite wallSprite)
             if (j == 0 || i == 0 || j == C_MAP_SIZE - 1 || i == C_MAP_SIZE - 1)
             {
                 Tile* wallTile = new Tile{false, true, wallSprite, sf::Color::White};
-                
+#warning As it is with multiple blocks generated, shouldn't they have the same reference? \
+         Allocate memory for the Entity object (wall) and place the same object in memory \
+         at different locations.
                 // TODO: Remove this when we use default constructor for Tile!
                 wallTile->SetSpriteEnumVal(TileSprite::BRICK_WALL_1);
                 
                 Entity* wall = new Entity{wallTile, "Wall", i, j};
                 PlaceBlockingEntityOnMap(wall, i, j);
+#warning Very important!
+                // TODO: Encompass this into a standard method for creating an entity.
             }
         }
     }
@@ -99,7 +112,7 @@ void Map::drawEnclosingSquare(sf::Sprite wallSprite)
 
 void Map::GenerateLevel()
 {
-    // Each wall can have the same pointer to the tile. It won't get destructed, so why have different pointers?
+    // Each wall can have the same pointer to the tile. It won't get destroyed, so why have different pointers?
     
     // Each wall should have a reference to sprite and tile?
     
@@ -109,32 +122,37 @@ void Map::GenerateLevel()
 #warning if memory gets bloated by any of this, we will have to redesign tile memory management.
     
     std::uniform_int_distribution<std::mt19937::result_type> rand_pos(1, C_MAP_SIZE - 1);
-    std::uniform_int_distribution<std::mt19937::result_type> rand_num(300, 500);
+    std::uniform_int_distribution<std::mt19937::result_type> rand_num(500, 1000);
+    
+    // TODO: Roll die function
     
     const int randNumOfMonsters = rand_num(rng);
     
     sf::Sprite enemySprite = spritesVector[static_cast<int>(TileSprite::SNAKE)];
     sf::Sprite wallSprite = spritesVector[128];
 
-    drawEnclosingSquare(wallSprite);
+//    drawEnclosingSquare(wallSprite);
     
-    for (int i = 0; i < randNumOfMonsters; i++)
-    {
-       Entity* e = Entity::CreateNewEntityFromSprite(enemySprite, "Worm", false, true, sf::Color::White, rand_pos(rng), rand_pos(rng)); // TODO: change this function to have TileSprite as an argument
-        PlaceBlockingEntityOnMap(e, e->GetX(), e->GetY());
-        
-        // TODO: Remove this after using default constructor for Tile
-        
-        e->tile->SetSpriteEnumVal(TileSprite::SNAKE);
-        
-        // TODO: Use new method for setting up AI.
-        
-        Actor* acp = new Actor();
-        RandomAI* raip = new RandomAI();
-        acp->SetAI(raip);
-        e->SetActorComponent(acp);
-        acp->SetAIType(AIType::RANDOM);
-    }
+    BSPAlgorithm dAlgo = BSPAlgorithm{this, wallSprite};
+    dAlgo.GenerateLevel(rng);
+    
+//    for (int i = 0; i < randNumOfMonsters; i++)
+//    {
+//       Entity* e = Entity::CreateNewEntityFromSprite(enemySprite, "Worm", false, true, sf::Color::White, rand_pos(rng), rand_pos(rng)); // TODO: change this function to have TileSprite as an argument
+//        PlaceBlockingEntityOnMap(e, e->GetX(), e->GetY());
+//
+//        // TODO: Remove this after using default constructor for Tile
+//
+//        e->tile->SetSpriteEnumVal(TileSprite::SNAKE);
+//
+//        // TODO: Use new method for setting up AI.
+//
+//        Actor* acp = new Actor();
+//        RandomAI* raip = new RandomAI();
+//        acp->SetAI(raip);
+//        e->SetActorComponent(acp);
+//        acp->SetAIType(AIType::RANDOM);
+//    }
 }
 
 Entity* Map::GetBlockingEntityPointerFromLocation(int x, int y) const
@@ -217,4 +235,99 @@ void Map::Clear(void)
             break;
         }
     }
+}
+
+DungeonAlgorithm::~DungeonAlgorithm()
+{
+}
+
+/* Dungeon Algorithm implements these methods, we don't need to get map_p, it's a property of the base class! */
+
+void DungeonAlgorithm::CreateSquareRoom(int x, int y, int w, int h) // creates hollow room surrounded by walls
+{
+}
+
+
+void DungeonAlgorithm::PlaceWall(int x, int y)
+{
+    Entity* we = Entity::CreateNewEntityFromSprite(defaultSpriteForWalls, "Wall", false, true, sf::Color::White, x, y); // add tile sprite enum value to this initializer!!!
+    
+    we->tile->SetSpriteEnumVal(TileSprite::BRICK_WALL_1);
+    map_p->PlaceBlockingEntityOnMap(we, x, y);
+}
+
+
+void DungeonAlgorithm::CarveWall(int x, int y)
+{
+#warning Important!
+    // TODO: Check for existing Wall
+    Entity* wallToCarve = map_p->GetBlockingEntityPointerFromLocation(x, y);
+    map_p->RemoveEntityFromMap(wallToCarve);
+    delete wallToCarve;
+}
+
+
+void DungeonAlgorithm::CarveSquareRoom(int x, int y, int w, int h)
+{
+    for (int i = 0; i < w; i++)
+    {
+        for (int j = 0; j < h; j++)
+        {
+            CarveWall(x + i, y + j);
+        }
+    }
+}
+
+
+void DungeonAlgorithm::CarveVerticalLine(int xBegin, int yBegin, int length)
+{
+    for (int i = 0; i < length; i++)
+    {
+        CarveWall(xBegin, yBegin + i);
+    }
+    // TODO: Test
+}
+
+
+void DungeonAlgorithm::CarveHorizontalLine(int xBegin, int yBegin, int length)
+{
+    for (int i = 0; i < length; i++)
+    {
+        CarveWall(xBegin, yBegin + i);
+    }
+    // TODO: Test
+}
+
+
+void DungeonAlgorithm::CarveLine(int xBegin, int yBegin, int xEnd, int yEnd)
+{
+    // Any line. Bresenham algorithm needed
+
+}
+
+
+void DungeonAlgorithm::FillMapWithWalls(void)
+{
+    for (unsigned int x = 0; x < C_MAP_SIZE; x++)
+    {
+        for (unsigned int y = 0; y < C_MAP_SIZE; y++)
+        {
+            PlaceWall(x, y);
+        }
+    }
+}
+
+/*
+ Generate level - entry point method for doing everything that BSPAlgorithm needs.
+ 
+ */
+void BSPAlgorithm::GenerateLevel(std::mt19937& rng)
+{
+    FillMapWithWalls();
+//    CarveSquareRoom(10, 10, 12, 12);
+    
+    // Initiate nodes etc..
+    Tree* nodeTree = new Tree; // why allocate this though?
+    // This will only be used to generate the level, it doesn't need to be allocated on heap.
+    
 }

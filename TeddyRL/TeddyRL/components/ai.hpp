@@ -18,15 +18,21 @@ class Map;
 class Actor;
 class Entity;
 
-enum class AIType // for serialization
+enum class AIType
 {
     NONE = 0xFF,
     RANDOM = 0xAA,
+    FRIEND = 0xFA,
+    SIMPLE = 0x1,
 };
 
 /* TODO: We do not serialize the AI class. Somehow we will have to remember the AI decision after saving.
          This is crucial when we get to the pathfinding - so that AI doesn't calculate new path or new action after loading the save game.
  */
+
+class FSM // Finite State Machine for some AIs
+{
+};
 
 class AI
 {

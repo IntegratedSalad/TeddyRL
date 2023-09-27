@@ -64,7 +64,17 @@ public:
     
     void ClearGameMap(void);
     
-    void SetPlayer(void) {this->player = this->gameMap->blockingEntities[0];}
+    void SetPlayer(void)
+    {
+        const auto mp_v = this->gameMap->blockingEntities;
+        for (auto it = mp_v.begin(); it != mp_v.end(); ++it)
+        {
+            Entity* ep = *it;
+            if (ep->GetName() == TEDDY_NAME_BASE) { this->player = ep; break; }
+        }
+        assert(this->player != nullptr);
+    }
+    
     Entity* GetPlayer(void) {return this->player;}
 
     void RenderAll(Int2DVec, std::vector<Entity* > entityVector, sf::RenderWindow* window, const Map&, const Entity* cameraPointer) const;
@@ -83,7 +93,6 @@ public:
     void SetupNewGameMap(const std::vector<sf::Sprite> spritesVector);
     void LoadGameMap(const std::vector<sf::Sprite> spritesVector, Map* mp);
     std::vector<Entity* > FindEntitiesInCameraRange(const std::vector<Entity*> entities, const Entity *cameraPointer) const;
-    
     
 };
 

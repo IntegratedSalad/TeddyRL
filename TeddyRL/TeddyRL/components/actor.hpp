@@ -51,10 +51,14 @@ public:
     Actor(const Actor&);
     ~Actor();
     
-    void SetAI(AI* aip) {this->ai = aip;}
+    void SetAI(AI* aip) {this->ai = aip;} // should be made private
     void SetAIType(AIType t) {this->typeOfAI = t;}
     void SetupAI(AIType t);
-    
+    void ClearAI(void)
+    {
+        delete this->ai;
+        this->ai = nullptr;
+    }
     AIType GetAIType(void) {return this->typeOfAI;}
     AI* GetAI(void) {return this->ai;}
     

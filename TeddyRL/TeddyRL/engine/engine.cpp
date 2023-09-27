@@ -7,6 +7,7 @@
 
 #include "drawing_utils.hpp"
 #include <random>
+#include <algorithm>
 
 static bool debugModeOn = false;
 static bool isShiftPressed = false; // only because on macOS whitelisting input monitoring doesn't work...
@@ -468,12 +469,10 @@ EngineState Engine::RenderGameOver(sf::RenderWindow* window) const
 void Engine::SetupNewGameMap(const std::vector<sf::Sprite> spritesVector)
 {
     // TODO: Huge thing to do is to standardize creation of entities. Do not set manually class' fields after using a constructor. Constructor should handle all the initialization and setup.
-    
+#warning Important!
     Map* mp = new Map(spritesVector);
     mp->SetupLevelInformation();
-    
-    // Set up player
-    
+        
     // Make Level
     
     sf::Sprite playerSprite = spritesVector[73];
@@ -487,14 +486,16 @@ void Engine::SetupNewGameMap(const std::vector<sf::Sprite> spritesVector)
     pacp->SetAI(nullptr); // TODO: This has to be done automatically in a constructor of an Actor
     pacp->SetAIType(AIType::NONE); // player is a special entity that has an actor component but doesn't have an AI.
     
-    Entity* player = new Entity{playerTile, "Teddy", 4, 4};
+    // Setup player.
+    
+    Entity* player = new Entity{playerTile, TEDDY_NAME_BASE, 12, 12};
     player->SetActorComponent(pacp);
-    /* player is manually added before every entity, its entityVectorPos is 0. */
-
-    mp->PlaceBlockingEntityOnMap(player, player->GetX(), player->GetY());
-    this->player = player;
     
     mp->GenerateLevel(); // this is only a method to intialize a new game, not for loading the map!
+    
+    mp->PlaceBlockingEntityOnMap(player, player->GetX(), player->GetY());
+    
+    this->player = player;
     
     std::cout << mp->blockingEntities.size() << std::endl;
     this->gameMap = mp;

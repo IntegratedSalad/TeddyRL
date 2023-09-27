@@ -26,3 +26,68 @@ int DistanceBetweenTwoEntities(const Entity& e1, const Entity& e2)
 {
     return sqrt( pow(abs(e1.GetY() - e2.GetY()), 2.0) + pow(abs(e1.GetX() - e2.GetX()), 2.0) );
 }
+
+// Maybe write function returnRNFromRange or something.
+
+typedef std::uniform_int_distribution<std::mt19937::result_type> RNG;
+unsigned int rollDie(Die dType, std::mt19937& mtRef)
+{
+    unsigned int result = 0;
+    switch (dType)
+    {
+        case Die::D4:
+        {
+            RNG d4(1, 4);
+            result = d4(mtRef);
+            break;
+        }
+        case Die::D6:
+        {
+            RNG d6(1, 6);
+            result = d6(mtRef);
+            break;
+        }
+        case Die::D8:
+        {
+            RNG d8(1, 8);
+            result = d8(mtRef);
+            break;
+        }
+        case Die::D10:
+        {
+            RNG d10(1, 10);
+            result = d10(mtRef);
+            break;
+        }
+        case Die::D00:
+        {
+            // TODO: Implement D00
+            std::cout << "D00 Not implemented." << std::endl;
+            break;
+        }
+        case Die::D12:
+        {
+            RNG d12(1, 12);
+            result = d12(mtRef);
+            break;
+        }
+        case Die::D20:
+        {
+            RNG d20(1, 20);
+            result = d20(mtRef);
+            break;
+        }
+        default:
+            break;
+    }
+    assert(result >= 1);
+    return result;
+}
+
+unsigned int randomNumInRange(unsigned int low, unsigned int up, std::mt19937& mtRef)
+{
+    unsigned int result = 0;
+    RNG randInt(low, up);
+    result = randInt(mtRef);
+    return result;
+}
