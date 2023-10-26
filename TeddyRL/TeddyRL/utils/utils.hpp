@@ -35,6 +35,6 @@ int DistanceBetweenTwoEntities(const Entity& e1, const Entity& e2);
 // TODO: BresenhamLine
 
 unsigned int rollDie(Die, std::mt19937&);
-unsigned int randomNumInRange(unsigned int low, unsigned int up, std::mt19937& mtRef);
+unsigned int randomNumInRange(unsigned int low, unsigned int high, std::mt19937& mtRef);
 
 #endif /* utils_hpp */

@@ -70,7 +70,7 @@ void Map::RemoveEntityFromMap(Entity* entity)
     this->blockingEntitiesInt2DVector[entity->GetX()][entity->GetY()] = -1;
     
     // Do not erase() this vector, because effectively it changes the size, creating problems.
-    // Setting to nullptr maybe keeps the size unchanged, but its easy to manage (just check if the entity isn't a nullptr.
+    // Setting to nullptr keeps the size unchanged, but its easy to manage (just check if the entity isn't a nullptr.
     //this->blockingEntities.erase(this->blockingEntities.begin() + entity->blockingEntitiesVectorPos); // erase from entities.
     this->blockingEntities[entity->blockingEntitiesVectorPos] = nullptr;
 //    if (levelInformationStruct.numOfEntities > 0)
@@ -262,6 +262,7 @@ void DungeonAlgorithm::CarveWall(int x, int y)
 #warning Important!
     // TODO: Check for existing Wall
     Entity* wallToCarve = map_p->GetBlockingEntityPointerFromLocation(x, y);
+    // if not nullptr
     map_p->RemoveEntityFromMap(wallToCarve);
     delete wallToCarve;
 }
@@ -317,6 +318,13 @@ void DungeonAlgorithm::FillMapWithWalls(void)
     }
 }
 
+
+void BSPAlgorithm::BuildLevel(std::mt19937& rng, std::unique_ptr<BSPTree> bspTree_p)
+{
+    // Build entire level.
+}
+
+
 /*
  Generate level - entry point method for doing everything that BSPAlgorithm needs.
  
@@ -327,7 +335,29 @@ void BSPAlgorithm::GenerateLevel(std::mt19937& rng)
 //    CarveSquareRoom(10, 10, 12, 12);
     
     // Initiate nodes etc..
-    Tree* nodeTree = new Tree; // why allocate this though?
-    // This will only be used to generate the level, it doesn't need to be allocated on heap.
+    LOG_MAP("Building node tree...")
+    std::unique_ptr<BSPTree> nodeTree = BuildNodeTree(rng);
+//    LOG_MAP("Printing tree...")
+//    nodeTree->PrintTree();
+#warning Remember - first half of the level is A, other half is B
+#warning Node's parent is the enclosing node. Parent's children is the division of the parent.
+    LOG_MAP("Making rooms")
+    BuildLevel(rng, std::move(nodeTree));
     
+    exit(0);
+}
+
+std::unique_ptr<BSPTree> BSPAlgorithm::BuildNodeTree(std::mt19937& rng)
+{
+    std::unique_ptr<BSPTree> bspTree_p(std::make_unique<BSPTree>());
+    /* Effectively, BSPAlgorithm will create room data.
+     BSPTree and Node are just to form a BSPTree.
+     
+     */
+    /* We can "animate" the tree creation, by later going over the tree in engine, firstly getting the Nodes, and then the actual rooms.
+     */
+    bspTree_p->treeLeavesNum = bspTree_p->Grow(N_LEVELS_BSP_MAX);
+    // TODO: add every leaf to leaves of bspTree_p
+    
+    return bspTree_p;
 }

@@ -13,9 +13,21 @@
 #include "entity.hpp"
 #include "constants.hpp"
 #include <random>
+#include <memory>
+#include <list>
+#include <math.h>
+#include <iomanip>
+#include <sstream>
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/serialization/vector.hpp>
+
+#define N_LEVELS_BSP_MAX 5 //5
+
+#define LOG_MAP(x) std::cout << "LOG_MAP:\n " << (x) << std::endl;
+// TODO: Build that macro, so I can add variadic arguments and print more than one thing
+
+// TODO: Move LOG utilities to utils.h
 
 /* Because you will be able to go back to the previous levels, every level map will be initialized, and kept in a vector. */
 
@@ -65,6 +77,7 @@ typedef struct LevelInfo
     unsigned int numOfItems;
     
     // Possible need of expanding this structure to hold rooms info.
+    // Rooms number is just leaves vector size from BSPTree.
     
     template <class Archive>
     void serialize(Archive& ar, const unsigned int version)
@@ -155,17 +168,237 @@ public:
 
 typedef struct Node
 {
-    Node* parentNode;
-    Node* childrenNodes[2];
+    std::shared_ptr<Node> parentNode;
+    std::shared_ptr<Node> childrenNodes[2];
     Room nodeData;
     Room roomData;
+    
+    Node(std::shared_ptr<Node> parent)
+    {
+        this->parentNode = parent;
+    }
+    // attachChildrenNodes
+    
+    Node()
+    {
+        
+    }
+    
 } Node;
 
-typedef struct Tree
+typedef struct BSPTree
 {
-    Node* rootNode;
-    std::vector<Node*> leaves;
-} Tree;
+    std::shared_ptr<Node> rootNode;
+    std::vector<std::shared_ptr<Node>> leaves; // not needed
+    std::vector<std::unique_ptr<Node>> bottomLeaves; // not needed
+    unsigned int treeLeavesNum = 0;
+    
+    std::shared_ptr<Node> GetSisterNode(std::shared_ptr<Node> node)
+    {
+        std::shared_ptr<Node> sister;
+        std::shared_ptr<Node> parent = node->parentNode; // go to parent
+        sister = parent->childrenNodes[0]; // assign 1st element
+        if (sister == node) { sister = parent->childrenNodes[1]; } // check if first element is this node. If yes, sister is the second node.
+        return sister;
+    }
+    
+    unsigned int GrowLeavesOnLevel(unsigned int level, std::list<std::shared_ptr<Node>>& previouslyGrownLeaves) // should be  private
+    {
+        unsigned int leavesOnThisLevel = (unsigned int)std::pow(2, level);
+        unsigned int createdLeaves = 0;
+        std::list<std::shared_ptr<Node>> leavesToGrow; // leaves that will be grown now.
+//        std::shared<
+        
+        for (auto leaf : previouslyGrownLeaves)
+        {
+//            LOG_MAP(leaf->parentNode != nullptr)
+            /* this can be a function */
+            std::shared_ptr<Node> firstChildNode = std::make_shared<Node>(leaf);
+            std::shared_ptr<Node> secondChildNode = std::make_shared<Node>(leaf);
+            leaf->childrenNodes[0] = firstChildNode;
+            leaf->childrenNodes[1] = secondChildNode;
+            /*  */
+            leavesToGrow.push_back(firstChildNode);
+            leavesToGrow.push_back(secondChildNode);
+            createdLeaves++;
+        }
+        
+        previouslyGrownLeaves.clear();
+        std::copy(leavesToGrow.begin(), leavesToGrow.end(), std::back_inserter(previouslyGrownLeaves));
+        previouslyGrownLeaves = leavesToGrow;
+        assert(leavesOnThisLevel == createdLeaves);
+        std::cout << createdLeaves << std::endl;
+        return createdLeaves;
+    }
+    
+    void PrintTree(void)
+    {
+        // TODO: Fix, it's printing in the wrong way.
+        std::ostringstream outTree;
+        int numOfLeavesPerLevel = 0;
+        const unsigned int offsetBegin = this->treeLeavesNum;
+        unsigned int offsetL = offsetBegin;
+        unsigned int offsetR = offsetBegin;
+        const char charA = 'A';
+        const char charB = 'B';
+        int idx = 1;
+        std::list<std::shared_ptr<Node>> list;
+        outTree << std::setw(offsetBegin);
+        
+        for (int l = 0; l < N_LEVELS_BSP_MAX; l++)
+        {
+            numOfLeavesPerLevel = std::pow(2, l);
+            GetAllLeavesOnLevel(l, list);
+            assert(list.empty() == false);
+            std::list<std::shared_ptr<Node>> listL;
+            std::list<std::shared_ptr<Node>> listR;
+            auto iterToHalf = list.begin();
+            std::advance(iterToHalf, list.size() / 2);
+            std::copy(list.begin(), iterToHalf, std::back_inserter(listL));
+            std::copy(iterToHalf, list.end(), std::back_inserter(listR)); // not needed
+            if (list.size() > 1)
+                assert(listL.size() == listR.size());
+            
+            int helperIndex = 1;
+            for (const auto node : list)
+            {
+                if (node->parentNode == nullptr)
+                {
+                    outTree << 'R';
+                    offsetL -= 2;
+                    offsetR += 2;
+                    std::cout << outTree.str();
+                    outTree.str(std::string());
+//                    continue;
+                } else
+                {
+                    if (helperIndex <= numOfLeavesPerLevel / 2) // first half - A
+                    {
+                        outTree << std::setw(offsetL);
+                        outTree << charA << idx;
+                        offsetL -= 2;
+                        std::cout << outTree.str();
+                    } else // second half - B
+                    {
+                        outTree << std::setw(offsetR);
+                        outTree << charB << idx;
+                        offsetR += 2;
+                        std::cout << outTree.str();
+                    }
+                    helperIndex++;
+                    idx++;
+                }
+                outTree.str(std::string());
+                outTree << "\n";
+            }
+            list.clear();
+            helperIndex = 1;
+//            std::cout << outTree.str();
+        }
+    }
+    
+    // Maybe generate combinations?
+    
+    // For example:
+    /*
+     Getting all 2nd level nodes:
+     Combinations num: 2 -> [0 0] [0 1] [1 0] [1 1]
+     
+     Getting all 3rd level nodes:
+     Combinations num: 3 -> [0 0 0] [0 0 1] [0 1 0] [0 1 1]
+                            [1 0 0] [1 0 1] [1 1 0] [1 1 1]
+     
+     */
+    
+    void GetAllLeavesOnLevel(const unsigned int level, std::list<std::shared_ptr<Node>>& leaves)
+    {
+        // TODO: This could be a recursive function
+//        std::list<std::shared_ptr<Node>> list;
+        const unsigned int totalLeavesOnLevel = std::pow(2, level);
+        if (level <= 0)
+        {
+            leaves.push_back(this->rootNode);
+            return;
+        }
+        else if (level == 1)
+        {
+            leaves.push_back(this->rootNode->childrenNodes[0]);
+            leaves.push_back(this->rootNode->childrenNodes[1]);
+            return;
+        }
+        else
+        {
+            int combinationsBitField = 0; // 32 bit
+            std::shared_ptr<Node> currentNode = this->rootNode;
+            const unsigned int totalCombinations = std::pow(2, level);
+            for (int i = 0; i < totalCombinations; i++)
+            {
+                for (int j = 0; j < level; j++)
+                {
+                    const bool index = (combinationsBitField << ((level -1) - j) & 1) == 1;
+//                    currentNode = currentNode->childrenNodes[
+//                    ((combinationsBitField << ((level - 1) - j)) & 1) == 1 ];
+                    // This will "scroll" bits in the combinationBitField from left to right accessing the combination of childrenNodes.
+                    
+                    currentNode = currentNode->childrenNodes[index];
+                }
+                
+                leaves.push_back(currentNode);
+                combinationsBitField++;
+                currentNode = this->rootNode;
+            }
+        }
+        assert(leaves.size() == totalLeavesOnLevel);
+    }
+    
+    [[nodiscard]] std::shared_ptr<Node> GetCousin(std::shared_ptr<Node> node, unsigned int level)
+    {
+        /* Cousin is a node that has the same grandparent but not the same parent. */
+        /* Method will return first node in the childrenNodes array */
+        /* Level 0 has 0 cousins (of a one node)
+           Level 1 has 0 cousins (of a one node)
+           Level 2 has 2 cousins (of a one node)
+           Level 3 has 3 cousins (of a one node)
+           ...
+         */
+        std::shared_ptr<Node> currentNode;
+        
+    }
+    
+    BSPTree(void)
+    {
+        std::shared_ptr<Node> rootNode_p(std::make_shared<Node>(nullptr));
+        rootNode = rootNode_p;
+    }
+    
+    /* Make tree and return num of leaves. */
+    unsigned int Grow(unsigned int levels)
+    {
+        std::shared_ptr<Node> currentNode = this->rootNode;
+        std::list<std::shared_ptr<Node>> leavesGrown;
+        currentNode->childrenNodes[0] = std::make_shared<Node>(currentNode);
+        currentNode->childrenNodes[1] = std::make_shared<Node>(currentNode);
+        leavesGrown.push_back(currentNode->childrenNodes[0]);
+        leavesGrown.push_back(currentNode->childrenNodes[1]);
+        this->leaves.push_back(currentNode->childrenNodes[0]);
+        this->leaves.push_back(currentNode->childrenNodes[1]);
+        
+        // Make list of previously created leaves. We won't be needing to traverse
+        // the tree from root, but keep track of previously created leaves.
+        
+        unsigned int leavesCreated = 0;
+        for (unsigned int level = 1; level < levels; level++)
+        {
+            leavesCreated += GrowLeavesOnLevel(level, leavesGrown);
+        }
+        return leavesCreated + 2; // we've manually created two
+    }
+    
+    // TODO: More methods to traverse BSPTree in order to generate leaves
+    // TODO: Traverse method, that will return pointer iteratively to each leaf
+    //       This will be used to generate room data.
+    
+} BSPTree;
 
 
 class DungeonAlgorithm
@@ -202,7 +435,6 @@ public:
  1. Initialize Tree data.
  2. Make walls.
 
-
  TODO: Question:
   What data should the Map have after generating dungeon with an algorithm?
   Will number of rooms, position of rooms and their types be needed?
@@ -221,9 +453,10 @@ public:
     {
     }
     void GenerateLevel(std::mt19937&);
-    Tree BuildNodeTree(std::mt19937&);
-    void BuildLevel(std::mt19937&);
-    void PopulateLevel(const Tree* const, std::mt19937&);
+    std::unique_ptr<BSPTree> BuildNodeTree(std::mt19937&);
+    void BuildLevel(std::mt19937& rng, std::unique_ptr<BSPTree> bspTree_p);
+    void BuildRoom(std::mt19937& rng, std::shared_ptr<Node> node_p);
+    void PopulateLevel(std::mt19937&, std::unique_ptr<BSPTree> bspTree_p);
 //    Tree*
 };
 

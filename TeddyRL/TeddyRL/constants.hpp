@@ -22,6 +22,8 @@
 #define C_CAMERA_RANGE 45
 #define C_CAMERA_SHIFT_OFFSET 2
 
-#define TEDDY_NAME_BASE "TEDDY"
+#define C_TEDDY_NAME_BASE "TEDDY"
+
+#define C_MAP_BSP_MAX_OFFSET_MIDDLE 10
 
 #endif /* constants_h */

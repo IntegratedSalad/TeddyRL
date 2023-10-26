@@ -70,7 +70,7 @@ public:
         for (auto it = mp_v.begin(); it != mp_v.end(); ++it)
         {
             Entity* ep = *it;
-            if (ep->GetName() == TEDDY_NAME_BASE) { this->player = ep; break; }
+            if (ep->GetName() == C_TEDDY_NAME_BASE) { this->player = ep; break; }
         }
         assert(this->player != nullptr);
     }

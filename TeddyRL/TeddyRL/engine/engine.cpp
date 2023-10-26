@@ -488,7 +488,7 @@ void Engine::SetupNewGameMap(const std::vector<sf::Sprite> spritesVector)
     
     // Setup player.
     
-    Entity* player = new Entity{playerTile, TEDDY_NAME_BASE, 12, 12};
+    Entity* player = new Entity{playerTile, C_TEDDY_NAME_BASE, 12, 12};
     player->SetActorComponent(pacp);
     
     mp->GenerateLevel(); // this is only a method to intialize a new game, not for loading the map!

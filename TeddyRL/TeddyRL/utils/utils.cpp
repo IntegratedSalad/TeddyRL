@@ -84,10 +84,10 @@ unsigned int rollDie(Die dType, std::mt19937& mtRef)
     return result;
 }
 
-unsigned int randomNumInRange(unsigned int low, unsigned int up, std::mt19937& mtRef)
+unsigned int randomNumInRange(unsigned int low, unsigned int high, std::mt19937& mtRef)
 {
     unsigned int result = 0;
-    RNG randInt(low, up);
+    RNG randInt(low, high);
     result = randInt(mtRef);
     return result;
 }
