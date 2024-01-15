@@ -133,7 +133,7 @@ void Map::GenerateLevel()
 
 //    drawEnclosingSquare(wallSprite);
     
-    BSPAlgorithm dAlgo = BSPAlgorithm{this, wallSprite};
+    BSPAlgorithm dAlgo = BSPAlgorithm{this, wallSprite}; // provide a list needed sprites
     dAlgo.GenerateLevel(rng);
     
 //    for (int i = 0; i < randNumOfMonsters; i++)
@@ -245,6 +245,8 @@ DungeonAlgorithm::~DungeonAlgorithm()
 
 void DungeonAlgorithm::CreateSquareRoom(int x, int y, int w, int h) // creates hollow room surrounded by walls
 {
+    FillSquareWithWalls(x, y, w, h);
+    CarveSquareRoom(x + 1, y + 1, w - 2, h - 2);
 }
 
 
@@ -263,8 +265,10 @@ void DungeonAlgorithm::CarveWall(int x, int y)
     // TODO: Check for existing Wall
     Entity* wallToCarve = map_p->GetBlockingEntityPointerFromLocation(x, y);
     // if not nullptr
+    if (wallToCarve == nullptr) return;
     map_p->RemoveEntityFromMap(wallToCarve);
     delete wallToCarve;
+    wallToCarve = nullptr;
 }
 
 
@@ -306,7 +310,6 @@ void DungeonAlgorithm::CarveLine(int xBegin, int yBegin, int xEnd, int yEnd)
 
 }
 
-
 void DungeonAlgorithm::FillMapWithWalls(void)
 {
     for (unsigned int x = 0; x < C_MAP_SIZE; x++)
@@ -318,10 +321,166 @@ void DungeonAlgorithm::FillMapWithWalls(void)
     }
 }
 
+void DungeonAlgorithm::FillSquareWithWalls(int x, int y, int w, int h)
+{
+    for (int i = 0; i < w; i++)
+    {
+        for (int j = 0; j < h; j++)
+        {
+            PlaceWall(x + i, y + j);
+        }
+    }
+}
+
+void BSPAlgorithm::PopulateLevel(std::mt19937& rng, std::unique_ptr<BSPTree> bspTree_p)
+{
+    /* Places player, enemies items, stairs etc... */
+    
+    LOG_MAP("Checking rootNode in PopulateLevel")
+    
+    std::shared_ptr<Node> root = bspTree_p->rootNode;
+    
+    root->childrenNodes[0]->nodeData.prettyPrint();
+    root->childrenNodes[1]->nodeData.prettyPrint();
+    
+    // place misio in first node
+    
+    
+    
+//    exit(0);
+    
+}
 
 void BSPAlgorithm::BuildLevel(std::mt19937& rng, std::unique_ptr<BSPTree> bspTree_p)
 {
     // Build entire level.
+    /*
+     This involves setting up node data (the max boundary of a room),
+     and then setting up actual room data, within confinments of that node.
+     After node data is set, room can be carved.
+     TODO: Decide upon how will corridors be created.
+     
+     */
+#warning Remember - first half of the level is A, other half is B
+    std::list<std::shared_ptr<Node>> nodeList;
+    
+    // Set root node and room data first
+    
+    unsigned int roomX  =  0;
+    unsigned int roomY  =  0;
+    unsigned int roomW  =  C_MAP_SIZE;
+    unsigned int roomH  =  C_MAP_SIZE;
+    RoomType     roomT  =  RoomType::RT_TREE_NODE;
+    
+    Room rootNodeData = {.x = roomX,
+                         .y = roomY,
+                         .w = roomW,
+                         .h = roomH,
+                         .t = roomT
+    };
+    bspTree_p->rootNode->SetNodeData(rootNodeData); // root encompases whole level
+    
+    unsigned int nodeOffset = rollDie(Die::D8, rng);
+    // this has to devide the level in two vertically and subtract/add the offset.
+    // We have to make sure, two nodes don't overlap.
+    // This requires a design
+    // First children will be the A node, second will be the B node.
+    
+    
+    // Testing intersection
+    
+    Room firstRoom = {.x = 0,
+                    .y = 0,
+                    .w = 5,
+                    .h = 5
+    };
+    Room secondRoom = {.x = 2,
+                       .y = 1,
+                       .w = 8,
+                       .h = 2
+    };
+    
+    Room thirdRoom = { .x = 4,
+                       .y = 0,
+                       .w = 2,
+                       .h = 5
+    };
+    Room fourthRoom = {.x = 0,
+                       .y = 4,
+                       .w = 5,
+                       .h = 2
+    };
+    
+    Room fifthRoom = {.x = 0,
+                      .y = 0,
+                      .w = 3,
+                      .h = 3
+    };
+    
+    Room sixthRoom = {.x = 0,
+                      .y = 4,
+                      .w = 3,
+                      .h = 3
+    };
+    
+    LOG_MAP("Testing intersection...")
+    assert(firstRoom.Intersects(secondRoom));
+    assert(secondRoom.Intersects(firstRoom));
+    assert(thirdRoom.Intersects(fourthRoom));
+    assert(fourthRoom.Intersects(thirdRoom));
+    assert(!fifthRoom.Intersects(sixthRoom));
+    assert(!sixthRoom.Intersects(fifthRoom));
+//    exit(0);
+    
+    bspTree_p->rootNode->nodeData = rootNodeData;
+    
+    rootNodeData.w = (rootNodeData.w / 2); //+ nodeOffset; // A node
+    //bspTree_p->rootNode->childrenNodes[0]->SetRoomData(<#Room data#>)
+    bspTree_p->rootNode->childrenNodes[0]->nodeData = rootNodeData;
+    
+    rootNodeData.w = C_MAP_SIZE - rootNodeData.w - 1; // B node
+    rootNodeData.x = rootNodeData.w;
+    bspTree_p->rootNode->childrenNodes[1]->nodeData = rootNodeData;
+    
+    LOG_MAP("A Node:")
+    bspTree_p->rootNode->childrenNodes[0]->nodeData.prettyPrint();
+    
+    LOG_MAP("B Node:")
+    bspTree_p->rootNode->childrenNodes[1]->nodeData.prettyPrint();
+    
+    CreateSquareRoom(bspTree_p->rootNode->childrenNodes[0]->nodeData.x,
+                     bspTree_p->rootNode->childrenNodes[0]->nodeData.y,
+                     bspTree_p->rootNode->childrenNodes[0]->nodeData.w,
+                     bspTree_p->rootNode->childrenNodes[0]->nodeData.h);
+    
+    CreateSquareRoom(bspTree_p->rootNode->childrenNodes[1]->nodeData.x,
+                     bspTree_p->rootNode->childrenNodes[1]->nodeData.y,
+                     bspTree_p->rootNode->childrenNodes[1]->nodeData.w,
+                     bspTree_p->rootNode->childrenNodes[1]->nodeData.h);
+    
+    // ^ two nodes as rooms for now (just to test it)
+    
+    // Create one room within these two nodes.
+    
+    // Place misio within one node
+    PopulateLevel(rng, std::move(bspTree_p));
+    
+//    exit(0);
+    return;
+    
+    for (int l = 2; l < N_LEVELS_BSP_MAX; l++)
+    {
+        bspTree_p->GetAllLeavesOnLevel(l, nodeList);
+        
+        for (auto leaf : nodeList)
+        {
+            
+        }
+        
+        nodeList.clear();
+    }
+    
+//    PopulateLevel(rng, std::move(bspTree_p));
 }
 
 
@@ -339,12 +498,11 @@ void BSPAlgorithm::GenerateLevel(std::mt19937& rng)
     std::unique_ptr<BSPTree> nodeTree = BuildNodeTree(rng);
 //    LOG_MAP("Printing tree...")
 //    nodeTree->PrintTree();
-#warning Remember - first half of the level is A, other half is B
 #warning Node's parent is the enclosing node. Parent's children is the division of the parent.
     LOG_MAP("Making rooms")
     BuildLevel(rng, std::move(nodeTree));
     
-    exit(0);
+//    exit(0);
 }
 
 std::unique_ptr<BSPTree> BSPAlgorithm::BuildNodeTree(std::mt19937& rng)

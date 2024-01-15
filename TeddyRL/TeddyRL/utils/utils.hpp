@@ -37,4 +37,6 @@ int DistanceBetweenTwoEntities(const Entity& e1, const Entity& e2);
 unsigned int rollDie(Die, std::mt19937&);
 unsigned int randomNumInRange(unsigned int low, unsigned int high, std::mt19937& mtRef);
 
+// TODO:  Make general assertion function
+
 #endif /* utils_hpp */

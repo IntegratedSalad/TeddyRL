@@ -62,6 +62,52 @@ typedef struct Room
     unsigned int h;
     RoomType     t;
     
+    bool Intersects(const Room& other)
+    {
+        // 1. Decide position
+        // 2. Decide if overlaps
+        
+        if (this->x >= other.x &&
+            this->y >= other.y)
+        {
+            if (other.w + other.x >= this->x &&
+                other.y + other.h >= this->y)
+            {
+                return true;
+            }
+        } else if (this->x >= other.x &&
+                   this->y <= other.y)
+        {
+            if (other.x + other.w >= this->y + this->h &&
+                this->y + this->h >= other.y)
+            {
+                return true;
+            }
+        } else if (this->x <= other.x &&
+                   this->y <= other.y)
+        {
+            if ((this->x + this->w) >= other.x
+                && (this->y + this->h) >= other.y)
+            {
+                return true;
+            }
+        } else if (this->x <= other.x &&
+                   this->y >= other.y)
+        {
+            if (this->x + this->w >= other.y + other.h)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    void prettyPrint(void)
+    {
+        std::cout << "Room is W:" << w << " by: H " << h << std::endl;
+        std::cout << "X: " << x << " Y: " << y << std::endl;
+    }
+    
 } Room;
 /* Add data from Algorithm (creation of levels):
    Where are rooms, and what is their dimension (we can then spawn enemies in them).
@@ -178,6 +224,16 @@ typedef struct Node
         this->parentNode = parent;
     }
     // attachChildrenNodes
+    
+    void SetNodeData(Room data)
+    {
+        this->nodeData = data;
+    }
+    
+    void SetRoomData(Room data)
+    {
+        this->roomData = data;
+    }
     
     Node()
     {
@@ -351,19 +407,18 @@ typedef struct BSPTree
         assert(leaves.size() == totalLeavesOnLevel);
     }
     
-    [[nodiscard]] std::shared_ptr<Node> GetCousin(std::shared_ptr<Node> node, unsigned int level)
-    {
-        /* Cousin is a node that has the same grandparent but not the same parent. */
-        /* Method will return first node in the childrenNodes array */
-        /* Level 0 has 0 cousins (of a one node)
-           Level 1 has 0 cousins (of a one node)
-           Level 2 has 2 cousins (of a one node)
-           Level 3 has 3 cousins (of a one node)
-           ...
-         */
-        std::shared_ptr<Node> currentNode;
-        
-    }
+//    [[nodiscard]] std::shared_ptr<Node> GetCousin(std::shared_ptr<Node> node, unsigned int level)
+//    {
+//        /* Cousin is a node that has the same grandparent but not the same parent. */
+//        /* Method will return first node in the childrenNodes array */
+//        /* Level 0 has 0 cousins (of a one node)
+//           Level 1 has 0 cousins (of a one node)
+//           Level 2 has 2 cousins (of a one node)
+//           Level 3 has 3 cousins (of a one node)
+//           ...
+//         */
+//        std::shared_ptr<Node> currentNode;
+//    }
     
     BSPTree(void)
     {
@@ -418,6 +473,7 @@ protected:
     void CarveHorizontalLine(int xBegin, int yBegin, int length);
     void CarveLine(int xBegin, int yBegin, int xEnd, int yEnd);
     void FillMapWithWalls(void);
+    void FillSquareWithWalls(int x, int y, int w, int h);
     virtual void GenerateLevel(std::mt19937&) = 0;
     
 public:
@@ -454,9 +510,9 @@ public:
     }
     void GenerateLevel(std::mt19937&);
     std::unique_ptr<BSPTree> BuildNodeTree(std::mt19937&);
-    void BuildLevel(std::mt19937& rng, std::unique_ptr<BSPTree> bspTree_p);
+    void BuildLevel(std::mt19937& rng, std::unique_ptr<BSPTree> bspTree_p); // TODO: should be virtual void
     void BuildRoom(std::mt19937& rng, std::shared_ptr<Node> node_p);
-    void PopulateLevel(std::mt19937&, std::unique_ptr<BSPTree> bspTree_p);
+    void PopulateLevel(std::mt19937&, std::unique_ptr<BSPTree> bspTree_p); // TODO: should be virtual void
 //    Tree*
 };
 
