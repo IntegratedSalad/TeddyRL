@@ -7,6 +7,7 @@
 //
 
 #include "utils.hpp"
+#include "entity.hpp"
 
 void DebugPrintInt2dVector(const Int2DVec& vec, const std::string& name)
 {
@@ -30,48 +31,48 @@ int DistanceBetweenTwoEntities(const Entity& e1, const Entity& e2)
 // Maybe write function returnRNFromRange or something.
 
 typedef std::uniform_int_distribution<std::mt19937::result_type> RNG;
-unsigned int rollDie(Die dType, std::mt19937& mtRef)
+unsigned int rollDie(DieToThrow dType, std::mt19937& mtRef)
 {
     unsigned int result = 0;
     switch (dType)
     {
-        case Die::D4:
+        case DieToThrow::D4:
         {
             RNG d4(1, 4);
             result = d4(mtRef);
             break;
         }
-        case Die::D6:
+        case DieToThrow::D6:
         {
             RNG d6(1, 6);
             result = d6(mtRef);
             break;
         }
-        case Die::D8:
+        case DieToThrow::D8:
         {
             RNG d8(1, 8);
             result = d8(mtRef);
             break;
         }
-        case Die::D10:
+        case DieToThrow::D10:
         {
             RNG d10(1, 10);
             result = d10(mtRef);
             break;
         }
-        case Die::D00:
+        case DieToThrow::D00:
         {
             // TODO: Implement D00
             std::cout << "D00 Not implemented." << std::endl;
             break;
         }
-        case Die::D12:
+        case DieToThrow::D12:
         {
             RNG d12(1, 12);
             result = d12(mtRef);
             break;
         }
-        case Die::D20:
+        case DieToThrow::D20:
         {
             RNG d20(1, 20);
             result = d20(mtRef);

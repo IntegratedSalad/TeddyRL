@@ -11,13 +11,11 @@
 
 #include <iostream>
 #include <vector>
-#include <fstream>
 #include <math.h>
 #include <random>
-#include "entity.hpp"
 #include <SFML/Graphics.hpp>
 
-typedef enum class Die
+typedef enum class DieToThrow
 {
     D4,
     D6,
@@ -26,15 +24,16 @@ typedef enum class Die
     D00,
     D12,
     D20
-} Die;
+} DieToThrow;
 
+class Entity;
 typedef std::vector<std::vector<int>> Int2DVec;
 void DebugPrintInt2dVector(const Int2DVec& vec, const std::string& name);
 int DistanceBetweenTwoEntities(const Entity& e1, const Entity& e2);
 
 // TODO: BresenhamLine
 
-unsigned int rollDie(Die, std::mt19937&);
+unsigned int rollDie(DieToThrow, std::mt19937&);
 unsigned int randomNumInRange(unsigned int low, unsigned int high, std::mt19937& mtRef);
 
 // TODO:  Make general assertion function
