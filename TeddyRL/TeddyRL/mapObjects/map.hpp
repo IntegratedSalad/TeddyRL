@@ -327,7 +327,12 @@ typedef struct BSPTree
                 if ((parentNodeData->h - nodeAData->h - 1) < 0 ||
                     (nodeAData->h < 0))
                 {
-                    quit = true;
+                    quit = true; // maybe not quit but don't build anything - continue.
+                                 // this is why we have one side of things built and the other not.
+                                 // TODO: Try this!
+                                 // ofc delete nodeAData
+                                 // and nodeBData
+                                 // Because when I'm quitting here, there are some nodes in list that don't get split.
                     return 0;
                 } else
                 {
@@ -508,7 +513,8 @@ typedef struct BSPTree
         bool quit = false;
         for (unsigned int level = 1; level < levels; level++)
         {
-            leavesCreated += GrowLeavesOnLevel(rng, level, leavesGrown, quit);
+            leavesCreated += GrowLeavesOnLevel(rng, level, leavesGrown, quit); // this should be done recursively. The way it is done now, doesn't allow for the proper division of nodes.
+            // I think we don't need to rewrite anything besides this function (and delete GrowLeavesOnLevel and instead recursively divide each node).
             if (quit) break;
         }
         return leavesCreated + 2; // we've manually created two
