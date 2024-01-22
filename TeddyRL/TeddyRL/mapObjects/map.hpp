@@ -305,61 +305,59 @@ typedef struct BSPTree
             // node A will be leftmost/uppermost depending on splitDir
             // because this split always cuts the parent Node into two other nodes.
             parentNodeData = leaf->nodeData;
-            offset = rollDie(DieToThrow::D8, rng);
+            offset = randomNumInRange(0, 2, rng);
             std::cout << "Parent room:" <<  std::endl;
             parentNodeData->prettyPrint();
             if (splitDirIsHorizontal)
             {
                 std::cout << "Horizontal split" << std::endl;
                 // We know that the line will not be wider than the width of a node
-                splitStartY = parentNodeData->y + std::floor(parentNodeData->h / 2) + offset;
+                splitStartY = parentNodeData->y + std::floor(parentNodeData->h / 2);// + offset;
                 splitStartX = parentNodeData->x;
                 
                 nodeAData->x = parentNodeData->x;
                 nodeAData->y = parentNodeData->y;
                 nodeAData->w = parentNodeData->w;
-                nodeAData->h = parentNodeData->h - splitStartY;
+                nodeAData->h = std::abs(splitStartY - parentNodeData->y);
                 
-                nodeBData->x = nodeAData->x;
-                nodeBData->y = nodeAData->h + 2; // at + 1 is wall
-                nodeBData->w = nodeAData->w;
+                nodeBData->x = parentNodeData->x;
+                nodeBData->y = splitStartY + 1;
+                nodeBData->w = parentNodeData->w;
                 
-                if ((parentNodeData->h - nodeAData->h - 1) < 0 ||
-                    (nodeAData->h < 0))
+                if ((parentNodeData->h - nodeAData->h - 1) < 0)
                 {
-                    quit = true; // maybe not quit but don't build anything - continue.
+                    //quit = true; // maybe not quit but don't build anything - continue.
                                  // this is why we have one side of things built and the other not.
                                  // TODO: Try this!
-                                 // ofc delete nodeAData
-                                 // and nodeBData
                                  // Because when I'm quitting here, there are some nodes in list that don't get split.
-                    return 0;
+                    continue;
+//                    return 0;
                 } else
                 {
-                    nodeBData->h = (parentNodeData->h - nodeAData->h - 1); // -1 is for wall
+                    nodeBData->h = (parentNodeData->h - nodeAData->h); // -1 is for wall
                 }
             } else // vertical split
             {
                 std::cout << "Vertical split" << std::endl;
                 splitStartY = parentNodeData->y;
-                splitStartX = parentNodeData->x + std::floor(parentNodeData->w / 2) + offset;
+                splitStartX = parentNodeData->x + std::floor(parentNodeData->w / 2);// + offset;
+                // this is wrong^
                 
                 nodeAData->x = parentNodeData->x;
                 nodeAData->y = parentNodeData->y;
-                nodeAData->w = parentNodeData->x + parentNodeData->w - splitStartX;
+                nodeAData->w = std::abs(splitStartX - parentNodeData->x); //parentNodeData->x + parentNodeData->w - splitStartX;
                 nodeAData->h = parentNodeData->h;
                 
-                nodeBData->x = nodeAData->w + 2;
+                nodeBData->x = splitStartX + 1;
                 nodeBData->y = nodeAData->y;
                 nodeBData->h = nodeAData->h;
-                if ((parentNodeData->w - nodeAData->w - 1) < 0 ||
-                    (nodeAData->w < 0))
+                
+                if ((parentNodeData->w - nodeAData->w - 1) < 0)
                 {
-                    quit = true;
-                    return 0;
+                    continue;
                 } else
                 {
-                    nodeBData->w = parentNodeData->w - nodeAData->w - 1;
+                    nodeBData->w = parentNodeData->w - nodeAData->w;
                 }
             }
             
@@ -513,7 +511,7 @@ typedef struct BSPTree
         bool quit = false;
         for (unsigned int level = 1; level < levels; level++)
         {
-            leavesCreated += GrowLeavesOnLevel(rng, level, leavesGrown, quit); // this should be done recursively. The way it is done now, doesn't allow for the proper division of nodes.
+            leavesCreated += GrowLeavesOnLevel(rng, level, leavesGrown, quit); // TODO: this should be done recursively. The way it is done now, doesn't allow for the proper division of nodes.
             // I think we don't need to rewrite anything besides this function (and delete GrowLeavesOnLevel and instead recursively divide each node).
             if (quit) break;
         }

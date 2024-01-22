@@ -156,6 +156,13 @@ void Map::GenerateLevel()
 
 Entity* Map::GetBlockingEntityPointerFromLocation(int x, int y) const
 {
+    if ((x > C_MAP_SIZE) || (y > C_MAP_SIZE))
+    {
+        std::cerr << "Fatal error: accessing entity out of map." << std::endl;
+        std::cerr << "X: " << x << " Y: " << y << std::endl;
+        exit(-1);
+    }
+    
     int index = blockingEntitiesInt2DVector[x][y];
     if (index >= 0)
     {
@@ -444,6 +451,9 @@ void BSPAlgorithm::BuildRoom(std::mt19937& rng, std::shared_ptr<Node>& node_p)
     {
         roomX = nodeX;
     }
+    
+    std::cout << "Build room" << std::endl;
+    std::cout << "Node X:" << nodeX << " Node Y:" << nodeY << std::endl;
     
     Room* roomData = new Room {.x = roomX, .y = roomY, .w = roomWidth, .h = roomHeight};
     node_p->SetRoomData(roomData);
