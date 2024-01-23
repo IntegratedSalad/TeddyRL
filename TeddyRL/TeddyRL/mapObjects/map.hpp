@@ -23,7 +23,7 @@
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/serialization/vector.hpp>
 
-#define N_LEVELS_BSP_MAX 5 //5
+#define N_LEVELS_BSP_MAX 5
 #define WIDTH_ROOM_MIN 5
 #define HEIGHT_ROOM_MIN 5
 #define WIDTH_ROOM_MAX 7
@@ -243,6 +243,16 @@ typedef struct Node
         this->SetNodeData(nodeData);
     }
     
+    std::shared_ptr<Node> Left(void)
+    {
+        return this->childrenNodes[0];
+    }
+    
+    std::shared_ptr<Node> Right(void)
+    {
+        return this->childrenNodes[1];
+    }
+    
     void SetNodeData(Room* data)
     {
         this->nodeData = data;
@@ -280,102 +290,16 @@ typedef struct BSPTree
         return sister;
     }
     
-    [[deprecated]]
-    unsigned int GrowLeavesOnLevel(std::mt19937& rng, unsigned int level, std::list<std::shared_ptr<Node>>& previouslyGrownLeaves, bool& quit, unsigned int& nodeId) // should be  private
+    // this is looping over every node on each level and creating 2 leaves each time...
+    // TODO: find other way to create tree and grow leaves...
+    // this doesn't grow leaves as it should...
+    void GrowLeavesOnLevel(unsigned int level, unsigned int& nodeId, std::list<std::shared_ptr<Node>>& leavesToGrow) // should be  private
     {
-        unsigned int leavesOnThisLevel = (unsigned int)std::pow(2, level);
-        unsigned int createdLeaves = 0;
-        std::list<std::shared_ptr<Node>> leavesToGrow; // leaves that will be grown now.
-//        std::shared<
-        //int i = 0;
-        
-        bool splitDirIsHorizontal = 1; // 0: Vertical, 1: Horizontal
-        
-        Room* parentNodeData;
-        Room* nodeAData = new Room{};
-        Room* nodeBData = new Room{};
-        
-        nodeAData->t = RoomType::RT_TREE_NODE;
-        nodeBData->t = RoomType::RT_TREE_NODE;
-        int offset;
-        int splitStartX = 0;
-        int splitStartY = 0;
-        for (auto leaf : previouslyGrownLeaves)
+        std::list<std::shared_ptr<Node>> leavesGrownHere;
+        for (auto leaf : leavesToGrow)
         {
-            // How to split:
-            // Take starting y and x of a node and its height and width.
-            // if splitDirIsHorizontal:
-            // take random offset from middle y of the node
-            // else: take random offset from middle x of the node.
-            // Draw wall line.
-            // Take note of its position.
-            // node A will be leftmost/uppermost depending on splitDir
-            // because this split always cuts the parent Node into two other nodes.
-            parentNodeData = leaf->nodeData;
-            offset = randomNumInRange(0, 2, rng);
-            std::cout << "Parent room:" <<  std::endl;
-            parentNodeData->prettyPrint();
-            std::cout << "Parent id: " << leaf->id << std::endl;
-            if (splitDirIsHorizontal)
-            {
-                std::cout << "Horizontal split" << std::endl;
-                // We know that the line will not be wider than the width of a node
-                splitStartY = parentNodeData->y + std::floor(parentNodeData->h / 2);// + offset;
-                splitStartX = parentNodeData->x;
-                
-                nodeAData->x = parentNodeData->x;
-                nodeAData->y = parentNodeData->y;
-                nodeAData->w = parentNodeData->w;
-                nodeAData->h = std::abs(splitStartY - parentNodeData->y);
-                
-                nodeBData->x = parentNodeData->x;
-                nodeBData->y = splitStartY + 1;
-                nodeBData->w = parentNodeData->w;
-                
-                if ((parentNodeData->h - nodeAData->h - 1) < 0)
-                {
-                    //quit = true; // maybe not quit but don't build anything - continue.
-                                 // this is why we have one side of things built and the other not.
-                                 // TODO: Try this!
-                                 // Because when I'm quitting here, there are some nodes in list that don't get split.
-                    continue;
-//                    return 0;
-                } else
-                {
-                    nodeBData->h = (parentNodeData->h - nodeAData->h); // -1 is for wall
-                }
-            } else // vertical split
-            {
-                std::cout << "Vertical split" << std::endl;
-                splitStartY = parentNodeData->y;
-                splitStartX = parentNodeData->x + std::floor(parentNodeData->w / 2);// + offset;
-                // this is wrong^
-                
-                nodeAData->x = parentNodeData->x;
-                nodeAData->y = parentNodeData->y;
-                nodeAData->w = std::abs(splitStartX - parentNodeData->x); //parentNodeData->x + parentNodeData->w - splitStartX;
-                nodeAData->h = parentNodeData->h;
-                
-                nodeBData->x = splitStartX + 1;
-                nodeBData->y = nodeAData->y;
-                nodeBData->h = nodeAData->h;
-                
-                if ((parentNodeData->w - nodeAData->w - 1) < 0)
-                {
-                    continue;
-                } else
-                {
-                    nodeBData->w = parentNodeData->w - nodeAData->w;
-                }
-            }
-            
-            std::cout << "Room A:" <<  std::endl;
-            nodeAData->prettyPrint();
-            std::cout << "Room B:" <<  std::endl;
-            nodeBData->prettyPrint();
-            
-            std::shared_ptr<Node> firstChildNode = std::make_shared<Node>(leaf, nodeAData); // rename to BNode
-            std::shared_ptr<Node> secondChildNode = std::make_shared<Node>(leaf, nodeBData); // rename to ANode
+            std::shared_ptr<Node> firstChildNode = std::make_shared<Node>(leaf); // rename to BNode
+            std::shared_ptr<Node> secondChildNode = std::make_shared<Node>(leaf); // rename to ANode
             firstChildNode->id = nodeId;
             nodeId++;
             secondChildNode->id = nodeId;
@@ -386,18 +310,11 @@ typedef struct BSPTree
             
             leaf->childrenNodes[0] = firstChildNode;
             leaf->childrenNodes[1] = secondChildNode;
-            /*  */
-            leavesToGrow.push_back(firstChildNode);
-            leavesToGrow.push_back(secondChildNode);
-            createdLeaves++;
-            splitDirIsHorizontal = !splitDirIsHorizontal;
+            leavesGrownHere.push_back(firstChildNode);
+            leavesGrownHere.push_back(secondChildNode);
         }
-        
-        previouslyGrownLeaves.clear();
-        std::copy(leavesToGrow.begin(), leavesToGrow.end(), std::back_inserter(previouslyGrownLeaves));
-        previouslyGrownLeaves = leavesToGrow;
-        //previouslyGrownLeaves.reverse();
-        return createdLeaves;
+        leavesToGrow.clear();
+        leavesToGrow = leavesGrownHere;
     }
     
     // Maybe generate combinations?
@@ -412,11 +329,32 @@ typedef struct BSPTree
                             [1 0 0] [1 0 1] [1 1 0] [1 1 1]
      
      */
+    // is GetAllLeavesOnLevel wrong????
     
+    [[deprecated]]
+    bool CheckSymmetry(void)
+    {
+        std::list<std::shared_ptr<Node>> nodeList;
+        for (int i = 0; i < N_LEVELS_BSP_MAX - 1; i++)
+        {
+            GetAllLeavesOnLevel(i, nodeList);
+            for (auto l : nodeList)
+            {
+                std::cout << l->id << std::endl;
+                if ((l->Right() == nullptr) || l->Left() == nullptr)
+                {
+                    return false;
+                }
+            }
+            nodeList.clear();
+        }
+        return true;
+    }
+    
+    // This is wrong!!! I didn't test it!!!!
+    [[deprecated]]
     void GetAllLeavesOnLevel(const unsigned int level, std::list<std::shared_ptr<Node>>& leaves)
     {
-        // TODO: This could be a recursive function
-//        std::list<std::shared_ptr<Node>> list;
         const unsigned int totalLeavesOnLevel = std::pow(2, level);
         if (level <= 0)
         {
@@ -467,6 +405,15 @@ typedef struct BSPTree
 //        std::shared_ptr<Node> currentNode;
 //    }
     
+    void BuildRoomsPreorder(std::shared_ptr<Node> n, std::mt19937& rng, std::list<std::shared_ptr<Node>>& list)
+    {
+        if (n == nullptr) return;
+        list.push_back(n);
+        BuildRoomsPreorder(n->Left(), rng, list);
+        BuildRoomsPreorder(n->Right(), rng, list);
+        
+    }
+    
     BSPTree(void)
     {
         std::shared_ptr<Node> rootNode_p(std::make_shared<Node>(nullptr));
@@ -474,91 +421,117 @@ typedef struct BSPTree
     }
     
     /* Make nodes by splitting the root node */
+    // This is wrong I didn't test it!
     unsigned int Grow(std::mt19937& rng, unsigned int levels)
     {
+        unsigned int sum;
+        unsigned int nodeId = 0;
+        int nodeX  =  0;
+        int nodeY  =  0;
+        int nodeW  =  C_MAP_SIZE;
+        int nodeH  =  C_MAP_SIZE;
+        RoomType     nodeT  =  RoomType::RT_TREE_NODE;
+        std::list<std::shared_ptr<Node>> leavesGrown;
+
+        Room* rootNodeData = new Room{nodeX,
+                                      nodeY,
+                                      nodeW,
+                                      nodeH,
+                                      nodeT
+        };
+
+        this->rootNode->SetNodeData(rootNodeData); // root encompasses whole level
+        this->rootNode->id = nodeId;
         
-        
-        
-        
-        
-        return 0;
-        // We only set Node data here. No drawing, no room setting
-        
-        //Node n;
-        
-//        unsigned int nodeId = 0;
-//        int nodeX  =  0;
-//        int nodeY  =  0;
-//        int nodeW  =  C_MAP_SIZE;
-//        int nodeH  =  C_MAP_SIZE;
-//        RoomType     nodeT  =  RoomType::RT_TREE_NODE;
-//
-//        Room* rootNodeData = new Room{nodeX,
-//                                      nodeY,
-//                                      nodeW,
-//                                      nodeH,
-//                                      nodeT
-//        };
-//
-//        this->rootNode->SetNodeData(rootNodeData); // root encompasses whole level
-//        this->rootNode->id = nodeId;
-//
-//        unsigned int nodeOffset = rollDie(DieToThrow::D8, rng);
-//
-//        std::shared_ptr<Node> currentNode = this->rootNode;
-//        std::list<std::shared_ptr<Node>> leavesGrown;
-//        currentNode->childrenNodes[0] = std::make_shared<Node>(currentNode);
-//        currentNode->childrenNodes[1] = std::make_shared<Node>(currentNode);
-//
-//        Room* firstANodeData = new Room{};
-//        firstANodeData->w = (rootNodeData->w / 2); // + nodeOffset
-//        firstANodeData->x = rootNodeData->x;
-//        firstANodeData->h = rootNodeData->h;
-//        firstANodeData->y = rootNodeData->y;
-//        firstANodeData->t = RoomType::RT_TREE_NODE;
-//        currentNode->childrenNodes[0]->SetNodeData(firstANodeData);
-//        currentNode->childrenNodes[0]->id = 1;
-//
-//        Room* firstBNodeData = new Room{};
-//        firstBNodeData->w = C_MAP_SIZE - firstANodeData->w;
-//        firstBNodeData->x = firstBNodeData->w - 1;
-//        firstBNodeData->y = firstANodeData->y;
-//        firstBNodeData->h = firstANodeData->h;
-//        firstBNodeData->t = RoomType::RT_TREE_NODE;
-//        currentNode->childrenNodes[1]->SetNodeData(firstBNodeData);
-//        currentNode->childrenNodes[1]->id = 2;
-//
-//        leavesGrown.push_back(currentNode->childrenNodes[0]);
-//        leavesGrown.push_back(currentNode->childrenNodes[1]);
-//        this->leaves.push_back(currentNode->childrenNodes[0]);
-//        this->leaves.push_back(currentNode->childrenNodes[1]);
-//
-//        // Make list of previously created leaves. We won't be needing to traverse
-//        // the tree from root, but keep track of previously created leaves.
-//
-//        unsigned int leavesCreated = 0;
-//        bool splitDirIsHorizontal = 1;
-//        bool quit = false;
-//        nodeId = 3;
-//        for (unsigned int level = 1; level < levels; level++)
-//        {
-//            leavesCreated += GrowLeavesOnLevel(rng, level, leavesGrown, quit, nodeId); // TODO: this should be done recursively. The way it is done now, doesn't allow for the proper division of nodes.
-//            // I think we don't need to rewrite anything besides this function (and delete GrowLeavesOnLevel and instead recursively divide each node).
-//            // TODO: Go preorder and implement node's Left and Right methods.
-//            // Until level is deep as stated or node is too small
-//            if (quit) break;
-//        }
-//        return leavesCreated + 2; // we've manually created two
+        nodeId++;
+        sum = 1;
+        leavesGrown.push_back(this->rootNode);
+        for (unsigned int level = 0; level < levels; level++)
+        {
+            //this->GetAllLeavesOnLevel(level, leavesGrown);
+            this->GrowLeavesOnLevel(level + 1, nodeId, leavesGrown);
+            sum += std::pow(2, level + 1);
+        }
+        return sum;
     }
     
-//    void GetSubtreeBeneathNode(std::shared_ptr<Node> n, std::list<std::shared_ptr<Node>>& leaves)
-//    {
-//        // Recursively?
-//    }
-    
-    std::shared_ptr<Node> SplitNodesPreorder(std::shared_ptr<Node> n)
+    void SplitNodesPreorder(std::shared_ptr<Node> n, std::mt19937& rng)
     {
+        // Split nodes and create nodeData
+        // Set starting dimensions for root
+        if (n == nullptr) return;
         
+        int splitX = 0;
+        int splitY = 0;
+        bool isSplitHorizontal = randomNumInRange(0, 1, rng);
+        
+        if (n == this->rootNode)
+        {
+            Room* rootNodeData = new Room{
+                .x = 0,
+                .y = 0,
+                .w = C_MAP_SIZE,
+                .h = C_MAP_SIZE,
+                .t = RoomType::RT_TREE_NODE
+            };
+            this->rootNode->SetNodeData(rootNodeData);
+        }
+        
+        Room* nodeAData = new Room{};
+        Room* nodeBData = new Room{};
+        const Room* pNodeData = n->nodeData; // parent is current node
+        
+        if (isSplitHorizontal)
+        {
+            splitY = pNodeData->y + std::floor(pNodeData->h/2);
+            splitX = pNodeData->x;
+            
+            nodeAData->x = pNodeData->x;
+            nodeAData->y = pNodeData->y;
+            nodeAData->w = pNodeData->w;
+            nodeAData->h = std::abs(splitY - pNodeData->y); // shouldn't use abs, has to be non negative
+            
+            nodeBData->x = pNodeData->x;
+            nodeBData->y = splitY + 1;
+            nodeBData->w = pNodeData->w;
+            nodeBData->h = std::abs(pNodeData->h - nodeAData->h);
+        } else
+        {
+            splitY = pNodeData->y;
+            splitX = pNodeData->x + std::floor(pNodeData->w/2);
+            
+            nodeAData->x = pNodeData->x;
+            nodeAData->y = pNodeData->y;
+            nodeAData->w = splitX - pNodeData->x;
+            nodeAData->h = pNodeData->h;
+            
+            nodeBData->x = splitX + 1;
+            nodeBData->y = pNodeData->y;
+            nodeBData->w = pNodeData->w - nodeAData->w;
+            nodeBData->h = pNodeData->h;
+        }
+
+        if (n->Left() != nullptr)
+        {
+            n->Left()->SetNodeData(nodeAData);
+            n->Left()->nodeData->prettyPrint();
+        } else
+        {
+            std::cout << "left leaf is nullptr" << std::endl;
+            delete nodeAData;
+        }
+        
+        if (n->Right() != nullptr)
+        {
+            n->Right()->SetNodeData(nodeBData);
+            n->Right()->nodeData->prettyPrint();
+        } else
+        {
+            delete nodeBData;
+        }
+        
+        SplitNodesPreorder(n->Left(), rng);
+        SplitNodesPreorder(n->Right(), rng);
     }
     
     Room MakeSubnode(std::mt19937& rng, std::shared_ptr<Node> parentNode)
@@ -575,7 +548,7 @@ typedef struct BSPTree
     {
         // while not nullptr
         const unsigned int randomLevel = randomNumInRange(2, N_LEVELS_BSP_MAX - 1, rng);
-        const unsigned int roomsOnThisLevel = (unsigned int)std::pow(2, randomLevel);
+        const unsigned int roomsOnThisLevel = (unsigned int)std::pow(2, randomLevel); // there is more
         const unsigned int randomRoom = randomNumInRange(0, roomsOnThisLevel, rng);
         std::list<std::shared_ptr<Node>> nodesList;
         GetAllLeavesOnLevel(randomLevel, nodesList);

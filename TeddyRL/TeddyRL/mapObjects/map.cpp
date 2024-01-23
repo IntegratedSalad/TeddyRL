@@ -367,49 +367,29 @@ void BSPAlgorithm::BuildLevel(std::mt19937& rng, std::unique_ptr<BSPTree> bspTre
      TODO: Decide upon how will corridors be created.
      
      */
-#warning Remember - first half of the level is A, other half is B
     
-
-//    LOG_MAP("A Node:")
-//    bspTree_p->rootNode->childrenNodes[0]->nodeData->prettyPrint();
-//
-//    LOG_MAP("B Node:")
-//    bspTree_p->rootNode->childrenNodes[1]->nodeData->prettyPrint();
+    //std::cout << "Is symmetric: " << bspTree_p->CheckSymmetry() << std::endl;
     
-    // 1. Fill map with walls
-    // 2. CarveSquareRoom not create Square Room!
+    std::list<std::shared_ptr<Node>> list;
+    bspTree_p->SplitNodesPreorder(bspTree_p->rootNode, rng);
+    bspTree_p->BuildRoomsPreorder(bspTree_p->rootNode, rng, list);
     
-//    CreateSquareRoom(bspTree_p->rootNode->childrenNodes[0]->nodeData.x,
-//                     bspTree_p->rootNode->childrenNodes[0]->nodeData.y,
-//                     bspTree_p->rootNode->childrenNodes[0]->nodeData.w,
-//                     bspTree_p->rootNode->childrenNodes[0]->nodeData.h); // node A
-//
-//    CreateSquareRoom(bspTree_p->rootNode->childrenNodes[1]->nodeData.x,
-//                     bspTree_p->rootNode->childrenNodes[1]->nodeData.y,
-//                     bspTree_p->rootNode->childrenNodes[1]->nodeData.w,
-//                     bspTree_p->rootNode->childrenNodes[1]->nodeData.h); // Node B
-    
-    // ^ two nodes as rooms for now (just to test it)
-    
-    // Create one room within these two nodes.
-    
-    // Place misio within one room
-    
-    
-//    return;
-    
-    std::list<std::shared_ptr<Node>> nodeList;
-    Room currentRoom;
-    for (int l = 2; l < N_LEVELS_BSP_MAX; l++)
+    for (auto n : list)
     {
-        bspTree_p->GetAllLeavesOnLevel(l, nodeList);
-        for (auto leaf : nodeList)
-        {
-            this->BuildRoom(rng, leaf);
-        }
-        
-        nodeList.clear();
+        this->BuildRoom(rng, n);
     }
+    
+//    std::list<std::shared_ptr<Node>> nodeList;
+//    Room currentRoom;
+//    for (int l = 2; l < N_LEVELS_BSP_MAX; l++)
+//    {
+//        for (auto leaf : nodeList)
+//        {
+//            this->BuildRoom(rng, leaf);
+//        }
+//
+//        nodeList.clear();
+//    }
     Room randomRoom = bspTree_p->ChooseRandomRoom(rng);
     PopulateLevel(rng, std::move(bspTree_p), randomRoom);
 }
