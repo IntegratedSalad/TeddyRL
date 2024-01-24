@@ -23,7 +23,7 @@
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/serialization/vector.hpp>
 
-#define N_LEVELS_BSP_MAX 6
+#define N_LEVELS_BSP_MAX 5
 #define WIDTH_ROOM_MIN 4
 #define HEIGHT_ROOM_MIN 4
 #define WIDTH_ROOM_MAX 7
@@ -470,8 +470,8 @@ typedef struct BSPTree
         while (rp == nullptr)
         {
             this->ReturnBottomNodesPreorder(this->rootNode, rng, vector);
-            const int randomRoomIdx = randomNumInRange(0, vector.size(), rng);
-            rp = (vector[randomRoomIdx-1])->roomData;
+            const int randomRoomIdx = randomNumInRange(0, vector.size() - 1, rng);
+            rp = (vector[randomRoomIdx])->roomData;
         }
         
         return *rp;
