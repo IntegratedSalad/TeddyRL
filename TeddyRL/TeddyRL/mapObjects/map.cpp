@@ -370,26 +370,20 @@ void BSPAlgorithm::BuildLevel(std::mt19937& rng, std::unique_ptr<BSPTree> bspTre
     
     //std::cout << "Is symmetric: " << bspTree_p->CheckSymmetry() << std::endl;
     
-    std::list<std::shared_ptr<Node>> list;
+    std::vector<std::shared_ptr<Node>> vector;
     bspTree_p->SplitNodesPreorder(bspTree_p->rootNode, rng);
-    bspTree_p->BuildRoomsPreorder(bspTree_p->rootNode, rng, list);
+    bspTree_p->ReturnBottomNodesPreorder(bspTree_p->rootNode, rng, vector);
     
-    for (auto n : list)
+    // WE WANT TO TAKE ONLY THE LOWEST (Bottom) LEAVES!!!!!!!
+    
+    // TODO: If I decide that BSP dungeon generation is done, I have to test the intersection and run code multiple (>1000) times to ensure that there won't be a location that goes out of bounds
+    
+    for (auto n : vector)
     {
+        if (n == bspTree_p->rootNode) continue;
         this->BuildRoom(rng, n);
     }
     
-//    std::list<std::shared_ptr<Node>> nodeList;
-//    Room currentRoom;
-//    for (int l = 2; l < N_LEVELS_BSP_MAX; l++)
-//    {
-//        for (auto leaf : nodeList)
-//        {
-//            this->BuildRoom(rng, leaf);
-//        }
-//
-//        nodeList.clear();
-//    }
     Room randomRoom = bspTree_p->ChooseRandomRoom(rng);
     PopulateLevel(rng, std::move(bspTree_p), randomRoom);
 }
@@ -404,36 +398,35 @@ void BSPAlgorithm::BuildRoom(std::mt19937& rng, std::shared_ptr<Node>& node_p)
     const int nodeY = node_p->nodeData->y;
     const int nodeW = node_p->nodeData->w;
     const int nodeH = node_p->nodeData->h;
+    int roomHeight = 0;
+    int roomWidth = 0;
     
-    if ((nodeW <= 0) || (nodeH <= 0))
+    if (nodeW < WIDTH_ROOM_MAX || nodeH < HEIGHT_ROOM_MAX) return;
+    
+    if (HEIGHT_ROOM_MAX > nodeH)
     {
-        return;
+        roomHeight = randomNumInRange(HEIGHT_ROOM_MIN, nodeH, rng);
+    } else
+    {
+        roomHeight = randomNumInRange(HEIGHT_ROOM_MIN, WIDTH_ROOM_MAX, rng);
     }
     
-    // nodeW or nodeH is smaller than width room_min
-    
-    int roomWidth = randomNumInRange(WIDTH_ROOM_MIN, WIDTH_ROOM_MAX, rng);
-    int roomHeight = randomNumInRange(HEIGHT_ROOM_MIN, HEIGHT_ROOM_MAX, rng);
-    
-    if (nodeW <= roomWidth)
+    if (WIDTH_ROOM_MAX > nodeW)
     {
-        roomWidth = nodeW - 4;
-    }
-    if (nodeH <= roomHeight)
+        roomWidth = randomNumInRange(WIDTH_ROOM_MIN, nodeW, rng);
+    } else
     {
-        roomHeight = nodeH - 2;
+        roomWidth = randomNumInRange(WIDTH_ROOM_MIN, WIDTH_ROOM_MAX, rng);
     }
     
-    int roomX = randomNumInRange(nodeX + 1, (nodeX + nodeW) - roomWidth, rng);
-    int roomY = randomNumInRange(nodeY + 1, (nodeY + nodeH) - roomHeight, rng);
-    
-    if (roomX > nodeW)
-    {
-        roomX = nodeX;
-    }
+    int roomX = std::max(1, (int)randomNumInRange(nodeX, (nodeX + nodeW) - roomWidth, rng));
+    int roomY = std::max(1, (int)randomNumInRange(nodeY, (nodeY + nodeH) - roomHeight, rng));
+   
+    // TODO: CLAMP roomX and roomY to 1-roomX, 1-roomY
     
     std::cout << "Build room" << std::endl;
     std::cout << "Node X:" << nodeX << " Node Y:" << nodeY << std::endl;
+    std::cout << "Room X:" << roomX << " Room Y:" << roomY << std::endl;
     
     Room* roomData = new Room {.x = roomX, .y = roomY, .w = roomWidth, .h = roomHeight};
     node_p->SetRoomData(roomData);

@@ -24,8 +24,8 @@
 #include <boost/serialization/vector.hpp>
 
 #define N_LEVELS_BSP_MAX 5
-#define WIDTH_ROOM_MIN 5
-#define HEIGHT_ROOM_MIN 5
+#define WIDTH_ROOM_MIN 4
+#define HEIGHT_ROOM_MIN 4
 #define WIDTH_ROOM_MAX 7
 #define HEIGHT_ROOM_MAX 7
 
@@ -317,101 +317,16 @@ typedef struct BSPTree
         leavesToGrow = leavesGrownHere;
     }
     
-    // Maybe generate combinations?
-    
-    // For example:
-    /*
-     Getting all 2nd level nodes:
-     Combinations num: 2 -> [0 0] [0 1] [1 0] [1 1]
-     
-     Getting all 3rd level nodes:
-     Combinations num: 3 -> [0 0 0] [0 0 1] [0 1 0] [0 1 1]
-                            [1 0 0] [1 0 1] [1 1 0] [1 1 1]
-     
-     */
-    // is GetAllLeavesOnLevel wrong????
-    
-    [[deprecated]]
-    bool CheckSymmetry(void)
-    {
-        std::list<std::shared_ptr<Node>> nodeList;
-        for (int i = 0; i < N_LEVELS_BSP_MAX - 1; i++)
-        {
-            GetAllLeavesOnLevel(i, nodeList);
-            for (auto l : nodeList)
-            {
-                std::cout << l->id << std::endl;
-                if ((l->Right() == nullptr) || l->Left() == nullptr)
-                {
-                    return false;
-                }
-            }
-            nodeList.clear();
-        }
-        return true;
-    }
-    
-    // This is wrong!!! I didn't test it!!!!
-    [[deprecated]]
-    void GetAllLeavesOnLevel(const unsigned int level, std::list<std::shared_ptr<Node>>& leaves)
-    {
-        const unsigned int totalLeavesOnLevel = std::pow(2, level);
-        if (level <= 0)
-        {
-            leaves.push_back(this->rootNode);
-            return;
-        }
-        else if (level == 1)
-        {
-            leaves.push_back(this->rootNode->childrenNodes[0]);
-            leaves.push_back(this->rootNode->childrenNodes[1]);
-            return;
-        }
-        else
-        {
-            int combinationsBitField = 0; // 32 bit
-            std::shared_ptr<Node> currentNode = this->rootNode;
-            const unsigned int totalCombinations = std::pow(2, level);
-            for (int i = 0; i < totalCombinations; i++)
-            {
-                for (int j = 0; j < level; j++)
-                {
-                    const bool index = (combinationsBitField << ((level -1) - j) & 1) == 1;
-//                    currentNode = currentNode->childrenNodes[
-//                    ((combinationsBitField << ((level - 1) - j)) & 1) == 1 ];
-                    // This will "scroll" bits in the combinationBitField from left to right accessing the combination of childrenNodes.
-                    
-                    currentNode = currentNode->childrenNodes[index];
-                }
-                
-                leaves.push_back(currentNode);
-                combinationsBitField++;
-                currentNode = this->rootNode;
-            }
-        }
-        assert(leaves.size() == totalLeavesOnLevel);
-    }
-    
-//    [[nodiscard]] std::shared_ptr<Node> GetCousin(std::shared_ptr<Node> node, unsigned int level)
-//    {
-//        /* Cousin is a node that has the same grandparent but not the same parent. */
-//        /* Method will return first node in the childrenNodes array */
-//        /* Level 0 has 0 cousins (of a one node)
-//           Level 1 has 0 cousins (of a one node)
-//           Level 2 has 2 cousins (of a one node)
-//           Level 3 has 3 cousins (of a one node)
-//           ...
-//         */
-//        std::shared_ptr<Node> currentNode;
-//    }
-    
-    void BuildRoomsPreorder(std::shared_ptr<Node> n, std::mt19937& rng, std::list<std::shared_ptr<Node>>& list)
+    // TODO: Return only bottom nodes
+    void ReturnBottomNodesPreorder(std::shared_ptr<Node> n, std::mt19937& rng, std::vector<std::shared_ptr<Node>>& vector)
     {
         if (n == nullptr) return;
-        list.push_back(n);
-        BuildRoomsPreorder(n->Left(), rng, list);
-        BuildRoomsPreorder(n->Right(), rng, list);
-        
+        if (n->Left() == nullptr && n->Right() == nullptr)
+        {
+            vector.push_back(n);
+        }
+        ReturnBottomNodesPreorder(n->Left(), rng, vector);
+        ReturnBottomNodesPreorder(n->Right(), rng, vector);
     }
     
     BSPTree(void)
@@ -489,12 +404,12 @@ typedef struct BSPTree
             nodeAData->x = pNodeData->x;
             nodeAData->y = pNodeData->y;
             nodeAData->w = pNodeData->w;
-            nodeAData->h = std::abs(splitY - pNodeData->y); // shouldn't use abs, has to be non negative
+            nodeAData->h = splitY - pNodeData->y; // shouldn't use abs, has to be non negative
             
             nodeBData->x = pNodeData->x;
-            nodeBData->y = splitY + 1;
+            nodeBData->y = splitY;
             nodeBData->w = pNodeData->w;
-            nodeBData->h = std::abs(pNodeData->h - nodeAData->h);
+            nodeBData->h = pNodeData->h - nodeAData->h;
         } else
         {
             splitY = pNodeData->y;
@@ -505,10 +420,11 @@ typedef struct BSPTree
             nodeAData->w = splitX - pNodeData->x;
             nodeAData->h = pNodeData->h;
             
-            nodeBData->x = splitX + 1;
+            nodeBData->x = splitX;
             nodeBData->y = pNodeData->y;
             nodeBData->w = pNodeData->w - nodeAData->w;
             nodeBData->h = pNodeData->h;
+            // TODO: Set room type
         }
 
         if (n->Left() != nullptr)
@@ -546,26 +462,19 @@ typedef struct BSPTree
     
     Room ChooseRandomRoom(std::mt19937& rng)
     {
-        // while not nullptr
-        const unsigned int randomLevel = randomNumInRange(2, N_LEVELS_BSP_MAX - 1, rng);
-        const unsigned int roomsOnThisLevel = (unsigned int)std::pow(2, randomLevel); // there is more
-        const unsigned int randomRoom = randomNumInRange(0, roomsOnThisLevel, rng);
-        std::list<std::shared_ptr<Node>> nodesList;
-        GetAllLeavesOnLevel(randomLevel, nodesList);
-        Room roomChosen;
-        int i = 0;
-        for (auto node : nodesList)
+        std::vector<std::shared_ptr<Node>> vector;
+        Room r;
+        Room* rp = nullptr;
+        
+        while (rp == nullptr)
         {
-            roomChosen = *node->roomData;
-            if (i == randomRoom) break;
-            i++;
+            this->ReturnBottomNodesPreorder(this->rootNode, rng, vector);
+            const int randomRoomIdx = randomNumInRange(0, vector.size(), rng);
+            rp = (vector[randomRoomIdx-1])->roomData;
         }
-        return roomChosen;
+        
+        return *rp;
     }
-    
-    // TODO: More methods to traverse BSPTree in order to generate leaves
-    // TODO: Traverse method, that will return pointer iteratively to each leaf
-    //       This will be used to generate room data.
     
 } BSPTree;
 
