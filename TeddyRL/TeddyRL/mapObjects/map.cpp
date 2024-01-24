@@ -390,10 +390,6 @@ void BSPAlgorithm::BuildLevel(std::mt19937& rng, std::unique_ptr<BSPTree> bspTre
 
 void BSPAlgorithm::BuildRoom(std::mt19937& rng, std::shared_ptr<Node>& node_p)
 {
-    // 1. Get Node data - x, y, w, h
-    // 2. Set random x and y as the starting position of room
-    // 3. Set random width and height of this room.
-    // 4. CreateSquareRoom
     const int nodeX = node_p->nodeData->x;
     const int nodeY = node_p->nodeData->y;
     const int nodeW = node_p->nodeData->w;
@@ -418,15 +414,24 @@ void BSPAlgorithm::BuildRoom(std::mt19937& rng, std::shared_ptr<Node>& node_p)
     {
         roomWidth = randomNumInRange(WIDTH_ROOM_MIN, WIDTH_ROOM_MAX, rng);
     }
-    
+
     int roomX = std::max(1, (int)randomNumInRange(nodeX, (nodeX + nodeW) - roomWidth, rng));
     int roomY = std::max(1, (int)randomNumInRange(nodeY, (nodeY + nodeH) - roomHeight, rng));
-   
-    // TODO: CLAMP roomX and roomY to 1-roomX, 1-roomY
+    
+    if (roomY + roomHeight >= C_MAP_SIZE)
+    {
+        roomHeight -= 1 + std::abs((C_MAP_SIZE - (roomY + roomHeight)));
+    }
+    
+    if (roomX + roomWidth >= C_MAP_SIZE)
+    {
+        roomWidth -= 1 + std::abs((C_MAP_SIZE - (roomX + roomWidth)));
+    }
     
     std::cout << "Build room" << std::endl;
     std::cout << "Node X:" << nodeX << " Node Y:" << nodeY << std::endl;
     std::cout << "Room X:" << roomX << " Room Y:" << roomY << std::endl;
+    std::cout << "Room W:" << roomWidth << " Room H:" << roomHeight << std::endl;
     
     Room* roomData = new Room {.x = roomX, .y = roomY, .w = roomWidth, .h = roomHeight};
     node_p->SetRoomData(roomData);

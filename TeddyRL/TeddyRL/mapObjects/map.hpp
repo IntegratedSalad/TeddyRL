@@ -23,7 +23,7 @@
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/serialization/vector.hpp>
 
-#define N_LEVELS_BSP_MAX 5
+#define N_LEVELS_BSP_MAX 6
 #define WIDTH_ROOM_MIN 4
 #define HEIGHT_ROOM_MIN 4
 #define WIDTH_ROOM_MAX 7
@@ -395,10 +395,11 @@ typedef struct BSPTree
         Room* nodeAData = new Room{};
         Room* nodeBData = new Room{};
         const Room* pNodeData = n->nodeData; // parent is current node
+        unsigned int randomOffset = randomNumInRange(0, 3, rng);
         
         if (isSplitHorizontal)
         {
-            splitY = pNodeData->y + std::floor(pNodeData->h/2);
+            splitY = pNodeData->y + std::floor(pNodeData->h/2) + randomOffset;
             splitX = pNodeData->x;
             
             nodeAData->x = pNodeData->x;
@@ -413,7 +414,7 @@ typedef struct BSPTree
         } else
         {
             splitY = pNodeData->y;
-            splitX = pNodeData->x + std::floor(pNodeData->w/2);
+            splitX = pNodeData->x + std::floor(pNodeData->w/2) + randomOffset;
             
             nodeAData->x = pNodeData->x;
             nodeAData->y = pNodeData->y;
