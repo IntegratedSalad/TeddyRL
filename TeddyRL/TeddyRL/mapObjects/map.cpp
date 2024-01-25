@@ -361,20 +361,12 @@ void BSPAlgorithm::BuildLevel(std::mt19937& rng, std::unique_ptr<BSPTree> bspTre
 {
     // Build entire level.
     /*
-     This involves setting up node data (the max boundary of a room),
-     and then setting up actual room data, within confinments of that node.
-     After node data is set, room can be carved.
      TODO: Decide upon how will corridors be created.
-     
      */
-    
-    //std::cout << "Is symmetric: " << bspTree_p->CheckSymmetry() << std::endl;
     
     std::vector<std::shared_ptr<Node>> vector;
     bspTree_p->SplitNodesPreorder(bspTree_p->rootNode, rng);
     bspTree_p->ReturnBottomNodesPreorder(bspTree_p->rootNode, rng, vector);
-    
-    // WE WANT TO TAKE ONLY THE LOWEST (Bottom) LEAVES!!!!!!!
     
     // TODO: If I decide that BSP dungeon generation is done, I have to test the intersection and run code multiple (>1000) times to ensure that there won't be a location that goes out of bounds
     
@@ -449,13 +441,9 @@ void BSPAlgorithm::GenerateLevel(std::mt19937& rng)
     // Initiate nodes etc..
     LOG_MAP("Building node tree...")
     std::unique_ptr<BSPTree> nodeTree = BuildNodeTree(rng);
-//    LOG_MAP("Printing tree...")
-//    nodeTree->PrintTree();
 #warning Node's parent is the enclosing node. Parent's children is the division of the parent.
     LOG_MAP("Making rooms")
     BuildLevel(rng, std::move(nodeTree));
-    
-//    exit(0);
 }
 
 std::unique_ptr<BSPTree> BSPAlgorithm::BuildNodeTree(std::mt19937& rng)
@@ -468,7 +456,6 @@ std::unique_ptr<BSPTree> BSPAlgorithm::BuildNodeTree(std::mt19937& rng)
     /* We can "animate" the tree creation, by later going over the tree in engine, firstly getting the Nodes, and then the actual rooms.
      */
     bspTree_p->treeLeavesNum = bspTree_p->Grow(rng, N_LEVELS_BSP_MAX);
-    // TODO: add every leaf to leaves of bspTree_p
     
     return bspTree_p;
 }

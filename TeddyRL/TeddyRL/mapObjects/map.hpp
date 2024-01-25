@@ -180,7 +180,7 @@ private:
     void drawEnclosingSquare(sf::Sprite);
     
     std::vector<sf::Sprite> spritesVector; // canot be const, but whenever accessed, has to be accessed as a const!
-    LevelInfo levelInformationStruct; // TODO vector of these.
+    LevelInfo levelInformationStruct; // TODO: vector of these.
     
 public:
     Int2DVec blockingEntitiesInt2DVector; // Contains blocking entities' position in entityVector (walls, monsters etc)
@@ -281,6 +281,7 @@ typedef struct BSPTree
     std::vector<std::unique_ptr<Node>> bottomLeaves; // not needed
     unsigned int treeLeavesNum = 0;
     
+    [[deprecated]]
     std::shared_ptr<Node> GetSisterNode(std::shared_ptr<Node> node)
     {
         std::shared_ptr<Node> sister;
@@ -290,16 +291,13 @@ typedef struct BSPTree
         return sister;
     }
     
-    // this is looping over every node on each level and creating 2 leaves each time...
-    // TODO: find other way to create tree and grow leaves...
-    // this doesn't grow leaves as it should...
-    void GrowLeavesOnLevel(unsigned int level, unsigned int& nodeId, std::list<std::shared_ptr<Node>>& leavesToGrow) // should be  private
+    void GrowLeavesOnLevel(unsigned int level, unsigned int& nodeId, std::list<std::shared_ptr<Node>>& leavesToGrow)
     {
         std::list<std::shared_ptr<Node>> leavesGrownHere;
         for (auto leaf : leavesToGrow)
         {
-            std::shared_ptr<Node> firstChildNode = std::make_shared<Node>(leaf); // rename to BNode
-            std::shared_ptr<Node> secondChildNode = std::make_shared<Node>(leaf); // rename to ANode
+            std::shared_ptr<Node> firstChildNode = std::make_shared<Node>(leaf);
+            std::shared_ptr<Node> secondChildNode = std::make_shared<Node>(leaf);
             firstChildNode->id = nodeId;
             nodeId++;
             secondChildNode->id = nodeId;
@@ -317,7 +315,6 @@ typedef struct BSPTree
         leavesToGrow = leavesGrownHere;
     }
     
-    // TODO: Return only bottom nodes
     void ReturnBottomNodesPreorder(std::shared_ptr<Node> n, std::mt19937& rng, std::vector<std::shared_ptr<Node>>& vector)
     {
         if (n == nullptr) return;
@@ -335,8 +332,6 @@ typedef struct BSPTree
         rootNode = rootNode_p;
     }
     
-    /* Make nodes by splitting the root node */
-    // This is wrong I didn't test it!
     unsigned int Grow(std::mt19937& rng, unsigned int levels)
     {
         unsigned int sum;
@@ -363,7 +358,6 @@ typedef struct BSPTree
         leavesGrown.push_back(this->rootNode);
         for (unsigned int level = 0; level < levels; level++)
         {
-            //this->GetAllLeavesOnLevel(level, leavesGrown);
             this->GrowLeavesOnLevel(level + 1, nodeId, leavesGrown);
             sum += std::pow(2, level + 1);
         }
@@ -372,8 +366,6 @@ typedef struct BSPTree
     
     void SplitNodesPreorder(std::shared_ptr<Node> n, std::mt19937& rng)
     {
-        // Split nodes and create nodeData
-        // Set starting dimensions for root
         if (n == nullptr) return;
         
         int splitX = 0;
@@ -449,16 +441,6 @@ typedef struct BSPTree
         
         SplitNodesPreorder(n->Left(), rng);
         SplitNodesPreorder(n->Right(), rng);
-    }
-    
-    Room MakeSubnode(std::mt19937& rng, std::shared_ptr<Node> parentNode)
-    {
-        Room subnode;
-        const Room* parentNodeData = parentNode->nodeData;
-        // We need sister node?
-        // Or, divide the node in half + offset and make two subnodes...
-        
-        return subnode;
     }
     
     Room ChooseRandomRoom(std::mt19937& rng)
