@@ -475,8 +475,8 @@ protected:
     void CarveSquareRoom(int x, int y, int w, int h);
     void PlaceWall(int x, int y);
     void CarveWall(int x, int y);
-    void CarveVerticalLine(int xBegin, int yBegin, int length);
-    void CarveHorizontalLine(int xBegin, int yBegin, int length);
+    void CarveVerticalLine(int xBegin, int yBegin, int yEnd);
+    void CarveHorizontalLine(int xBegin, int yBegin, int xEnd);
     void CarveLine(int xBegin, int yBegin, int xEnd, int yEnd);
     void FillMapWithWalls(void);
     void FillSquareWithWalls(int x, int y, int w, int h);
@@ -517,9 +517,10 @@ public:
     void GenerateLevel(std::mt19937&);
     std::unique_ptr<BSPTree> BuildNodeTree(std::mt19937&);
     void BuildLevel(std::mt19937& rng, std::unique_ptr<BSPTree> bspTree_p); // TODO: should be virtual void
-    void BuildRoom(std::mt19937& rng, std::shared_ptr<Node>& node_p);
+    void BuildRoom(std::mt19937& rng, std::shared_ptr<Node>& node_p, std::vector<std::shared_ptr<Node>>& finalRooms);
     void PopulateLevel(std::mt19937&, std::unique_ptr<BSPTree> bspTree_p, Room startingRoom); // TODO: should be virtual void
-//    Tree*
+    
+    void ConnectRooms(std::vector<std::shared_ptr<Node>>&);
 };
 
 

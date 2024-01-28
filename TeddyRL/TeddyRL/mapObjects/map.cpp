@@ -156,12 +156,12 @@ void Map::GenerateLevel()
 
 Entity* Map::GetBlockingEntityPointerFromLocation(int x, int y) const
 {
-    if ((x > C_MAP_SIZE) || (y > C_MAP_SIZE))
-    {
-        std::cerr << "Fatal error: accessing entity out of map." << std::endl;
-        std::cerr << "X: " << x << " Y: " << y << std::endl;
-        exit(-1);
-    }
+//    if ((x > C_MAP_SIZE) || (y > C_MAP_SIZE))
+//    {
+//        std::cerr << "Fatal error: accessing entity out of map." << std::endl;
+//        std::cerr << "X: " << x << " Y: " << y << std::endl;
+//        exit(-1);
+//    }
     
     int index = blockingEntitiesInt2DVector[x][y];
     if (index >= 0)
@@ -290,23 +290,40 @@ void DungeonAlgorithm::CarveSquareRoom(int x, int y, int w, int h)
 }
 
 
-void DungeonAlgorithm::CarveVerticalLine(int xBegin, int yBegin, int length)
+void DungeonAlgorithm::CarveVerticalLine(int xBegin, int yBegin, int yEnd)
 {
-    for (int i = 0; i < length; i++)
+    // vertical values will be changing
+    if (yBegin > yEnd)
     {
-        CarveWall(xBegin, yBegin + i);
+        for (int y = yBegin; y != yEnd; y--)
+        {
+            CarveWall(xBegin, y);
+        }
+    } else
+    {
+        for (int y = yBegin; y != yEnd; y++)
+        {
+            CarveWall(xBegin, y);
+        }
     }
-    // TODO: Test
+    
 }
 
-
-void DungeonAlgorithm::CarveHorizontalLine(int xBegin, int yBegin, int length)
+void DungeonAlgorithm::CarveHorizontalLine(int xBegin, int yBegin, int xEnd)
 {
-    for (int i = 0; i < length; i++)
+    if (xBegin > xEnd)
     {
-        CarveWall(xBegin, yBegin + i);
+        for (int x = xBegin; x != xEnd; x--)
+        {
+            CarveWall(x, yBegin);
+        }
+    } else
+    {
+        for (int x = xBegin; x != xEnd; x++)
+        {
+            CarveWall(x, yBegin);
+        }
     }
-    // TODO: Test
 }
 
 
@@ -364,23 +381,26 @@ void BSPAlgorithm::BuildLevel(std::mt19937& rng, std::unique_ptr<BSPTree> bspTre
      TODO: Decide upon how will corridors be created.
      */
     
-    std::vector<std::shared_ptr<Node>> vector;
+    std::vector<std::shared_ptr<Node>> roomNodesVector;
     bspTree_p->SplitNodesPreorder(bspTree_p->rootNode, rng);
-    bspTree_p->ReturnBottomNodesPreorder(bspTree_p->rootNode, rng, vector);
+    bspTree_p->ReturnBottomNodesPreorder(bspTree_p->rootNode, rng, roomNodesVector);
     
     // TODO: If I decide that BSP dungeon generation is done, I have to test the intersection and run code multiple (>1000) times to ensure that there won't be a location that goes out of bounds
     
-    for (auto n : vector)
+    std::vector<std::shared_ptr<Node>> finalRooms;
+    for (auto n : roomNodesVector)
     {
         if (n == bspTree_p->rootNode) continue;
-        this->BuildRoom(rng, n);
+        this->BuildRoom(rng, n, finalRooms);
     }
     
     Room randomRoom = bspTree_p->ChooseRandomRoom(rng);
+    // Do we need at this moment node Data? So do we neeed Node struct at all?
+    ConnectRooms(finalRooms);
     PopulateLevel(rng, std::move(bspTree_p), randomRoom);
 }
 
-void BSPAlgorithm::BuildRoom(std::mt19937& rng, std::shared_ptr<Node>& node_p)
+void BSPAlgorithm::BuildRoom(std::mt19937& rng, std::shared_ptr<Node>& node_p, std::vector<std::shared_ptr<Node>>& finalRooms)
 {
     const int nodeX = node_p->nodeData->x;
     const int nodeY = node_p->nodeData->y;
@@ -427,7 +447,100 @@ void BSPAlgorithm::BuildRoom(std::mt19937& rng, std::shared_ptr<Node>& node_p)
     
     Room* roomData = new Room {.x = roomX, .y = roomY, .w = roomWidth, .h = roomHeight};
     node_p->SetRoomData(roomData);
+    finalRooms.push_back(node_p);
     CarveSquareRoom(roomX, roomY, roomWidth, roomHeight);
+}
+
+void BSPAlgorithm::ConnectRooms(std::vector<std::shared_ptr<Node>>& nodeVector)
+{
+    Room* r1;
+    Room* r2;
+    bool connectHorizontally = true;
+    bool b1, b2;
+    int beginX, beginY, endX, endY;
+    int middleConBeginX, middleConBeginY, middleConEndX, middleConEndY;
+    for (int i = 0; i < nodeVector.size() - 1; i++)
+    {
+        b1 = false;
+        b2 = false;
+        r1 = nodeVector[i]->roomData;
+        r2 = nodeVector[i+1]->roomData;
+        
+        if (r1 == nullptr || r2 == nullptr) continue;
+        
+        if ((r1->x + r1->w < r2->x) || (r2->x + r2->w < r1->x)) // vertical
+        {
+            connectHorizontally = false;
+            b1 = true;
+        }
+        else if ((r1->y + r1->h < r2->y) || (r2->y + r2->h < r1->y)) // horizontal
+        {
+            connectHorizontally = true;
+            b2 = true;
+        }
+        if (b1 && b2)// overlapping
+        {
+            continue;
+        }
+        
+        if (!connectHorizontally)
+        {
+            if (r1->x + r1->w < r2->x) // r1 is on left
+            {
+                beginX = r1->x + r1->w;
+                beginY = r1->y + std::floor((r1->h) / 2);
+                
+                endX = r2->x;
+                endY = r2->y + std::floor((r2->h / 2));
+                
+            } else // r2 is on left
+            {
+                beginX = r2->x + r2->w;
+                beginY = r2->y + std::floor((r2->h) / 2);
+                
+                endX = r1->x;
+                endY = r1->y + std::floor((r1->h /2));
+            }
+            
+            middleConBeginX = std::floor((beginX + endX) / 2);
+            middleConEndX = middleConBeginX;
+            middleConBeginY = 1;
+            middleConEndY = endY; //C_MAP_SIZE - 1;
+            
+            this->CarveHorizontalLine(beginX, beginY, middleConBeginX); // connect line from room to the big middle line
+            
+            this->CarveVerticalLine(middleConBeginX, beginY, endY);
+            this->CarveHorizontalLine(middleConEndX, endY, endX);
+            
+        } else
+        {
+            if (r1->y + r1->h < r2->y) // r1 is below
+            {
+                beginX = r1->x + std::floor((r1->w) / 2);
+                beginY = r1->y;
+                
+                endX = r2->x + std::floor((r2->w) / 2);
+                endY = r2->y + r2->h;
+                
+            } else // r2 is below
+            {
+                beginX = r2->x + std::floor((r2->w) / 2);
+                beginY = r2->y;
+                
+                endX = r1->x + std::floor((r1->w) / 2);
+                endY = r1->y + r1->h;
+            }
+            
+            middleConBeginX = 0;
+            middleConEndX = C_MAP_SIZE - 1;
+            middleConBeginY = std::floor((beginY + endY) / 2);
+            middleConEndY = middleConBeginY;
+            
+            this->CarveVerticalLine(beginX, beginY, middleConBeginY);
+            this->CarveHorizontalLine(beginX, middleConBeginY, endX);
+            this->CarveVerticalLine(endX, middleConBeginY, endY);
+        }
+    }
 }
 
 /*

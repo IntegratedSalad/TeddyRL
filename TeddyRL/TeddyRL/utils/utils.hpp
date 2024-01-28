@@ -29,6 +29,8 @@ typedef enum class DieToThrow
 class Entity;
 typedef std::vector<std::vector<int>> Int2DVec;
 void DebugPrintInt2dVector(const Int2DVec& vec, const std::string& name);
+
+// TODO: Create vector and use sf::Vector2 to calculate distance
 int DistanceBetweenTwoEntities(const Entity& e1, const Entity& e2);
 
 // TODO: BresenhamLine
