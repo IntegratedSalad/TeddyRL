@@ -355,37 +355,16 @@ void DungeonAlgorithm::FillSquareWithWalls(int x, int y, int w, int h)
     }
 }
 
-void BSPAlgorithm::PopulateLevel(std::mt19937& rng, std::unique_ptr<BSPTree> bspTree_p, Room startingRoom)
-{
-    /* Places player, enemies items, stairs etc... */
-    
-    LOG_MAP("Checking rootNode in PopulateLevel")
-    
-    std::shared_ptr<Node> root = bspTree_p->rootNode;
-    
-    root->childrenNodes[0]->nodeData->prettyPrint();
-    root->childrenNodes[1]->nodeData->prettyPrint();
-    
-    std::cout << "Starting misio room" << std::endl;
-    startingRoom.prettyPrint();
-    
-    
-//    exit(0);
-    
-}
-
 void BSPAlgorithm::BuildLevel(std::mt19937& rng, std::unique_ptr<BSPTree> bspTree_p)
 {
     // Build entire level.
-    /*
-     TODO: Decide upon how will corridors be created.
-     */
     
     std::vector<std::shared_ptr<Node>> roomNodesVector;
     bspTree_p->SplitNodesPreorder(bspTree_p->rootNode, rng);
     bspTree_p->ReturnBottomNodesPreorder(bspTree_p->rootNode, rng, roomNodesVector);
     
     // TODO: If I decide that BSP dungeon generation is done, I have to test the intersection and run code multiple (>1000) times to ensure that there won't be a location that goes out of bounds
+    // TODO: Implement unit tests
     
     std::vector<std::shared_ptr<Node>> finalRooms;
     for (auto n : roomNodesVector)
@@ -550,11 +529,8 @@ void BSPAlgorithm::ConnectRooms(std::vector<std::shared_ptr<Node>>& nodeVector)
 void BSPAlgorithm::GenerateLevel(std::mt19937& rng)
 {
     FillMapWithWalls();
-    
-    // Initiate nodes etc..
     LOG_MAP("Building node tree...")
     std::unique_ptr<BSPTree> nodeTree = BuildNodeTree(rng);
-#warning Node's parent is the enclosing node. Parent's children is the division of the parent.
     LOG_MAP("Making rooms")
     BuildLevel(rng, std::move(nodeTree));
 }
@@ -562,13 +538,31 @@ void BSPAlgorithm::GenerateLevel(std::mt19937& rng)
 std::unique_ptr<BSPTree> BSPAlgorithm::BuildNodeTree(std::mt19937& rng)
 {
     std::unique_ptr<BSPTree> bspTree_p(std::make_unique<BSPTree>());
-    /* Effectively, BSPAlgorithm will create room data.
+    /*
+     Effectively, BSPAlgorithm will create room data.
      BSPTree and Node are just to form a BSPTree.
-     
      */
+    
     /* We can "animate" the tree creation, by later going over the tree in engine, firstly getting the Nodes, and then the actual rooms.
      */
     bspTree_p->treeLeavesNum = bspTree_p->Grow(rng, N_LEVELS_BSP_MAX);
-    
     return bspTree_p;
+}
+
+void BSPAlgorithm::PopulateLevel(std::mt19937& rng, std::unique_ptr<BSPTree> bspTree_p, Room startingRoom)
+{
+    /* Places player, enemies items, stairs etc... */
+    
+    LOG_MAP("Checking rootNode in PopulateLevel")
+    
+    std::shared_ptr<Node> root = bspTree_p->rootNode;
+    
+    root->childrenNodes[0]->nodeData->prettyPrint();
+    root->childrenNodes[1]->nodeData->prettyPrint();
+    
+    std::cout << "Starting misio room" << std::endl;
+    startingRoom.prettyPrint();
+    
+//    exit(0);
+    
 }

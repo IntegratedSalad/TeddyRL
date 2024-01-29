@@ -29,6 +29,8 @@
 #define WIDTH_ROOM_MAX 7
 #define HEIGHT_ROOM_MAX 7
 
+// TODO: Play with values above to ensure what are the constraints
+
 #define LOG_MAP(x) std::cout << "LOG_MAP:\n " << (x) << std::endl;
 // TODO: Build that macro, so I can add variadic arguments and print more than one thing
 
@@ -455,7 +457,6 @@ typedef struct BSPTree
             const int randomRoomIdx = randomNumInRange(0, vector.size() - 1, rng);
             rp = (vector[randomRoomIdx])->roomData;
         }
-        
         return *rp;
     }
     
@@ -505,6 +506,7 @@ public:
   - the data that arose from building a tree - room positions and sizes, room types can be copied into LevelInfo
 */
 
+/* TODO: Make some of these methods private */
 class BSPAlgorithm : private DungeonAlgorithm
 {
 private:
