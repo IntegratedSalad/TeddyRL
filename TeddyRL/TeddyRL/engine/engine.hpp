@@ -77,7 +77,7 @@ public:
     
     Entity* GetPlayer(void) {return this->player;}
 
-    void RenderAll(Int2DVec, std::vector<Entity* > entityVector, sf::RenderWindow* window, const Map&, const Entity* cameraPointer) const;
+    void RenderAll(Int2DVec, std::vector<Entity* >& entityVector, sf::RenderWindow* window, const Map&, const Entity* cameraPointer) const;
     EngineState RenderGameOver(sf::RenderWindow* window) const;
     
     /* Scale map coordinates to screen coordinates */
@@ -92,7 +92,9 @@ public:
     
     void SetupNewGameMap(const std::vector<sf::Sprite> spritesVector);
     void LoadGameMap(const std::vector<sf::Sprite> spritesVector, Map* mp);
-    std::vector<Entity* > FindEntitiesInCameraRange(const std::vector<Entity*> entities, const Entity *cameraPointer) const;
+    
+    
+    std::vector<Tile> GetSpritesOfEntitiesCloseToPlayer(const std::vector<Entity*>& entities, const Entity *cameraPointer) const; // one way to optimize this is to return std::vector<Tile> copies
     
 };
 

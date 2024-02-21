@@ -224,7 +224,7 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, std::mt19937& rng)
 }
 #warning entityVector should be a const reference.
 #warning remember about vertex array.
-void Engine::RenderAll(Int2DVec intVec, std::vector<Entity* > blockingEntities, sf::RenderWindow* window, const Map& map, const Entity* cameraPointer) const
+void Engine::RenderAll(Int2DVec intVec, std::vector<Entity* >& blockingEntities, sf::RenderWindow* window, const Map& map, const Entity* cameraPointer) const
 {
     /* Render Game Map */
     
@@ -242,12 +242,11 @@ void Engine::RenderAll(Int2DVec intVec, std::vector<Entity* > blockingEntities, 
     
     // TODO: Zooming out and in.
     
-    const std::vector<Entity* > blockingEntitiesInCameraRange = FindEntitiesInCameraRange(blockingEntities, cameraPointer);
+    const std::vector<Tile> blockingEntitiesInCameraRange = GetSpritesOfEntitiesCloseToPlayer(blockingEntities, cameraPointer);
     
-    for (Entity* bep : blockingEntitiesInCameraRange)
+    for (Tile t : blockingEntitiesInCameraRange)
     {
-        if (bep != nullptr)
-            window->draw(*bep->tile);
+        window->draw(t); // Something is put on heap here...
     }
     
     if (debugModeOn)
@@ -507,21 +506,21 @@ void Engine::LoadGameMap(const std::vector<sf::Sprite> spritesVector, Map* mp)
     this->gameMap = mp;
 }
 
-std::vector<Entity* > Engine::FindEntitiesInCameraRange(const std::vector<Entity*> entities, const Entity *cameraPointer) const
+std::vector<Tile> Engine::GetSpritesOfEntitiesCloseToPlayer(const std::vector<Entity*>& entities, const Entity *cameraPointer) const
 {
-    std::vector<Entity* > v;
+    std::vector<Tile> vt;
     
-    for (Entity* bep: entities)
+    for (const Entity* bep: entities)
     {
         if (bep != nullptr)
         {
             if (DistanceBetweenTwoEntities(*bep, *cameraPointer) <= C_CAMERA_RANGE)
             {
-                v.push_back(bep);
+                vt.push_back(*bep->tile);
             }
         }
     }
-    return v;
+    return vt;
 }
 
 void Engine::ClearGameMap(void)
