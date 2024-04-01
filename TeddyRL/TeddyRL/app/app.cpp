@@ -89,6 +89,7 @@ void App::run()
     std::random_device rnd;
     std::mt19937 rng(rnd());
     
+    window->resetGLStates();
     EngineState state = engine.mainLoop(window, rng);
 
     switch (state)

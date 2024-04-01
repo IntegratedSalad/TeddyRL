@@ -242,12 +242,14 @@ void Engine::RenderAll(Int2DVec intVec, std::vector<Entity* >& blockingEntities,
     
     // TODO: Zooming out and in.
     
-    const std::vector<Tile*> blockingEntitiesInCameraRange = GetSpritesOfEntitiesCloseToPlayer(blockingEntities, cameraPointer);
+    std::vector<Tile*> blockingEntitiesInCameraRange = GetSpritesOfEntitiesCloseToPlayer(blockingEntities, cameraPointer);
     
     for (auto& t : blockingEntitiesInCameraRange)
     {
         window->draw(*t); // Something is put on heap here...
     }
+    
+    blockingEntitiesInCameraRange.clear();
     
     if (debugModeOn)
         RenderDebugInfo(map, this->player, window);
