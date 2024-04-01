@@ -242,11 +242,11 @@ void Engine::RenderAll(Int2DVec intVec, std::vector<Entity* >& blockingEntities,
     
     // TODO: Zooming out and in.
     
-    const std::vector<Tile> blockingEntitiesInCameraRange = GetSpritesOfEntitiesCloseToPlayer(blockingEntities, cameraPointer);
+    const std::vector<Tile*> blockingEntitiesInCameraRange = GetSpritesOfEntitiesCloseToPlayer(blockingEntities, cameraPointer);
     
-    for (Tile t : blockingEntitiesInCameraRange)
+    for (auto& t : blockingEntitiesInCameraRange)
     {
-        window->draw(t); // Something is put on heap here...
+        window->draw(*t); // Something is put on heap here...
     }
     
     if (debugModeOn)
@@ -506,9 +506,9 @@ void Engine::LoadGameMap(const std::vector<sf::Sprite> spritesVector, Map* mp)
     this->gameMap = mp;
 }
 
-std::vector<Tile> Engine::GetSpritesOfEntitiesCloseToPlayer(const std::vector<Entity*>& entities, const Entity *cameraPointer) const
+std::vector<Tile*> Engine::GetSpritesOfEntitiesCloseToPlayer(const std::vector<Entity*>& entities, const Entity *cameraPointer) const
 {
-    std::vector<Tile> vt;
+    std::vector<Tile*> vt;
     
     for (const Entity* bep: entities)
     {
@@ -516,7 +516,7 @@ std::vector<Tile> Engine::GetSpritesOfEntitiesCloseToPlayer(const std::vector<En
         {
             if (DistanceBetweenTwoEntities(*bep, *cameraPointer) <= C_CAMERA_RANGE)
             {
-                vt.push_back(*bep->tile);
+                vt.push_back(bep->GetTile());
             }
         }
     }

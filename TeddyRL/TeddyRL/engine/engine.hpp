@@ -94,7 +94,7 @@ public:
     void LoadGameMap(const std::vector<sf::Sprite> spritesVector, Map* mp);
     
     
-    std::vector<Tile> GetSpritesOfEntitiesCloseToPlayer(const std::vector<Entity*>& entities, const Entity *cameraPointer) const; // one way to optimize this is to return std::vector<Tile> copies
+    std::vector<Tile*> GetSpritesOfEntitiesCloseToPlayer(const std::vector<Entity*>& entities, const Entity *cameraPointer) const; // one way to optimize this is to return std::vector<Tile> copies
     
 };
 

@@ -90,6 +90,11 @@ public:
     
     static Entity* CreateNewEntityFromSprite(sf::Sprite entitySprite, std::string name, bool isInvisible, bool blocks, sf::Color entityColor, int x, int y);
     
+    Tile* GetTile(void) const
+    {
+        return this->tile;
+    }
+    
     unsigned int blockingEntitiesVectorPos;
     
 };

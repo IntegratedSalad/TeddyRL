@@ -119,6 +119,7 @@ void Entity::Die(sf::Sprite& corpseSprite)
 
 Entity::~Entity()
 {
+    delete this->tile;
 }
 
 Entity* Entity::CreateNewEntityFromSprite(sf::Sprite entitySprite, std::string name, bool isInvisible, bool blocks, sf::Color entityColor, int x, int y)
