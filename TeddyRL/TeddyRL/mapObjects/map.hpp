@@ -32,9 +32,6 @@
 // TODO: Play with values above to ensure what are the constraints
 
 #define LOG_MAP(x) std::cout << "LOG_MAP:\n " << (x) << std::endl;
-// TODO: Build that macro, so I can add variadic arguments and print more than one thing
-
-// TODO: Move LOG utilities to utils.h
 
 /* Because you will be able to go back to the previous levels, every level map will be initialized, and kept in a vector. */
 enum class LevelType
@@ -54,6 +51,8 @@ enum class RoomType
     RT_BOSS,
     RT_ARTIFACT,
     RT_BRANCH,
+    RT_STARTING_ROOM,
+    RT_STAIRS_DOWN,
     
     RT_TREE_NODE,
     RT_TREE_CORRIDOR
@@ -122,16 +121,15 @@ typedef struct Room
 
 // TODO: Maybe add Room array to keep information about rooms.
 // TODO: Exactly, a uniform Room data collection regardless of used algorithm.
-//       Where are stares? Where can be/is treasure spawned etc.
+//       Then, algorithms can be defined to calculate path between rooms
+//       Where are stairs? Where can be/is treasure spawned etc.
 typedef struct LevelInfo
 {
     friend class boost::serialization::access;
     unsigned int roomsNum;
     unsigned int numOfEntities;
     unsigned int numOfItems;
-    
-    // Possible need of expanding this structure to hold rooms info.
-    // Rooms number is just leaves vector size from BSPTree.
+    std::list<Room> roomList;
     
     template <class Archive>
     void serialize(Archive& ar, const unsigned int version)
@@ -450,19 +448,38 @@ typedef struct BSPTree
         std::vector<std::shared_ptr<Node>> vector;
         Room r;
         Room* rp = nullptr;
-        
+        this->ReturnBottomNodesPreorder(this->rootNode, rng, vector);
         while (rp == nullptr)
         {
-            this->ReturnBottomNodesPreorder(this->rootNode, rng, vector);
             const int randomRoomIdx = randomNumInRange(0, vector.size() - 1, rng);
             rp = (vector[randomRoomIdx])->roomData;
         }
         return *rp;
     }
     
+    std::list<Room> PickNRandomRooms(std::mt19937& rng, int n)
+    {
+        std::list<Room> rl;
+        std::vector<std::shared_ptr<Node>> vector;
+        this->ReturnBottomNodesPreorder(this->rootNode, rng, vector);
+        Room* rp = nullptr;
+        
+        return rl;
+    }
+    
 } BSPTree;
 
-
+/*
+ * @Description:
+ *
+ * Class DungeonAlgorithm is an interface solely used to place walls and fill out
+ * data used to place monsters, items and stairs, for the Map class.
+ * This data are Rooms - squares defining types of rooms taking place in game,
+ * e.g. Where the stairs should be put? Where is the boss lair?
+ * Even algorithm that doesn't generate square spces will define Rooms (squares)
+ * with key places.
+ *
+ */
 class DungeonAlgorithm
 {
 private:
@@ -481,7 +498,8 @@ protected:
     void CarveLine(int xBegin, int yBegin, int xEnd, int yEnd);
     void FillMapWithWalls(void);
     void FillSquareWithWalls(int x, int y, int w, int h);
-    virtual void GenerateLevel(std::mt19937&) = 0;
+//    virtual void PlacePlayer(std::mt19937&) = 0; ???
+    virtual std::list<Room> GenerateLevel(std::mt19937&) = 0;
     
 public:
     DungeonAlgorithm(Map* mp, sf::Sprite wSprite) : map_p(mp), defaultSpriteForWalls(wSprite)
@@ -516,12 +534,13 @@ public:
     BSPAlgorithm(Map* map_p, sf::Sprite wSprite) : DungeonAlgorithm(map_p, wSprite)
     {
     }
-    void GenerateLevel(std::mt19937&);
+    std::list<Room> GenerateLevel(std::mt19937&);
     std::unique_ptr<BSPTree> BuildNodeTree(std::mt19937&);
-    void BuildLevel(std::mt19937& rng, std::unique_ptr<BSPTree> bspTree_p); // TODO: should be virtual void
+    std::list<Room> BuildLevel(std::mt19937& rng, BSPTree& bspTree_p);
     void BuildRoom(std::mt19937& rng, std::shared_ptr<Node>& node_p, std::vector<std::shared_ptr<Node>>& finalRooms);
     void PopulateLevel(std::mt19937&, std::unique_ptr<BSPTree> bspTree_p, Room startingRoom); // TODO: should be virtual void
     
+    void PlacePlayer(std::mt19937&);
     void ConnectRooms(std::vector<std::shared_ptr<Node>>&);
 };
 

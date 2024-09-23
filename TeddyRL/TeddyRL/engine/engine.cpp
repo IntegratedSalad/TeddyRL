@@ -246,7 +246,7 @@ void Engine::RenderAll(Int2DVec intVec, std::vector<Entity* >& blockingEntities,
     
     for (auto& t : blockingEntitiesInCameraRange)
     {
-        window->draw(*t); // Something is put on heap here...
+        window->draw(*t);
     }
     
     blockingEntitiesInCameraRange.clear();
@@ -259,7 +259,6 @@ void Engine::RenderAll(Int2DVec intVec, std::vector<Entity* >& blockingEntities,
     
 }
 
-/* It should return something */
 GameState Engine::HandlePlayerAction(Entity* player, PlayerAction playerAction, Int2DVec& intVec, std::vector<Entity* > actorsVector, ActionResult& turnAction, Entity* camera)
 {
     switch (playerAction)
@@ -476,9 +475,10 @@ void Engine::SetupNewGameMap(const std::vector<sf::Sprite> spritesVector)
         
     // Make Level
     
+    /* --- THIS SHOULD BE IN CONSTRUCTOR --- */
+    
     sf::Sprite playerSprite = spritesVector[73];
-    sf::Sprite corpseSprite = spritesVector.at(static_cast<int>(TileSprite::CORPSE)); // this is not an ideal solution
-    // maybe create a class that has a vector as a private member, and you can append sprites and get by overloading [] operator,
+    sf::Sprite corpseSprite = spritesVector.at(static_cast<int>(TileSprite::CORPSE));
     
     Tile* playerTile = new Tile{false, true, playerSprite, sf::Color::White}; // TODO: Make static method or constructor. Or add .Create() method, which utilizes given TileSprite and options
     playerTile->SetSpriteEnumVal(TileSprite::TEDDY);
@@ -491,6 +491,8 @@ void Engine::SetupNewGameMap(const std::vector<sf::Sprite> spritesVector)
     
     Entity* player = new Entity{playerTile, C_TEDDY_NAME_BASE, 12, 12};
     player->SetActorComponent(pacp);
+    
+    /* --- THIS SHOULD BE IN CONSTRUCTOR --- */
     
     mp->GenerateLevel(); // this is only a method to intialize a new game, not for loading the map!
     
