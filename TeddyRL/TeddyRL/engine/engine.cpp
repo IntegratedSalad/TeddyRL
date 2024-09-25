@@ -43,11 +43,11 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, std::mt19937& rng)
     sf::Time previousTime;
     sf::Time currentTime;
     
-    Entity* cpointer = new Entity{};
-    cpointer->SetX(player->GetX());
-    cpointer->SetY(player->GetY());
-    cpointer->SetTile(nullptr);
-    cpointer->SetName("camera");
+    Entity* camerap = new Entity{};
+    camerap->SetX(player->GetX());
+    camerap->SetY(player->GetY());
+    camerap->SetTile(nullptr);
+    camerap->SetName("camera");
     
     bool mouseActivated = false;
     GameState turn = GameState::PLAYER_AND_FRIENDS_TURN;
@@ -97,7 +97,7 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, std::mt19937& rng)
         ActionResult playerActionResult;
         if (turn == GameState::PLAYER_AND_FRIENDS_TURN)
         {
-            turn = HandlePlayerAction(player, playerAction, gameMap->blockingEntitiesInt2DVector, gameMap->blockingEntities, playerActionResult, cpointer); // turn results are written in function, in a variable passed by reference.
+            turn = HandlePlayerAction(player, playerAction, gameMap->blockingEntitiesInt2DVector, gameMap->blockingEntities, playerActionResult, camerap); // turn results are written in function, in a variable passed by reference.
             
             // Player starts first!
                 
@@ -187,7 +187,7 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, std::mt19937& rng)
         
         /* DRAW */
         
-        this->RenderAll(gameMap->blockingEntitiesInt2DVector, gameMap->blockingEntities, window, *gameMap, cpointer);
+        this->RenderAll(gameMap->blockingEntitiesInt2DVector, gameMap->blockingEntities, window, *gameMap, camerap);
 
         currentTime = clock.getElapsedTime();
         fps = 1.0f / previousTime.asSeconds() - currentTime.asSeconds();
@@ -202,14 +202,14 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, std::mt19937& rng)
         if (saveGame) // Don't allow for save scumming exiting results in a save and you can only load from main menu
         {
             // also, saving exits the game <- exits to the main menu
-            delete cpointer;
+            delete camerap;
             return EngineState::STATE_SAVING;
         }
 
         if (!isShiftPressed && !cameraMoved)
         {
-            cpointer->SetX(player->GetX());
-            cpointer->SetY(player->GetY());
+            camerap->SetX(player->GetX());
+            camerap->SetY(player->GetY());
         }
         isShiftPressed = false;
     }
@@ -218,10 +218,10 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, std::mt19937& rng)
     {
         this->RenderGameOver(window);
         std::cout << "dupa" << std::endl;
-        delete cpointer;
+        delete camerap;
         return EngineState::STATE_GAME_OVER;
     }
-    return EngineState::STATE_MENU; // for now, assume we going to the menu.
+    return EngineState::STATE_MENU; // for now, assume we are going to the menu.
 }
 #warning entityVector should be a const reference.
 #warning remember about vertex array.
@@ -391,7 +391,7 @@ void Engine::RenderDebugInfo(const Map& map, const Entity* player, sf::RenderWin
     int mouseXPositionRelative = window->mapPixelToCoords(sf::Mouse::getPosition(*window)).x; // TODO: Const
     int mouseYPositionRelative = window->mapPixelToCoords(sf::Mouse::getPosition(*window)).y; // TODO: Const
 
-    // TODO: Calculate the distance between nearest blocking entity and show it, not relay on anything in map logic
+    // TODO: Calculate the distance between nearest blocking entity and show it, not rely on anything in map logic
     
     if ((mouseXPositionRelative && mouseYPositionRelative >= 0))
     {
@@ -470,8 +470,6 @@ EngineState Engine::RenderGameOver(sf::RenderWindow* window) const
 
 void Engine::SetupNewGameMap(const std::vector<sf::Sprite> spritesVector)
 {
-    // TODO: Huge thing to do is to standardize creation of entities. Do not set manually class' fields after using a constructor. Constructor should handle all the initialization and setup.
-    
 #warning Important!
     Map* mp = new Map(spritesVector);
     mp->SetupLevelInformation();
@@ -480,31 +478,7 @@ void Engine::SetupNewGameMap(const std::vector<sf::Sprite> spritesVector)
     std::random_device rnd;
     std::mt19937 rng(rnd());
     
-    /* --- THIS SHOULD BE IN CONSTRUCTOR --- */
-    
-//    sf::Sprite playerSprite = spritesVector[73];
-//    sf::Sprite corpseSprite = spritesVector.at(static_cast<int>(TileSprite::CORPSE));
-//
-//    Tile* playerTile = new Tile{false, true, playerSprite, sf::Color::White}; // TODO: Make static method or constructor. Or add .Create() method, which utilizes given TileSprite and options
-//    playerTile->SetSpriteEnumVal(TileSprite::TEDDY);
-//
-//    Actor* pacp = new Actor();
-//    pacp->SetAI(nullptr); // TODO: This has to be done automatically in a constructor of an Actor
-//    pacp->SetAIType(AIType::NONE); // player is a special entity that has an actor component but doesn't have an AI.
-//
-//    // Setup player.
-//
-//    Entity* player = new Entity{playerTile, C_TEDDY_NAME_BASE, 12, 12};
-//    player->SetActorComponent(pacp);
-    
-    /* --- THIS SHOULD BE IN CONSTRUCTOR --- */
-    
-    
     mp->GenerateLevel(); // this is only a method to intialize a new game, not for loading the map!
-    
-//    mp->PlaceBlockingEntityOnMap(player, player->GetX(), player->GetY());
-    
-    // TODO: Setup player
     
     Entity* player = new Entity{
             spritesVector,

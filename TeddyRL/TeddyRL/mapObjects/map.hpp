@@ -120,10 +120,10 @@ typedef struct Room
    Map spawns enemies and items decides whether to put an artifact, boss etc.
  */
 
-// TODO: Maybe add Room array to keep information about rooms.
-// TODO: Exactly, a uniform Room data collection regardless of used algorithm.
 //       Then, algorithms can be defined to calculate path between rooms
 //       Where are stairs? Where can be/is treasure spawned etc.
+//       Even with cellular automata, we can return list of "rooms" -
+//       - squares, that will contain some important things like bosses etc.
 typedef struct LevelInfo
 {
     friend class boost::serialization::access;
@@ -284,17 +284,7 @@ typedef struct BSPTree
     std::vector<std::shared_ptr<Node>> leaves; // not needed
     std::vector<std::unique_ptr<Node>> bottomLeaves; // not needed
     unsigned int treeLeavesNum = 0;
-    
-    [[deprecated]]
-    std::shared_ptr<Node> GetSisterNode(std::shared_ptr<Node> node)
-    {
-        std::shared_ptr<Node> sister;
-        std::shared_ptr<Node> parent = node->parentNode; // go to parent
-        sister = parent->childrenNodes[0]; // assign 1st element
-        if (sister == node) { sister = parent->childrenNodes[1]; } // check if first element is this node. If yes, sister is the second node.
-        return sister;
-    }
-    
+        
     void GrowLeavesOnLevel(unsigned int level, unsigned int& nodeId, std::list<std::shared_ptr<Node>>& leavesToGrow)
     {
         std::list<std::shared_ptr<Node>> leavesGrownHere;
@@ -421,7 +411,6 @@ typedef struct BSPTree
             nodeBData->y = pNodeData->y;
             nodeBData->w = pNodeData->w - nodeAData->w;
             nodeBData->h = pNodeData->h;
-            // TODO: Set room type
         }
 
         if (n->Left() != nullptr)
@@ -467,7 +456,6 @@ typedef struct BSPTree
         std::vector<std::shared_ptr<Node>> vector;
         this->ReturnBottomNodesPreorder(this->rootNode, rng, vector);
         Room* rp = nullptr;
-        
         return rl;
     }
     
@@ -502,7 +490,6 @@ protected:
     void CarveLine(int xBegin, int yBegin, int xEnd, int yEnd);
     void FillMapWithWalls(void);
     void FillSquareWithWalls(int x, int y, int w, int h);
-//    virtual void PlacePlayer(std::mt19937&) = 0; ???
     virtual std::list<Room> GenerateLevel(std::mt19937&) = 0;
     
 public:

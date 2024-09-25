@@ -116,7 +116,6 @@ void Map::KillEntity(Entity* entity)
 //                Entity* wall = new Entity{wallTile, "Wall", i, j};
 //                PlaceBlockingEntityOnMap(wall, i, j);
 //#warning Very important!
-//                // TODO: Encompass this into a standard method for creating an entity.
 //            }
 //        }
 //    }
@@ -136,8 +135,6 @@ void Map::GenerateLevel()
     
     sf::Sprite enemySprite = spritesVector[static_cast<int>(TileSprite::SNAKE)];
     sf::Sprite wallSprite = spritesVector[128];
-
-//    drawEnclosingSquare(wallSprite);
     
     BSPAlgorithm dAlgo = BSPAlgorithm{this, wallSprite};
     const std::list<Room> listOfRooms = dAlgo.GenerateLevel(rng);
@@ -409,10 +406,6 @@ std::list<Room> BSPAlgorithm::GenerateLevel(std::mt19937& rng)
     LOG_MAP("Making rooms")
     roomList = BuildLevel(rng, nodeTree);
     return roomList;
-    
-    /* TODO: Export all rooms for map class
-             These rooms will have room types set.
-     */
 }
 
 std::unique_ptr<BSPTree> BSPAlgorithm::BuildNodeTree(std::mt19937& rng)

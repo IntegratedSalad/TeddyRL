@@ -86,27 +86,22 @@ public:
     }
     
     void SetPosition(int _x, int _y);
-    
     void SetX(int _x) { this->x = _x; }
     void SetY(int _y) { this->y = _y; }
+    void SetActorComponent(Actor* acp);
+    void SetTile(Tile* t) { this->tile = t;}
+    void SetName(const std::string& nameString) { this->name = nameString;}
     
     int GetX(void) const { return this->x; }
     int GetY(void) const { return this->y; }
     const std::string& GetName(void) const { return this->name; }
     Actor* GetActorComponent(void) const { return this->actorComponent; }
-    
-    void SetActorComponent(Actor* acp);
-    
-    void SetTile(Tile* t) { this->tile = t;}
-    
-    void SetName(const std::string& nameString) { this->name = nameString;}
-    
-    static Entity* CreateNewEntityFromSprite(sf::Sprite entitySprite, std::string name, bool isInvisible, bool blocks, sf::Color entityColor, int x, int y);
-    
     Tile* GetTile(void) const
     {
         return this->tile;
     }
+    
+    static Entity* CreateNewEntityFromSprite(sf::Sprite entitySprite, std::string name, bool isInvisible, bool blocks, sf::Color entityColor, int x, int y);
     
     unsigned int blockingEntitiesVectorPos;
     
