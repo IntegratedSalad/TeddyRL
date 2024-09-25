@@ -45,6 +45,12 @@ void Actor::SetupAI(AIType t)
             SetAIType(AIType::RANDOM);
             break;
         }
+        case AIType::SIMPLE:
+        {
+            // TODO: Simple AI
+            break;
+        }
+            
         case AIType::NONE:
         {
             SetAIType(AIType::NONE);

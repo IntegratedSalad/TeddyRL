@@ -47,6 +47,7 @@ enum class LevelType
 enum class RoomType
 {
     RT_DEFAULT = 0,
+    RT_INVALID,
     RT_LAIR,
     RT_BOSS,
     RT_ARTIFACT,
@@ -177,7 +178,7 @@ private:
     unsigned int roomsNum;
     int currentLevelNum;
     
-    void drawEnclosingSquare(sf::Sprite);
+//    void drawEnclosingSquare(sf::Sprite);
     
     std::vector<sf::Sprite> spritesVector; // canot be const, but whenever accessed, has to be accessed as a const!
     LevelInfo levelInformationStruct; // TODO: vector of these.
@@ -197,6 +198,7 @@ public:
     void KillEntity(Entity* entity);
     
     bool PlaceBlockingEntityOnMap(Entity*, int x, int y);
+    bool PlaceBlockingEntityInRandomPlaceInRoom(Entity* entity, const Room& room, std::mt19937& rng);
     void LoadBlockingEntityBackOnMap(Entity*);
     int GetBlockingEntityIndexFromLocation(int, int) const;
     
@@ -214,6 +216,8 @@ public:
     void SetRoomsNum(unsigned int r) { this->roomsNum = r;}
     void SetSpritesVector(const std::vector<sf::Sprite> sv) {this->spritesVector = sv;}
     void SetupLevelInformation(void) {this->levelInformationStruct = LevelInfo{0, 0, 0};}
+    
+    Room GetStartingRoom(void);
 };
 
 /* Utils for dungeon generation */

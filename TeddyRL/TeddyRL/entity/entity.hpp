@@ -26,6 +26,7 @@
 typedef std::vector<std::vector<int>> Int2DVec;
 
 class Actor;
+enum class AIType;
 class Entity
 {
 private:
@@ -55,9 +56,21 @@ public:
     Entity();
     Entity(Tile* _tile, std::string name, int _x, int _y);
     Entity(Tile* _tile, std::string name, int _x, int _y, Actor*);
+    // Enforce use of this constructor:
+    Entity(const std::vector<sf::Sprite>& spritesVector,
+           const unsigned int spriteIndex,
+           const bool isInvisible,
+           const bool isBlocking,
+           const sf::Color spriteColor,
+           const TileSprite tileSprite,
+           const bool hasActorComponent,
+           const AIType aiType,
+           const std::string& name,
+           const int x,
+           const int y
+           );
     
-    Entity(const Entity&); // Not making it const throws - "The specified type does not meet the requirements of Cpp17MoveInsertable"
-    
+    Entity(const Entity&);
     ~Entity();
 
     ActionResult MoveOrBump(int moveX, int moveY, Int2DVec&, std::vector<Entity* > entityVector);

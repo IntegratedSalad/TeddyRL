@@ -10,11 +10,13 @@
 
 Entity GetPlayerFromCollection(td_serialization_collection collection)
 {
+    Entity e;
     for (td_entity_serializer s : collection.entitySerializers)
     {
         if (s.entity.blockingEntitiesVectorPos == 0)
         {
-            return s.entity;
+            e = s.entity;
         }
     }
+    return e;
 }

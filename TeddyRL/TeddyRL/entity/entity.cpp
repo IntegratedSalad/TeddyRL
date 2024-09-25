@@ -31,6 +31,39 @@ Entity::Entity(const Entity& ec) : x(ec.x), y(ec.y), name(ec.name), blockingEnti
     //this->tile->move(this->GetX(), this->GetY());
 }
 
+Entity::Entity(const std::vector<sf::Sprite>& spritesVector,
+               const unsigned int spriteIndex,
+               const bool isInvisible,
+               const bool isBlocking,
+               const sf::Color spriteColor,
+               const TileSprite tileSprite,
+               const bool hasActorComponent,
+               const AIType aiType,
+               const std::string& name,
+               const int x,
+               const int y
+               )
+{
+    /* TODO: Make this constructor the default */
+    sf::Sprite sprite = spritesVector[spriteIndex];
+    sf::Sprite corpseSprite = spritesVector.at(static_cast<int>(TileSprite::CORPSE));
+    
+    Tile* tile = new Tile{isInvisible, isBlocking, sprite, spriteColor};
+    tile->SetSpriteEnumVal(tileSprite);
+    
+    Actor* acp = nullptr;
+    if (hasActorComponent)
+    {
+        acp = new Actor{};
+    }
+    acp->SetupAI(aiType);
+    
+    this->tile = tile;
+    this->name = name;
+    this->SetActorComponent(acp);
+    this->SetPosition(x, y);
+}
+
 #warning Maybe we shouldn't use map structures to perform logic on entities but built in methods for distance etc. We should use rects for collision.
 // TODO: TurnExecutor class.
 

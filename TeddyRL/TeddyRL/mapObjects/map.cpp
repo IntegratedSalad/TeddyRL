@@ -57,6 +57,19 @@ bool Map::PlaceBlockingEntityOnMap(Entity* entity, int x, int y)
     return true;
 }
 
+bool Map::PlaceBlockingEntityInRandomPlaceInRoom(Entity* entity, const Room& room, std::mt19937& rng)
+{
+    const int roomX = room.x;
+    const int roomY = room.y;
+    const int roomW = room.w;
+    const int roomH = room.h;
+    
+    // Let's hope max is not wall...
+    const int randomX =  randomNumInRange(roomX, roomX + roomW - 1, rng);
+    const int randomY =  randomNumInRange(roomY, roomY + roomH - 1, rng);
+    return PlaceBlockingEntityOnMap(entity, randomX, randomY);
+}
+
 void Map::LoadBlockingEntityBackOnMap(Entity* entity)
 {
     const unsigned int idx = entity->blockingEntitiesVectorPos;
@@ -85,29 +98,29 @@ void Map::KillEntity(Entity* entity)
     //assert(entity == nullptr);
 }
 
-void Map::drawEnclosingSquare(sf::Sprite wallSprite)
-{
-    for (int i = 0; i < C_MAP_SIZE; i++)
-    {
-        for (int j = 0; j < C_MAP_SIZE; j++)
-        {
-            if (j == 0 || i == 0 || j == C_MAP_SIZE - 1 || i == C_MAP_SIZE - 1)
-            {
-                Tile* wallTile = new Tile{false, true, wallSprite, sf::Color::White};
-#warning As it is with multiple blocks generated, shouldn't they have the same reference? \
-         Allocate memory for the Entity object (wall) and place the same object in memory \
-         at different locations.
-                // TODO: Remove this when we use default constructor for Tile!
-                wallTile->SetSpriteEnumVal(TileSprite::BRICK_WALL_1);
-                
-                Entity* wall = new Entity{wallTile, "Wall", i, j};
-                PlaceBlockingEntityOnMap(wall, i, j);
-#warning Very important!
-                // TODO: Encompass this into a standard method for creating an entity.
-            }
-        }
-    }
-}
+//void Map::drawEnclosingSquare(sf::Sprite wallSprite)
+//{
+//    for (int i = 0; i < C_MAP_SIZE; i++)
+//    {
+//        for (int j = 0; j < C_MAP_SIZE; j++)
+//        {
+//            if (j == 0 || i == 0 || j == C_MAP_SIZE - 1 || i == C_MAP_SIZE - 1)
+//            {
+//                Tile* wallTile = new Tile{false, true, wallSprite, sf::Color::White};
+//#warning As it is with multiple blocks generated, shouldn't they have the same reference? \
+//         Allocate memory for the Entity object (wall) and place the same object in memory \
+//         at different locations.
+//                // TODO: Remove this when we use default constructor for Tile!
+//                wallTile->SetSpriteEnumVal(TileSprite::BRICK_WALL_1);
+//                
+//                Entity* wall = new Entity{wallTile, "Wall", i, j};
+//                PlaceBlockingEntityOnMap(wall, i, j);
+//#warning Very important!
+//                // TODO: Encompass this into a standard method for creating an entity.
+//            }
+//        }
+//    }
+//}
 
 void Map::GenerateLevel()
 {
@@ -127,9 +140,24 @@ void Map::GenerateLevel()
 //    drawEnclosingSquare(wallSprite);
     
     BSPAlgorithm dAlgo = BSPAlgorithm{this, wallSprite};
-    dAlgo.GenerateLevel(rng);
+    const std::list<Room> listOfRooms = dAlgo.GenerateLevel(rng);
     
-    // place misio in starting room
+    Room startingRoom{.t = RoomType::RT_INVALID};
+    for (const auto r : listOfRooms)
+    {
+        if (r.t == RoomType::RT_STARTING_ROOM)
+        {
+            startingRoom = r;
+            break;
+        }
+    }
+    if (startingRoom.t == RoomType::RT_INVALID)
+    {
+        std::cout << "NO STARTING ROOM!" << std::endl;
+        return;
+    }
+    
+    this->levelInformationStruct.roomList = listOfRooms;
     
 //    for (int i = 0; i < randNumOfMonsters; i++)
 //    {
@@ -237,6 +265,20 @@ void Map::Clear(void)
             break;
         }
     }
+}
+
+Room Map::GetStartingRoom()
+{
+    Room startingRoom = {.t = RoomType::RT_INVALID};
+    for (const auto r : levelInformationStruct.roomList)
+    {
+        if (r.t == RoomType::RT_STARTING_ROOM)
+        {
+            startingRoom = r;
+            break;
+        }
+    }
+    return startingRoom;
 }
 
 DungeonAlgorithm::~DungeonAlgorithm()

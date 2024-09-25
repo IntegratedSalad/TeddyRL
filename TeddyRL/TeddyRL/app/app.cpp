@@ -211,6 +211,6 @@ bool App::DestroySavedGameFile(void)
     {
         std::cout << "Couldn't remove file! :" << strerror(errno) << std::endl;
     }
-    
+    return false;
     // TODO: Return only std::remove
 }

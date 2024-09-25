@@ -20,7 +20,7 @@ Engine::Engine()
     if (!_font->loadFromFile(resourcePath() + "dos_vga_font.ttf"))
     {
         std::cout << "Couldn't load the font. Exiting" << std::endl;
-        return EngineState::STATE_EXITING;
+        return;
 
     }
     this->gameFont = _font;
@@ -221,6 +221,7 @@ EngineState Engine::mainLoop(sf::RenderWindow* window, std::mt19937& rng)
         delete cpointer;
         return EngineState::STATE_GAME_OVER;
     }
+    return EngineState::STATE_MENU; // for now, assume we going to the menu.
 }
 #warning entityVector should be a const reference.
 #warning remember about vertex array.
@@ -464,42 +465,65 @@ EngineState Engine::RenderGameOver(sf::RenderWindow* window) const
             window->display();
         }
     }
+    return EngineState::STATE_EXITING;
 }
 
 void Engine::SetupNewGameMap(const std::vector<sf::Sprite> spritesVector)
 {
     // TODO: Huge thing to do is to standardize creation of entities. Do not set manually class' fields after using a constructor. Constructor should handle all the initialization and setup.
+    
 #warning Important!
     Map* mp = new Map(spritesVector);
     mp->SetupLevelInformation();
         
     // Make Level
+    std::random_device rnd;
+    std::mt19937 rng(rnd());
     
     /* --- THIS SHOULD BE IN CONSTRUCTOR --- */
     
-    sf::Sprite playerSprite = spritesVector[73];
-    sf::Sprite corpseSprite = spritesVector.at(static_cast<int>(TileSprite::CORPSE));
-    
-    Tile* playerTile = new Tile{false, true, playerSprite, sf::Color::White}; // TODO: Make static method or constructor. Or add .Create() method, which utilizes given TileSprite and options
-    playerTile->SetSpriteEnumVal(TileSprite::TEDDY);
-    
-    Actor* pacp = new Actor();
-    pacp->SetAI(nullptr); // TODO: This has to be done automatically in a constructor of an Actor
-    pacp->SetAIType(AIType::NONE); // player is a special entity that has an actor component but doesn't have an AI.
-    
-    // Setup player.
-    
-    Entity* player = new Entity{playerTile, C_TEDDY_NAME_BASE, 12, 12};
-    player->SetActorComponent(pacp);
+//    sf::Sprite playerSprite = spritesVector[73];
+//    sf::Sprite corpseSprite = spritesVector.at(static_cast<int>(TileSprite::CORPSE));
+//
+//    Tile* playerTile = new Tile{false, true, playerSprite, sf::Color::White}; // TODO: Make static method or constructor. Or add .Create() method, which utilizes given TileSprite and options
+//    playerTile->SetSpriteEnumVal(TileSprite::TEDDY);
+//
+//    Actor* pacp = new Actor();
+//    pacp->SetAI(nullptr); // TODO: This has to be done automatically in a constructor of an Actor
+//    pacp->SetAIType(AIType::NONE); // player is a special entity that has an actor component but doesn't have an AI.
+//
+//    // Setup player.
+//
+//    Entity* player = new Entity{playerTile, C_TEDDY_NAME_BASE, 12, 12};
+//    player->SetActorComponent(pacp);
     
     /* --- THIS SHOULD BE IN CONSTRUCTOR --- */
+    
     
     mp->GenerateLevel(); // this is only a method to intialize a new game, not for loading the map!
     
-    mp->PlaceBlockingEntityOnMap(player, player->GetX(), player->GetY());
+//    mp->PlaceBlockingEntityOnMap(player, player->GetX(), player->GetY());
+    
+    // TODO: Setup player
+    
+    Entity* player = new Entity{
+            spritesVector,
+            73,
+            false,
+            true,
+            sf::Color::White,
+            TileSprite::TEDDY,
+            true,
+            AIType::NONE,
+            "Teddy",
+            0,
+            0
+    };
+    
+    mp->PlaceBlockingEntityInRandomPlaceInRoom(player, mp->GetStartingRoom(), rng);
     
     this->player = player;
-    
+
     std::cout << mp->blockingEntities.size() << std::endl;
     this->gameMap = mp;
 }
